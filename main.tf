@@ -10,6 +10,7 @@ resource "aws_ecr_repository" "repo" {
     }
   }
 
+  # Timeouts
   dynamic "timeouts" {
     for_each = local.timeouts
     content {
@@ -32,8 +33,8 @@ locals {
     }
   ]
 
-  # Image scanning configuration
-  # If no image_scanning_configuration block is provided, build one using the default values
+  # Timeouts
+  # If no timeouts block is provided, build one using the default values
   timeouts = var.timeouts_delete == null && length(var.timeouts) == 0 ? [] : [
     {
       delete = lookup(var.timeouts, "delete", null) == null ? var.timeouts_delete : lookup(var.timeouts, "delete")
