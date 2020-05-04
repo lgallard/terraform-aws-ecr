@@ -23,6 +23,14 @@ resource "aws_ecr_repository" "repo" {
 
 }
 
+
+# Lifecycle policy
+resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
+  count      = var.lifecycle_policy == null ? 0 : 1
+  repository = aws_ecr_repository.repo.name
+  policy     = var.lifecycle_policy
+}
+
 locals {
 
   # Image scanning configuration

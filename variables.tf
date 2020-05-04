@@ -36,10 +36,16 @@ variable "timeouts_delete" {
   default     = null
 }
 
+# Lifecycle policy
+variable "lifecycle_policy" {
+  description = "Manages an ECR repository lifecycle policy."
+  type        = string
+  default     = null
+}
+
 # Tags
 variable "tags" {
   description = "A mapping of tags to assign to the resource."
   type        = map(string)
   default     = {}
 }
-
