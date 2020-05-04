@@ -25,7 +25,7 @@ variable "scan_on_push" {
 
 # Timeouts
 variable "timeouts" {
-  description = "Timeouts maps."
+  description = "Timeouts map."
   type        = map
   default     = {}
 }
