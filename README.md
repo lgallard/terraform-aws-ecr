@@ -35,9 +35,11 @@ module "ecr" {
 
   source = "lgallard/ecr/aws"
 
-  name            = "ecr-repo-dev"
-  scan_on_push    = true
-  timeouts_delete = "60m"
+  name                 = "ecr-repo-dev"
+  scan_on_push         = true
+  timeouts_delete      = "60m"
+  image_tag_mutability = "MUTABLE"
+
 
   # Note that currently only one policy may be applied to a repository.
   policy = <<EOF
