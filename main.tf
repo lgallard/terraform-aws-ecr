@@ -23,6 +23,12 @@ resource "aws_ecr_repository" "repo" {
 
 }
 
+# Policy
+resource "aws_ecr_repository_policy" "policy" {
+  count      = var.policy == null ? 0 : 1
+  repository = aws_ecr_repository.repo.name
+  policy     = var.policy
+}
 
 # Lifecycle policy
 resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {

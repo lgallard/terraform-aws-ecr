@@ -36,9 +36,16 @@ variable "timeouts_delete" {
   default     = null
 }
 
+# Policy
+variable "policy" {
+  description = "Manages the ECR repository policy"
+  type        = string
+  default     = null
+}
+
 # Lifecycle policy
 variable "lifecycle_policy" {
-  description = "Manages an ECR repository lifecycle policy."
+  description = "Manages the ECR repository lifecycle policy"
   type        = string
   default     = null
 }
