@@ -2,8 +2,7 @@ module "ecr" {
 
   source = "git::https://github.com/lgallard/terraform-aws-ecr.git"
 
-  name         = "ecr-repo-dev"
-  scan_on_push = true
+  name = "ecr-repo-dev"
 
   # Tags
   tags = {

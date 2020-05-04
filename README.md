@@ -13,10 +13,9 @@ This example creates an ECR registry using few parameters
 ```
 module "ecr" {
 
-  source = "git::https://github.com/lgallard/terraform-aws-ecr.git"
+  source = "lgallard/ecr/aws"
 
   name         = "ecr-repo-dev"
-  scan_on_push = true
 
   # Tags
   tags = {
@@ -34,7 +33,7 @@ In this example the register is defined in detailed.
 ```
 module "ecr" {
 
-  source = "git::https://github.com/lgallard/terraform-aws-ecr.git"
+  source = "lgallard/ecr/aws"
 
   name            = "ecr-repo-dev"
   scan_on_push    = true
