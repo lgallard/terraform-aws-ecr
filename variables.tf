@@ -20,7 +20,7 @@ variable "image_scanning_configuration" {
 variable "scan_on_push" {
   description = "Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false)."
   type        = bool
-  default     = false
+  default     = true
 }
 
 # Timeouts
