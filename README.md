@@ -114,8 +114,8 @@ EOF
   }
 
 }
-```
 
+```
 ## Providers
 
 | Name | Version |
@@ -131,10 +131,10 @@ EOF
 | lifecycle\_policy | Manages the ECR repository lifecycle policy | `string` | n/a | yes |
 | name | Name of the repository. | `string` | n/a | yes |
 | policy | Manages the ECR repository policy | `string` | n/a | yes |
-| scan\_on\_push | Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false). | `bool` | `false` | no |
+| scan\_on\_push | Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false). | `bool` | `true` | no |
 | tags | A mapping of tags to assign to the resource. | `map(string)` | `{}` | no |
 | timeouts | Timeouts map. | `map` | `{}` | no |
-| timeouts\_delete | Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false). | `string` | n/a | yes |
+| timeouts\_delete | Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false). | `string` | n/a | no |
 
 ## Outputs
 
