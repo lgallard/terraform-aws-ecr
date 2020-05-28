@@ -16,4 +16,9 @@ output "registry_id" {
 output "repository_url" {
   description = "The URL of the repository (in the form `aws_account_id.dkr.ecr.region.amazonaws.com/repositoryName`)"
   value       = aws_ecr_repository.repo.registry_id
+
+}
+output "name" {
+  description = "Name of the repository"
+  value       = aws_ecr_repository.repo.name
 }
