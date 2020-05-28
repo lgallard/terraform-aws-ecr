@@ -18,7 +18,3 @@ output "repository_url" {
   value       = aws_ecr_repository.repo.registry_id
 
 }
-output "name" {
-  description = "Name of the repository"
-  value       = aws_ecr_repository.repo.name
-}
