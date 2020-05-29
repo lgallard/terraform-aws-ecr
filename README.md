@@ -141,6 +141,6 @@ EOF
 | Name | Description |
 |------|-------------|
 | arn | Full ARN of the repository |
-| name | Name of the repository |
+| name | The name of the repository. |
 | registry\_id | The registry ID where the repository was created. |
 | repository\_url | The URL of the repository (in the form `aws_account_id.dkr.ecr.region.amazonaws.com/repositoryName`) |
