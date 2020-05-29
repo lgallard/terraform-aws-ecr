@@ -1,3 +1,9 @@
+## 0.2.2 (May 29, 2020)
+
+FIX:
+
+  * Fix `repository_url` output
+
 ## 0.2.1 (May 28, 2020)
 
 FIX:
