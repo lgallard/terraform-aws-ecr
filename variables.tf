@@ -59,14 +59,14 @@ variable "tags" {
 
 # Encryption type
 variable "encryption_type" {
-  description = "The encryption type to use for the repository. Must be one of: `AES256` or `KMS`."
+  description = "The encryption type to use for the repository. Valid values are `AES256` or `KMS`"
   type        = string
   default     = "AES256"
 }
 
 # KMS key
 variable "kms_key" {
-  description = "The ARN of the KMS key to use when encryption type is KMS. If not specified, uses the default AWS managed key for ECR."
+  description = "The ARN of the KMS key to use when encryption_type is `KMS`. If not specified when encryption_type is `KMS`, uses a new KMS key. Otherwise, uses the default AWS managed key for ECR."
   type        = string
   default     = null
 }
