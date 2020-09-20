@@ -2,6 +2,15 @@ resource "aws_ecr_repository" "repo" {
   name                 = var.name
   image_tag_mutability = var.image_tag_mutability
 
+  # Encryption configuration
+  dynamic "encryption_configuration" {
+    for_each = local.encryption_configuration
+    content {
+      encryption_type = lookup(encryption_configuration.value, "encryption_type")
+      kms_key         = lookup(encryption_configuration.value, "kms_key")
+    }
+  }
+
   # Image scanning configuration
   dynamic "image_scanning_configuration" {
     for_each = local.image_scanning_configuration
@@ -37,7 +46,28 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
   policy     = var.lifecycle_policy
 }
 
+# KMS key
+resource "aws_kms_key" "kms_key" {
+  count       = var.encryption_type == "KMS" && var.kms_key == null ? 1 : 0
+  description = "${var.name} KMS key"
+}
+
+resource "aws_kms_alias" "kms_key_alias" {
+  count         = var.encryption_type == "KMS" && var.kms_key == null ? 1 : 0
+  name          = "alias/${var.name}Key"
+  target_key_id = aws_kms_key.kms_key[0].key_id
+}
+
 locals {
+
+  # Encryption configuration
+  # If encryption type as KMS, use assigned KMS key or otherwise build a new key
+  encryption_configuration = var.encryption_type != "KMS" ? [] : [
+    {
+      encryption_type = "KMS"
+      kms_key         = var.encryption_type == "KMS" && var.kms_key == null ? aws_kms_key.kms_key[0].arn : var.kms_key
+    }
+  ]
 
   # Image scanning configuration
   # If no image_scanning_configuration block is provided, build one using the default values
