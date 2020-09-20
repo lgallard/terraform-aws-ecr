@@ -134,7 +134,9 @@ EOF
 | scan\_on\_push | Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false). | `bool` | `true` | no |
 | tags | A mapping of tags to assign to the resource. | `map(string)` | `{}` | no |
 | timeouts | Timeouts map. | `map` | `{}` | no |
-| timeouts\_delete | Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false). | `string` | n/a | no |
+| timeouts\_delete | How long to wait for a repository to be deleted. | `string` | n/a | no |
+| encryption\_type | The encryption type to use for the repository. Valid values are `AES256` or `KMS` | `string` | `AES256` | no |
+| kms\_key | The ARN of the KMS key to use when encryption_type is `KMS`. If not specified when encryption_type is `KMS`, uses a new KMS key. Otherwise, uses the default AWS managed key for ECR. | `string` | n/a | no |
 
 ## Outputs
 
