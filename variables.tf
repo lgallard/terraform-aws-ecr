@@ -31,7 +31,7 @@ variable "timeouts" {
 }
 
 variable "timeouts_delete" {
-  description = "Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false)."
+  description = "How long to wait for a repository to be deleted."
   type        = string
   default     = null
 }
