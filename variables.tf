@@ -56,3 +56,17 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+# Encryption type
+variable "encryption_type" {
+  description = "The encryption type to use for the repository. Must be one of: `AES256` or `KMS`."
+  type        = string
+  default     = "AES256"
+}
+
+# KMS key
+variable "kms_key" {
+  description = "The ARN of the KMS key to use when encryption type is KMS. If not specified, uses the default AWS managed key for ECR."
+  type        = string
+  default     = null
+}
