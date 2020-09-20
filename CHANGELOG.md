@@ -1,3 +1,9 @@
+## 0.3.0 (September 20, 2020)
+
+ENHANCEMENTS:
+
+  * Add encryption configuration support (thanks @gnleong)
+
 ## 0.2.2 (May 29, 2020)
 
 FIX:
