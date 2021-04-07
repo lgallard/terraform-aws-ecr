@@ -1,6 +1,6 @@
 module "ecr" {
 
-  source = "git::https://github.com/lgallard/terraform-aws-ecr.git"
+  source = "lgallard/ecr/aws"
 
   name                 = "ecr-repo-dev"
   scan_on_push         = true

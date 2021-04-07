@@ -1,3 +1,9 @@
+## 0.3.1 (April 7, 2021)
+
+ENHANCEMENTS:
+
+  * Update source module in examples
+
 ## 0.3.0 (September 20, 2020)
 
 ENHANCEMENTS:
