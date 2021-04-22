@@ -37,7 +37,7 @@ module "ecr" {
 }
 EOF
 
-  # Only one lifecycle policy can be used per repository. 
+  # Only one lifecycle policy can be used per repository.
   # To apply multiple rules, combined them in one policy JSON.
   lifecycle_policy = <<EOF
 {
