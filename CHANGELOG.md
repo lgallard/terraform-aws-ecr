@@ -1,3 +1,11 @@
+## 0.3.2 (April 22, 2021)
+
+ENHANCEMENTS:
+
+* Add pre-commit config file
+* Add .gitignore file
+* Update README
+
 ## 0.3.1 (April 7, 2021)
 
 ENHANCEMENTS:
