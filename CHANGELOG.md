@@ -1,3 +1,10 @@
+## 0.4.0 (August 11, 2023)
+
+ENHANCEMENTS:
+
+* Add `force_delete` option
+* Updated pre-commit config file
+
 ## 0.3.2 (April 22, 2021)
 
 ENHANCEMENTS:

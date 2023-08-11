@@ -4,6 +4,12 @@ variable "name" {
   type        = string
 }
 
+variable "force_delete" {
+  description = "If `true`, will delete the repository even if it contains images. Defaults to `false`"
+  type        = bool
+  default     = false
+}
+
 variable "image_tag_mutability" {
   description = "The tag mutability setting for the repository. Must be one of: `MUTABLE` or `IMMUTABLE`."
   type        = string
@@ -13,7 +19,7 @@ variable "image_tag_mutability" {
 # Image scanning configuration
 variable "image_scanning_configuration" {
   description = "Configuration block that defines image scanning configuration for the repository. By default, image scanning must be manually triggered. See the ECR User Guide for more information about image scanning."
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
@@ -26,7 +32,7 @@ variable "scan_on_push" {
 # Timeouts
 variable "timeouts" {
   description = "Timeouts map."
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
