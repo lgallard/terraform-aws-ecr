@@ -69,12 +69,12 @@ locals {
   # Image scanning configuration
   # If no image_scanning_configuration block is provided, build one using the default values
   image_scanning_configuration = [{
-    scan_on_push = var.image_scanning_configuration != null ? var.image_scanning_configuration.scan_on_push : var.default_scan_on_push
+    scan_on_push = var.image_scanning_configuration != null ? var.image_scanning_configuration.scan_on_push : var.scan_on_push
   }]
 
   # Timeouts
   # If no timeouts block is provided, build one using the default values
-  timeouts = var.timeouts != null ? [var.timeouts] : (var.timeouts_delete != null ? [{
+  timeouts = length(var.timeouts) != 0 ? [var.timeouts] : (var.timeouts_delete != null ? [{
     delete = var.timeouts_delete
   }] : [])
 }

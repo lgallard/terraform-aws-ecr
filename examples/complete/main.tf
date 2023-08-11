@@ -1,11 +1,17 @@
 module "ecr" {
 
-  source = "lgallard/ecr/aws"
+  source = "../.."
 
   name                 = "ecr-repo-dev"
-  scan_on_push         = true
   timeouts_delete      = "60m"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
+  encryption_type      = "KMS"
+
+  image_scanning_configuration = {
+    scan_on_push = true
+  }
+
 
   # Note that currently only one policy may be applied to a repository.
   policy = <<EOF
