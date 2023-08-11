@@ -14,6 +14,10 @@ variable "image_tag_mutability" {
   description = "The tag mutability setting for the repository. Must be one of: `MUTABLE` or `IMMUTABLE`."
   type        = string
   default     = "MUTABLE"
+  validation {
+    condition     = contains(["MUTABLE", "IMMUTABLE"], var.image_tag_mutability)
+    error_message = "The image_tag_mutability must be either MUTABLE or IMMUTABLE."
+  }
 }
 
 # Image scanning configuration
@@ -68,6 +72,10 @@ variable "encryption_type" {
   description = "The encryption type to use for the repository. Valid values are `AES256` or `KMS`"
   type        = string
   default     = "AES256"
+  validation {
+    condition     = contains(["AES256", "KMS"], var.encryption_type)
+    error_message = "The encryption_type must be either AES256 or KMS."
+  }
 }
 
 # KMS key
