@@ -1,3 +1,9 @@
+## 0.4.2 (August 28, 2023)
+
+ENHANCEMENTS:
+
+* Fix image_scanning_configuration default value
+
 ## 0.4.1 (August 11, 2023)
 
 ENHANCEMENTS:
