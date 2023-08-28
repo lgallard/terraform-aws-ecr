@@ -24,7 +24,7 @@ variable "image_tag_mutability" {
 variable "image_scanning_configuration" {
   description = "Configuration block that defines image scanning configuration for the repository. By default, image scanning must be manually triggered. See the ECR User Guide for more information about image scanning."
   type        = map(any)
-  default     = {}
+  default     = null
 }
 
 variable "scan_on_push" {
