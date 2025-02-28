@@ -1,3 +1,27 @@
+# Changelog
+
+## 0.5.0 (February 28, 2025)
+
+### Added
+
+- ECR module with KMS encryption support
+- Image scanning configuration with scan-on-push capability
+- Lifecycle policy support for automated image cleanup
+- Default tags configuration in provider
+- Complete and simple examples demonstrating module usage
+
+### Changed
+
+- Updated pre-commit hooks configuration
+- Added version constraints for Terraform and AWS provider
+- Improved code organization with separate version files
+
+### Security
+
+- Enabled immutable tags by default
+- Implemented KMS encryption for repository
+- Added automatic vulnerability scanning on image push
+
 ## 0.4.3 (June 1, 2024)
 
 ENHANCEMENTS:
@@ -36,47 +60,46 @@ ENHANCEMENTS:
 
 ENHANCEMENTS:
 
-  * Update source module in examples
+* Update source module in examples
 
 ## 0.3.0 (September 20, 2020)
 
 ENHANCEMENTS:
 
-  * Add encryption configuration support (thanks @gnleong)
+* Add encryption configuration support (thanks @gnleong)
 
 ## 0.2.2 (May 29, 2020)
 
 FIX:
 
-  * Fix `repository_url` output
+* Fix `repository_url` output
 
 ## 0.2.1 (May 28, 2020)
 
 FIX:
 
-  * Remove duplicate output
+* Remove duplicate output
 
 ## 0.2.0 (May 28, 2020)
 
 ENHANCEMENTS:
 
-  * Add repository name as output
-
+* Add repository name as output
 
 ## 0.1.2 (May 5, 2020)
 
 ENHANCEMENTS:
 
-  * Set scaning of images on push as the default option
+* Set scaning of images on push as the default option
 
 ## 0.1.1 (May 4, 2020)
 
 FIX:
 
-  * Update examples
+* Update examples
 
 ## 0.1.0 (May 4, 2020)
 
 FEATURES:
 
-  * Module implementation
+* Module implementation

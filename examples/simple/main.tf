@@ -1,14 +1,20 @@
 module "ecr" {
+  source = "../../"
 
-  source = "lgallard/ecr/aws"
+  name                 = "ecr-repo-dev"
+  scan_on_push         = true        # Enable security scanning
+  image_tag_mutability = "IMMUTABLE" # Prevent tag overwrites
+  force_delete         = false       # Prevent accidental deletion
 
-  name = "ecr-repo-dev"
+  encryption_type = "KMS" # Enable encryption
 
   # Tags
   tags = {
     Owner       = "DevOps team"
     Environment = "dev"
     Terraform   = true
+    ManagedBy   = "Terraform"
+    Project     = "ECR"
+    CreatedAt   = timestamp()
   }
-
 }

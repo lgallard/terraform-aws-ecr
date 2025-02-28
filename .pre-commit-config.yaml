@@ -2,15 +2,28 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.4.0  # Updated to latest stable version
     hooks:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
+    -   id: check-yaml
     -   id: check-added-large-files
     -   id: detect-aws-credentials
-- repo: https://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.62.3 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
-  hooks:
-    - id: terraform_fmt
-    - id: terraform_validate
-    - id: terraform_docs
+    -   id: detect-private-key
+    -   id: check-merge-conflict
+-   repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.83.5  # Updated to latest version
+    hooks:
+    -   id: terraform_fmt
+    -   id: terraform_validate
+    -   id: terraform_docs
+        args:
+            - --args=--lockfile=false
+    -   id: terraform_tflint
+        args:
+            - --args=--enable-rule=terraform_documented_variables
+            - --args=--enable-rule=terraform_documented_outputs
+    # -   id: terraform_checkov
+    #     args:
+    #         - --args=--quiet
+    #         - --args=--skip-check CKV_AWS_115  # Skip check for ECR image scanning
