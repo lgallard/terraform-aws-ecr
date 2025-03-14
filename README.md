@@ -149,7 +149,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | The encryption type. Allowed values are "KMS" or "AES256". | `string` | n/a | yes |
+| <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | The encryption type. Allowed values are "KMS" or "AES256". | `string` | `"AES256"` | no |
 | <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to delete the repository even if it contains images.<br/>Setting this to true will delete all images in the repository when the repository is deleted.<br/>Use with caution as this operation cannot be undone.<br/>Defaults to false for safety. | `bool` | `false` | no |
 | <a name="input_image_scanning_configuration"></a> [image\_scanning\_configuration](#input\_image\_scanning\_configuration) | Configuration block that defines image scanning configuration for the repository.<br/>Can be provided as either:<br/>1. A map of configuration options (legacy format)<br/>2. An object with scan\_on\_push boolean (new format)<br/>If null (default), will use the scan\_on\_push variable setting.<br/>Example: { scan\_on\_push = true } | `any` | `null` | no |
 | <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository.<br/>- MUTABLE: Image tags can be overwritten<br/>- IMMUTABLE: Image tags cannot be overwritten (recommended for production)<br/>Defaults to MUTABLE to maintain backwards compatibility. | `string` | `"MUTABLE"` | no |
