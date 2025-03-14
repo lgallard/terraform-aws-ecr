@@ -149,7 +149,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | The encryption type for the repository:<br/>- AES256: Use Amazon S3-managed encryption keys (SSE-S3)<br/>- KMS: Use AWS KMS-managed encryption keys (SSE-KMS)<br/>Default: AES256 | `string` | `"AES256"` | no |
+| <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | The encryption type. Allowed values are "KMS" or "AES256". | `string` | n/a | yes |
 | <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to delete the repository even if it contains images.<br/>Setting this to true will delete all images in the repository when the repository is deleted.<br/>Use with caution as this operation cannot be undone.<br/>Defaults to false for safety. | `bool` | `false` | no |
 | <a name="input_image_scanning_configuration"></a> [image\_scanning\_configuration](#input\_image\_scanning\_configuration) | Configuration block that defines image scanning configuration for the repository.<br/>Can be provided as either:<br/>1. A map of configuration options (legacy format)<br/>2. An object with scan\_on\_push boolean (new format)<br/>If null (default), will use the scan\_on\_push variable setting.<br/>Example: { scan\_on\_push = true } | `any` | `null` | no |
 | <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository.<br/>- MUTABLE: Image tags can be overwritten<br/>- IMMUTABLE: Image tags cannot be overwritten (recommended for production)<br/>Defaults to MUTABLE to maintain backwards compatibility. | `string` | `"MUTABLE"` | no |
@@ -167,7 +167,9 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_arn"></a> [arn](#output\_arn) | Full ARN of the repository |
+| <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | The ARN of the KMS key used for repository encryption. |
 | <a name="output_name"></a> [name](#output\_name) | The name of the repository. |
 | <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | The AWS account ID associated with the registry that contains the repository |
-| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | The URL of the repository (in the form `aws_account_id.dkr.ecr.region.amazonaws.com/repositoryName`) |
+| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | The ARN of the created ECR repository. |
+| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | The URL of the created ECR repository. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

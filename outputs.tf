@@ -14,6 +14,16 @@ output "registry_id" {
 }
 
 output "repository_url" {
-  description = "The URL of the repository (in the form `aws_account_id.dkr.ecr.region.amazonaws.com/repositoryName`)"
   value       = aws_ecr_repository.repo.repository_url
+  description = "The URL of the created ECR repository."
+}
+
+output "repository_arn" {
+  value       = aws_ecr_repository.repo.arn
+  description = "The ARN of the created ECR repository."
+}
+
+output "kms_key_arn" {
+  value       = local.should_create_kms_key ? aws_kms_key.kms_key[0].arn : var.kms_key
+  description = "The ARN of the KMS key used for repository encryption."
 }

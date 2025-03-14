@@ -145,17 +145,11 @@ variable "tags" {
 
 # Repository encryption configuration
 variable "encryption_type" {
-  description = <<-EOT
-    The encryption type for the repository:
-    - AES256: Use Amazon S3-managed encryption keys (SSE-S3)
-    - KMS: Use AWS KMS-managed encryption keys (SSE-KMS)
-    Default: AES256
-  EOT
+  description = "The encryption type. Allowed values are \"KMS\" or \"AES256\"."
   type        = string
-  default     = "AES256"
   validation {
-    condition     = contains(["AES256", "KMS"], var.encryption_type)
-    error_message = "The encryption_type must be either AES256 or KMS."
+    condition     = contains(["KMS", "AES256"], var.encryption_type)
+    error_message = "encryption_type must be either \"KMS\" or \"AES256\"."
   }
 }
 
