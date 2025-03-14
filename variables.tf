@@ -147,6 +147,7 @@ variable "tags" {
 variable "encryption_type" {
   description = "The encryption type. Allowed values are \"KMS\" or \"AES256\"."
   type        = string
+  default     = "AES256"
   validation {
     condition     = contains(["KMS", "AES256"], var.encryption_type)
     error_message = "encryption_type must be either \"KMS\" or \"AES256\"."

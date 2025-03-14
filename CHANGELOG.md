@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 (March 15, 2025)
+
+### Added
+
+- New outputs for `kms_key_arn and` `repository_arn`
+
+### Changed
+
+- Modified the `encryption_type` variable to simplify the description and validation.
+
+
 ## 0.5.0 (February 28, 2025)
 
 ### Added
