@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.5.0...v0.6.0) (2025-03-14)
+
+
+### Features
+
+* Update ECR module outputs and variable descriptions ([81b836b](https://github.com/lgallard/terraform-aws-ecr/commit/81b836b8ea889298e338ba9e9558256953cc9a5c))
+
 ## 0.6.0 (March 15, 2025)
 
 ### Added
