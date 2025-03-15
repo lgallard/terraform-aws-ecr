@@ -39,6 +39,7 @@ module "ecr" {
   scan_on_push         = true
   timeouts_delete      = "60m"
   image_tag_mutability = "MUTABLE"
+  prevent_destroy      = true  # Protect repository from accidental deletion
 
 
   # Note that currently only one policy may be applied to a repository.
@@ -115,7 +116,35 @@ EOF
 
 }
 
+### Deleting ECR Repositories Protected with prevent_destroy
+
+By default, ECR repositories created by this module have `prevent_destroy = true` set in their lifecycle configuration to prevent accidental deletion. When you need to remove a repository:
+
+1. Set the `prevent_destroy` parameter to `false` for the module:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name            = "ecr-repo-dev"
+  prevent_destroy = false  # Allow repository to be destroyed
+}
 ```
+
+2. Apply the configuration change:
+
+```bash
+terraform apply
+```
+
+3. After successful apply, run destroy as normal:
+
+```bash
+terraform destroy
+```
+
+This approach allows protecting repositories by default while providing a controlled way to remove them when needed.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
@@ -140,6 +169,7 @@ No modules.
 |------|------|
 | [aws_ecr_lifecycle_policy.lifecycle_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_lifecycle_policy) | resource |
 | [aws_ecr_repository.repo](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
+| [aws_ecr_repository.repo_protected](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
 | [aws_ecr_repository_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_policy) | resource |
 | [aws_kms_alias.kms_key_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
@@ -157,6 +187,7 @@ No modules.
 | <a name="input_lifecycle_policy"></a> [lifecycle\_policy](#input\_lifecycle\_policy) | JSON string representing the lifecycle policy.<br/>If null (default), no lifecycle policy will be created.<br/>See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/lifecycle_policy_examples.html | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the ECR repository. This name must be unique within the AWS account and region. | `string` | n/a | yes |
 | <a name="input_policy"></a> [policy](#input\_policy) | JSON string representing the repository policy.<br/>If null (default), no repository policy will be created.<br/>See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-policies.html | `string` | `null` | no |
+| <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed.<br/>When set to true, the repository will have the lifecycle block with prevent\_destroy = true.<br/>When set to false, the repository can be destroyed.<br/>This provides a way to dynamically control protection against accidental deletion.<br/>Defaults to true for safety. | `bool` | `true` | no |
 | <a name="input_scan_on_push"></a> [scan\_on\_push](#input\_scan\_on\_push) | Indicates whether images should be scanned for vulnerabilities after being pushed to the repository.<br/>- true: Images will be automatically scanned after each push<br/>- false: Images must be scanned manually<br/>Only used if image\_scanning\_configuration is null. | `bool` | `true` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to all resources created by this module.<br/>Tags are key-value pairs that help you manage, identify, organize, search for and filter resources.<br/>Example: { Environment = "Production", Owner = "Team" } | `map(string)` | `{}` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Timeout configuration for repository operations.<br/>Specify as an object with a 'delete' key containing a duration string (e.g. "20m").<br/>Example: { delete = "20m" } | <pre>object({<br/>    delete = optional(string)<br/>  })</pre> | `{}` | no |
@@ -166,10 +197,9 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_arn"></a> [arn](#output\_arn) | Full ARN of the repository |
 | <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | The ARN of the KMS key used for repository encryption. |
-| <a name="output_name"></a> [name](#output\_name) | The name of the repository. |
-| <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | The AWS account ID associated with the registry that contains the repository |
-| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | The ARN of the created ECR repository. |
-| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | The URL of the created ECR repository. |
+| <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | ID of the ECR registry |
+| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
+| <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
+| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
