@@ -1,22 +1,12 @@
 # Changelog
 
-## [0.6.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.5.0...v0.6.0) (2025-03-14)
+## [0.6.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.5.0...v0.6.0) (March 15, 2025)
 
 
-### Features
+###  Added
 
 * Update ECR module outputs and variable descriptions ([81b836b](https://github.com/lgallard/terraform-aws-ecr/commit/81b836b8ea889298e338ba9e9558256953cc9a5c))
-
-## 0.6.0 (March 15, 2025)
-
-### Added
-
-- New outputs for `kms_key_arn and` `repository_arn`
-
-### Changed
-
-- Modified the `encryption_type` variable to simplify the description and validation.
-
+* New outputs for `kms_key_arn and` `repository_arn`
 
 ## 0.5.0 (February 28, 2025)
 
