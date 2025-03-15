@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/lgallard/terraform-aws-ecr/compare/v0.6.0...v0.6.1) (2025-03-15)
+
+
+### Bug Fixes
+
+* Update changelog and release-please configuration ([bfdb2db](https://github.com/lgallard/terraform-aws-ecr/commit/bfdb2dbfcd83bb91517ce7cabd58e55c54c4945f))
+
 ## [0.6.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.5.0...v0.6.0) (March 15, 2025)
 
 
