@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.2](https://github.com/lgallard/terraform-aws-ecr/compare/v0.6.1...v0.6.2) (2025-03-15)
+
+
+### Bug Fixes
+
+* Enhance README and variables.tf for clarity and structure ([8d5555e](https://github.com/lgallard/terraform-aws-ecr/commit/8d5555ef5858e969fa502b9210d4679a4470ebd7))
+* Update release-please configuration sections for clarity ([3da3e03](https://github.com/lgallard/terraform-aws-ecr/commit/3da3e035ee7f911ad450fb09076003df664f1f7f))
+
 ## [0.6.1](https://github.com/lgallard/terraform-aws-ecr/compare/v0.6.0...v0.6.1) (2025-03-15)
 
 
