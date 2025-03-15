@@ -1,4 +1,7 @@
-# General vars
+# ----------------------------------------------------------
+# General ECR Repository Configuration
+# ----------------------------------------------------------
+
 variable "name" {
   description = "Name of the ECR repository. This name must be unique within the AWS account and region."
   type        = string
@@ -34,30 +37,13 @@ variable "image_tag_mutability" {
   default     = "MUTABLE"
   validation {
     condition     = contains(["MUTABLE", "IMMUTABLE"], var.image_tag_mutability)
-    error_message = "The image_tag_mutability value must be either MUTABLE or IMMUTABLE. Got: ${var.image_tag_mutability}"
+    error_message = "The image_tag_mutability value must be either MUTABLE or IMMUTABLE."
   }
 }
 
-# Image scanning configuration
-variable "image_scanning_configuration" {
-  description = <<-EOT
-    Configuration block that defines image scanning configuration for the repository.
-    Can be provided as either:
-    1. A map of configuration options (legacy format)
-    2. An object with scan_on_push boolean (new format)
-    If null (default), will use the scan_on_push variable setting.
-    Example: { scan_on_push = true }
-  EOT
-  type        = any
-  default     = null
-
-  validation {
-    condition = var.image_scanning_configuration == null || (
-      can(tobool(try(var.image_scanning_configuration.scan_on_push, false)))
-    )
-    error_message = "The image_scanning_configuration must either be null or contain a 'scan_on_push' key with a boolean value (true/false)."
-  }
-}
+# ----------------------------------------------------------
+# Image Scanning Configuration
+# ----------------------------------------------------------
 
 variable "scan_on_push" {
   description = <<-EOT
@@ -70,33 +56,41 @@ variable "scan_on_push" {
   default     = true
 }
 
-# Timeouts
+variable "image_scanning_configuration" {
+  description = <<-EOT
+    Configuration block that defines image scanning configuration for the repository.
+    Set to null to use the scan_on_push variable setting.
+    Example: { scan_on_push = true }
+  EOT
+  type = object({
+    scan_on_push = bool
+  })
+  default = null
+}
+
+# ----------------------------------------------------------
+# Timeouts Configuration
+# ----------------------------------------------------------
+
 variable "timeouts" {
   description = <<-EOT
     Timeout configuration for repository operations.
-    Specify as a map with 'delete' key containing a duration string (e.g. "20m").
+    Specify as an object with a 'delete' key containing a duration string (e.g. "20m").
     Example: { delete = "20m" }
-
-    Note: While additional keys are allowed for backwards compatibility,
-    only the 'delete' key is currently used by this module.
   EOT
-  type        = any
-  default     = {}
+  type = object({
+    delete = optional(string)
+  })
+  default = {}
 
   validation {
     condition = (
       var.timeouts == null ||
       var.timeouts == {} ||
-      (
-        lookup(var.timeouts, "delete", null) == null ||
-        (
-          can(lookup(var.timeouts, "delete", "")) &&
-          length(lookup(var.timeouts, "delete", "")) > 0 &&
-          can(regex("^[0-9]+(s|m|h)$", lookup(var.timeouts, "delete", "")))
-        )
-      )
+      try(var.timeouts.delete == null, true) ||
+      try(can(regex("^[0-9]+(s|m|h)$", var.timeouts.delete)), false)
     )
-    error_message = "If 'delete' key is provided in timeouts, it must be a non-empty string duration (e.g. '20m', '1h', '300s')."
+    error_message = "If 'delete' key is provided in timeouts, it must be a duration string (e.g. '20m', '1h', '300s')."
   }
 }
 
@@ -110,7 +104,10 @@ variable "timeouts_delete" {
   default     = null
 }
 
-# Repository policy configuration
+# ----------------------------------------------------------
+# Repository Policies
+# ----------------------------------------------------------
+
 variable "policy" {
   description = <<-EOT
     JSON string representing the repository policy.
@@ -121,7 +118,6 @@ variable "policy" {
   default     = null
 }
 
-# Lifecycle policy configuration
 variable "lifecycle_policy" {
   description = <<-EOT
     JSON string representing the lifecycle policy.
@@ -132,7 +128,34 @@ variable "lifecycle_policy" {
   default     = null
 }
 
-# Resource tags
+# ----------------------------------------------------------
+# Encryption Configuration
+# ----------------------------------------------------------
+
+variable "encryption_type" {
+  description = "The encryption type for the repository. Valid values are \"KMS\" or \"AES256\"."
+  type        = string
+  default     = "AES256"
+  validation {
+    condition     = contains(["KMS", "AES256"], var.encryption_type)
+    error_message = "Encryption type must be either \"KMS\" or \"AES256\"."
+  }
+}
+
+variable "kms_key" {
+  description = <<-EOT
+    The ARN of an existing KMS key to use for repository encryption.
+    Only applicable when encryption_type is set to 'KMS'.
+    If not specified when using KMS encryption, a new KMS key will be created.
+  EOT
+  type        = string
+  default     = null
+}
+
+# ----------------------------------------------------------
+# Tagging
+# ----------------------------------------------------------
+
 variable "tags" {
   description = <<-EOT
     A map of tags to assign to all resources created by this module.
@@ -141,28 +164,4 @@ variable "tags" {
   EOT
   type        = map(string)
   default     = {}
-}
-
-# Repository encryption configuration
-variable "encryption_type" {
-  description = "The encryption type. Allowed values are \"KMS\" or \"AES256\"."
-  type        = string
-  default     = "AES256"
-  validation {
-    condition     = contains(["KMS", "AES256"], var.encryption_type)
-    error_message = "encryption_type must be either \"KMS\" or \"AES256\"."
-  }
-}
-
-# KMS key configuration
-variable "kms_key" {
-  description = <<-EOT
-    The ARN of an existing KMS key to use for repository encryption.
-    Only applicable when encryption_type is set to 'KMS'.
-    If not specified when using KMS encryption:
-    - A new KMS key will be created if encryption_type = "KMS"
-    - The default AWS managed key will be used if encryption_type = "AES256"
-  EOT
-  type        = string
-  default     = null
 }
