@@ -26,6 +26,22 @@ variable "force_delete" {
   }
 }
 
+variable "prevent_destroy" {
+  description = <<-EOT
+    Whether to protect the repository from being destroyed.
+    When set to true, the repository will have the lifecycle block with prevent_destroy = true.
+    When set to false, the repository can be destroyed.
+    This provides a way to dynamically control protection against accidental deletion.
+    Defaults to false to allow repository deletion.
+  EOT
+  type        = bool
+  default     = false
+  validation {
+    condition     = can(tobool(var.prevent_destroy))
+    error_message = "The prevent_destroy variable must be a boolean value (true/false)."
+  }
+}
+
 variable "image_tag_mutability" {
   description = <<-EOT
     The tag mutability setting for the repository.

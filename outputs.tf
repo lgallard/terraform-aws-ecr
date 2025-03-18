@@ -1,26 +1,22 @@
-output "arn" {
-  description = "Full ARN of the repository"
-  value       = aws_ecr_repository.repo.arn
-}
-
-output "name" {
-  description = "The name of the repository."
-  value       = aws_ecr_repository.repo.name
-}
-
-output "registry_id" {
-  description = "The AWS account ID associated with the registry that contains the repository"
-  value       = aws_ecr_repository.repo.registry_id
+# ECR repository details
+output "repository_arn" {
+  description = "ARN of the ECR repository"
+  value       = local.repository_id
 }
 
 output "repository_url" {
-  value       = aws_ecr_repository.repo.repository_url
-  description = "The URL of the created ECR repository."
+  description = "URL of the ECR repository"
+  value       = local.repository_url
 }
 
-output "repository_arn" {
-  value       = aws_ecr_repository.repo.arn
-  description = "The ARN of the created ECR repository."
+output "repository_name" {
+  description = "Name of the ECR repository"
+  value       = local.repository_name
+}
+
+output "registry_id" {
+  description = "ID of the ECR registry"
+  value       = local.registry_id
 }
 
 output "kms_key_arn" {

@@ -1,4 +1,5 @@
 resource "aws_ecr_repository" "repo" {
+  count                = var.prevent_destroy ? 0 : 1
   name                 = var.name
   force_delete         = var.force_delete
   image_tag_mutability = var.image_tag_mutability
@@ -37,24 +38,84 @@ resource "aws_ecr_repository" "repo" {
   )
 }
 
+# Repository with prevent_destroy enabled
+resource "aws_ecr_repository" "repo_protected" {
+  count                = var.prevent_destroy ? 1 : 0
+  name                 = var.name
+  force_delete         = var.force_delete
+  image_tag_mutability = var.image_tag_mutability
+
+  # Encryption configuration for the repository
+  dynamic "encryption_configuration" {
+    for_each = local.encryption_configuration
+    content {
+      encryption_type = encryption_configuration.value.encryption_type
+      kms_key         = encryption_configuration.value.kms_key
+    }
+  }
+
+  # Configure image scanning settings
+  dynamic "image_scanning_configuration" {
+    for_each = local.image_scanning_configuration
+    content {
+      scan_on_push = image_scanning_configuration.value.scan_on_push
+    }
+  }
+
+  # Repository deletion timeout settings
+  dynamic "timeouts" {
+    for_each = local.timeouts
+    content {
+      delete = timeouts.value.delete
+    }
+  }
+
+  # Prevent accidental deletion of the repository
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = merge(
+    {
+      "Name"      = var.name
+      "ManagedBy" = "Terraform"
+    },
+    var.tags
+  )
+}
+
+# Local reference to whichever repository was created
+locals {
+  repository_id   = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].id : aws_ecr_repository.repo[0].id
+  repository_name = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].name : aws_ecr_repository.repo[0].name
+  repository_url  = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].repository_url : aws_ecr_repository.repo[0].repository_url
+  registry_id     = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].registry_id : aws_ecr_repository.repo[0].registry_id
+}
+
 # Repository policy - controls access to the repository
 resource "aws_ecr_repository_policy" "policy" {
   count      = var.policy == null ? 0 : 1
-  repository = aws_ecr_repository.repo.name
+  repository = local.repository_name
   policy     = var.policy
 
   # Ensure policy is applied after repository is created
-  depends_on = [aws_ecr_repository.repo]
+  depends_on = [
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
+  ]
 }
 
 # Lifecycle policy - controls image retention and cleanup
 resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
   count      = var.lifecycle_policy == null ? 0 : 1
-  repository = aws_ecr_repository.repo.name
+  repository = local.repository_name
   policy     = var.lifecycle_policy
 
   # Ensure policy is applied after repository is created
-  depends_on = [aws_ecr_repository.repo]
+  depends_on = [
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
+  ]
 }
 
 # Get current AWS account ID
