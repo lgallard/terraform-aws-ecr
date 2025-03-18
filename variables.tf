@@ -32,10 +32,10 @@ variable "prevent_destroy" {
     When set to true, the repository will have the lifecycle block with prevent_destroy = true.
     When set to false, the repository can be destroyed.
     This provides a way to dynamically control protection against accidental deletion.
-    Defaults to true for safety.
+    Defaults to false to allow repository deletion.
   EOT
   type        = bool
-  default     = true
+  default     = false
   validation {
     condition     = can(tobool(var.prevent_destroy))
     error_message = "The prevent_destroy variable must be a boolean value (true/false)."

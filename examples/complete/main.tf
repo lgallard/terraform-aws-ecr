@@ -2,7 +2,6 @@
 data "aws_caller_identity" "current" {}
 
 module "ecr" {
-
   source = "../.."
 
   name                 = "ecr-repo-dev"
@@ -14,7 +13,6 @@ module "ecr" {
   image_scanning_configuration = {
     scan_on_push = true
   }
-
 
   # Note that currently only one policy may be applied to a repository.
   policy = jsonencode({
@@ -85,5 +83,96 @@ module "ecr" {
     },
     var.tags
   )
+}
 
+# Example of a protected repository with enhanced security settings
+module "ecr_protected" {
+  source = "../.."
+
+  name                 = "ecr-repo-prod"
+  timeouts_delete      = "60m"
+  image_tag_mutability = "IMMUTABLE" # Prevent image tags from being overwritten
+  force_delete         = false       # Prevent accidental deletion of images
+  prevent_destroy      = true        # Protect repository from being destroyed via Terraform
+  encryption_type      = "KMS"       # Enable KMS encryption
+
+  image_scanning_configuration = {
+    scan_on_push = true # Enable vulnerability scanning
+  }
+
+  # Repository policy with stricter access controls
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "RestrictedAccess"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action = [
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:DescribeRepositories",
+          "ecr:GetRepositoryPolicy",
+          "ecr:ListImages"
+        ]
+        Condition = {
+          StringLike = {
+            "aws:PrincipalArn" : [
+              "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AllowedECRRole",
+              "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ProductionDeployRole"
+            ]
+          }
+        }
+      }
+    ]
+  })
+
+  # Strict lifecycle policy for production images
+  lifecycle_policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep tagged images indefinitely"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["v", "release"]
+          countType     = "sinceImagePushed"
+          countUnit     = "days"
+          countNumber   = 36500 # ~100 years
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Remove untagged images after 14 days"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 14
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+
+  # Tags for production repository
+  tags = merge(
+    {
+      Name        = "ecr-repo-prod"
+      Owner       = "DevOps team"
+      Environment = "production"
+      Project     = "example"
+      CreatedAt   = timestamp()
+      Protected   = "true"
+    },
+    var.tags
+  )
 }
