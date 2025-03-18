@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.0](https://github.com/lgallard/terraform-aws-ecr/compare/v0.6.2...v0.7.0) (2025-03-18)
+
+
+### Features
+
+* Add support for prevent_destroy in ECR repository configuration ([2a17863](https://github.com/lgallard/terraform-aws-ecr/commit/2a17863f828c44fc03849b1002591a3ef65cc9ea))
+* Implement state migration for ECR repository resources ([8d4a02e](https://github.com/lgallard/terraform-aws-ecr/commit/8d4a02e782ec682b049a7fdd2e076e19e4d3f869))
+* Update prevent_destroy behavior and enhance ECR repository examples ([75e5b35](https://github.com/lgallard/terraform-aws-ecr/commit/75e5b35afeaaaf1eac86afdd49a638e222403771))
+
 ## [0.6.2](https://github.com/lgallard/terraform-aws-ecr/compare/v0.6.1...v0.6.2) (2025-03-15)
 
 
