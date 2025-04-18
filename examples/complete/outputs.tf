@@ -19,6 +19,17 @@ output "registry_id" {
   value       = module.ecr.registry_id
 }
 
+# Logging outputs
+output "ecr_log_group_arn" {
+  description = "ARN of the CloudWatch Log Group for ECR logs"
+  value       = module.ecr.cloudwatch_log_group_arn
+}
+
+output "ecr_logging_role_arn" {
+  description = "ARN of the IAM role used for ECR logging"
+  value       = module.ecr.logging_role_arn
+}
+
 # Protected repository outputs
 output "protected_repository_url" {
   description = "URL of the protected ECR repository"

@@ -10,9 +10,8 @@ Check the [examples](examples/) for the  **simple** and the **complete** snippet
 ### Simple example
 This example creates an ECR registry using few parameters
 
-```
+```hcl
 module "ecr" {
-
   source = "lgallard/ecr/aws"
 
   name         = "ecr-repo-dev"
@@ -23,9 +22,55 @@ module "ecr" {
     Environment = "dev"
     Terraform   = true
   }
-
 }
 ```
+
+### Complete example with logging
+In this example, the registry is defined in detail including CloudWatch logging:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name                 = "ecr-repo-dev"
+  scan_on_push        = true
+  timeouts_delete     = "60m"
+  image_tag_mutability = "IMMUTABLE"
+  encryption_type     = "KMS"
+  
+  # Enable CloudWatch logging
+  enable_logging     = true
+  log_retention_days = 14
+
+  // ...rest of configuration...
+}
+```
+
+### CloudWatch Logging
+
+The module supports sending ECR API actions and image push/pull events to CloudWatch Logs. When enabled:
+
+- Creates a CloudWatch Log Group `/aws/ecr/{repository-name}`
+- Sets up necessary IAM roles and policies for ECR to write logs
+- Configurable log retention period (default: 30 days)
+
+To enable logging:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name           = "ecr-repo-dev"
+  enable_logging = true
+  
+  # Optional: customize retention period (in days)
+  log_retention_days = 14  # Valid values: 0,1,3,5,7,14,30,60,90,120,150,180,365,400,545,731,1827,3653
+}
+```
+
+The module outputs logging-related ARNs:
+- `cloudwatch_log_group_arn` - The ARN of the CloudWatch Log Group
+- `logging_role_arn` - The ARN of the IAM role used for logging
 
 ### Complete example
 In this example the register is defined in detailed.
@@ -192,6 +237,8 @@ No modules.
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to all resources created by this module.<br/>Tags are key-value pairs that help you manage, identify, organize, search for and filter resources.<br/>Example: { Environment = "Production", Owner = "Team" } | `map(string)` | `{}` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Timeout configuration for repository operations.<br/>Specify as an object with a 'delete' key containing a duration string (e.g. "20m").<br/>Example: { delete = "20m" } | <pre>object({<br/>    delete = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_timeouts_delete"></a> [timeouts\_delete](#input\_timeouts\_delete) | Deprecated: Use timeouts = { delete = "duration" } instead.<br/>How long to wait for a repository to be deleted.<br/>Specify as a duration string, e.g. "20m" for 20 minutes. | `string` | `null` | no |
+| <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | Whether to enable CloudWatch logging for the repository.<br/>When set to true, logs for ECR API actions and image push/pull events will be sent to CloudWatch Logs.<br/>Defaults to false to disable logging. | `bool` | `false` | no |
+| <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | The number of days to retain logs in the CloudWatch Log Group.<br/>Valid values: 0,1,3,5,7,14,30,60,90,120,150,180,365,400,545,731,1827,3653.<br/>Defaults to 30 days. | `number` | `30` | no |
 
 ## Outputs
 
@@ -202,4 +249,6 @@ No modules.
 | <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
 | <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
 | <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
+| <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | The ARN of the CloudWatch Log Group created for logging. |
+| <a name="output_logging_role_arn"></a> [logging\_role\_arn](#output\_logging\_role\_arn) | The ARN of the IAM role used for logging. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
