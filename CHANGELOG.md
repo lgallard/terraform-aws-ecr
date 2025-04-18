@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.7.0...v0.8.0) (2025-04-18)
+
+
+### Features
+
+* **logging:** add ECR logging configuration with CloudWatch integration ([#30](https://github.com/lgallard/terraform-aws-ecr/issues/30)) ([97dab31](https://github.com/lgallard/terraform-aws-ecr/commit/97dab314b933f0b508d41b5a86c633f6bb4fba61))
+
 ## [0.7.0](https://github.com/lgallard/terraform-aws-ecr/compare/v0.6.2...v0.7.0) (2025-03-18)
 
 
