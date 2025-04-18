@@ -9,6 +9,10 @@ module "ecr" {
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true
   encryption_type      = "KMS"
+  
+  # Enable logging configuration
+  enable_logging     = true
+  log_retention_days = 14
 
   image_scanning_configuration = {
     scan_on_push = true
