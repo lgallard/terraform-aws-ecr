@@ -207,6 +207,72 @@ resource "aws_kms_alias" "kms_key_alias" {
   }
 }
 
+# CloudWatch Log Group for ECR logs
+resource "aws_cloudwatch_log_group" "ecr_logs" {
+  count             = var.enable_logging ? 1 : 0
+  name              = "/aws/ecr/${var.name}"
+  retention_in_days = var.log_retention_days
+
+  tags = merge(
+    {
+      Name      = "${var.name}-logs"
+      ManagedBy = "Terraform"
+    },
+    var.tags
+  )
+}
+
+# IAM Role for ECR logging
+resource "aws_iam_role" "ecr_logging" {
+  count = var.enable_logging ? 1 : 0
+  name  = "ecr-logging-${var.name}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecr.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = merge(
+    {
+      Name      = "${var.name}-logging-role"
+      ManagedBy = "Terraform"
+    },
+    var.tags
+  )
+}
+
+# IAM Policy for ECR logging
+resource "aws_iam_role_policy" "ecr_logging" {
+  count = var.enable_logging ? 1 : 0
+  name  = "ecr-logging-${var.name}"
+  role  = aws_iam_role.ecr_logging[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:CreateLogGroup"
+        ]
+        Resource = [
+          "${aws_cloudwatch_log_group.ecr_logs[0].arn}:*"
+        ]
+      }
+    ]
+  })
+}
+
 locals {
   # Determine if we need to create a new KMS key
   should_create_kms_key = var.encryption_type == "KMS" && var.kms_key == null
@@ -235,4 +301,10 @@ locals {
       }] : []
     )
   )
+
+  # Logging configuration
+  logging_configuration = var.enable_logging ? {
+    log_group_arn = aws_cloudwatch_log_group.ecr_logs[0].arn
+    role_arn      = aws_iam_role.ecr_logging[0].arn
+  } : null
 }

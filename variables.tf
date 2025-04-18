@@ -181,3 +181,31 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+# ----------------------------------------------------------
+# Logging Configuration
+# ----------------------------------------------------------
+
+variable "enable_logging" {
+  description = <<-EOT
+    Whether to enable CloudWatch logging for the repository.
+    When enabled, ECR API actions and image push/pull events will be logged to CloudWatch.
+    Defaults to false.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "log_retention_days" {
+  description = <<-EOT
+    Number of days to retain ECR logs in CloudWatch.
+    Only applicable when enable_logging is true.
+    Defaults to 30 days.
+  EOT
+  type        = number
+  default     = 30
+  validation {
+    condition     = contains([0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653], var.log_retention_days)
+    error_message = "Log retention days must be one of: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653."
+  }
+}
