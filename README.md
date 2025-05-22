@@ -2,6 +2,13 @@
 # terraform-aws-ecr
 Terraform module to create [AWS ECR](https://aws.amazon.com/ecr/) (Elastic Container Registry) which is a fully-managed Docker container registry.
 
+## Versioning
+
+This module follows [Semantic Versioning](https://semver.org/) principles. For full details on the versioning scheme, release process, and compatibility guarantees, see the following documentation:
+
+- [VERSIONING.md](VERSIONING.md) - Details on the semantic versioning scheme and release process
+- [VERSION_COMPATIBILITY.md](VERSION_COMPATIBILITY.md) - Terraform and AWS provider compatibility matrix
+
 ## Usage
 You can use this module to create an ECR registry using few parameters (simple example) or define in detail every aspect of the registry (complete example).
 

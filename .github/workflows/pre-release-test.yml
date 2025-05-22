@@ -1,0 +1,122 @@
+name: Pre-release Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '**/*.tf'
+      - '.github/workflows/pre-release-test.yml'
+  workflow_dispatch:
+
+jobs:
+  terraform-validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform-version:
+          - "1.3.0"  # Minimum supported version
+          - "latest" # Latest stable version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ matrix.terraform-version }}
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+        working-directory: .
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+        working-directory: .
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: .
+
+  test-examples:
+    name: Test Examples
+    runs-on: ubuntu-latest
+    needs: terraform-validate
+    strategy:
+      matrix:
+        example:
+          - "simple"
+          - "complete"
+          - "protected"
+        terraform-version:
+          - "latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ matrix.terraform-version }}
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+        working-directory: ./examples/${{ matrix.example }}
+
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ./examples/${{ matrix.example }}
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./examples/${{ matrix.example }}
+
+      - name: Terraform Plan
+        run: terraform plan -input=false -lock=false
+        working-directory: ./examples/${{ matrix.example }}
+        continue-on-error: true
+        env:
+          AWS_REGION: "us-east-1"
+          TF_VAR_region: "us-east-1"
+
+  aws-provider-compatibility:
+    name: AWS Provider Compatibility
+    runs-on: ubuntu-latest
+    needs: terraform-validate
+    strategy:
+      matrix:
+        aws-provider:
+          - "5.0.0"   # Minimum version for current module
+          - "latest"  # Latest version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: Create Test Configuration
+        run: |
+          cat << EOF > provider-test.tf
+          terraform {
+            required_providers {
+              aws = {
+                source  = "hashicorp/aws"
+                version = "${{ matrix.aws-provider }}"
+              }
+            }
+          }
+          module "ecr" {
+            source = "./"
+            name   = "ecr-test-repo"
+          }
+          EOF
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+        
+      - name: Terraform Validate with AWS Provider ${{ matrix.aws-provider }}
+        run: terraform validate

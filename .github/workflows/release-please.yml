@@ -16,4 +16,4 @@ jobs:
         with:
           release-type: terraform-module
           token: ${{ secrets.GITHUB_TOKEN }}
-          config-file: .github/.release-please-config.json
+          config-file: .release-please-config.json
