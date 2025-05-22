@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.8.0...v0.9.0) (2025-05-22)
+
+
+### Features
+
+* remove unused local variable to resolve tflint warning ([151b3a5](https://github.com/lgallard/terraform-aws-ecr/commit/151b3a52e09f1795d14116c33dd55637245fa252))
+
 ## [0.8.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.7.0...v0.8.0) (2025-04-18)
 
 
