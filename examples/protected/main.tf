@@ -1,3 +1,6 @@
+# Get AWS account ID for policy ARNs
+data "aws_caller_identity" "current" {}
+
 # Example demonstrating repository protection
 module "ecr" {
   source = "../.."
@@ -54,6 +57,3 @@ module "ecr" {
     CreatedAt   = timestamp()
   }
 }
-
-# Get AWS account ID for policy ARNs
-data "aws_caller_identity" "current" {}
