@@ -5,7 +5,7 @@ terraform {
 
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
+      source = "hashicorp/aws"
       # Require AWS provider 5.x to ensure compatibility with the latest
       # ECR features and future improvements.
       version = ">= 5.0.0"

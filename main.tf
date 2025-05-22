@@ -301,10 +301,4 @@ locals {
       }] : []
     )
   )
-
-  # Logging configuration
-  logging_configuration = var.enable_logging ? {
-    log_group_arn = aws_cloudwatch_log_group.ecr_logs[0].arn
-    role_arn      = aws_iam_role.ecr_logging[0].arn
-  } : null
 }
