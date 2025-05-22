@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.2](https://github.com/lgallard/terraform-aws-ecr/compare/v0.9.1...v0.9.2) (2025-05-22)
+
+
+### Bug Fixes
+
+* resolve lifecycle prevent_destroy variable limitation - Replace single repository resource with conditional creation approach - Use separate aws_ecr_repository resources (repo and repo_protected) - Enable dynamic prevent_destroy control through var.prevent_destroy - Remove moved.tf as it's not needed with this approach - Reorganize main.tf with proper section headers ([217b4f0](https://github.com/lgallard/terraform-aws-ecr/commit/217b4f0e2823c1c95b1bc270f6f97026d771d32d))
+
 ## [0.9.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.9.0...v0.9.1) (2025-05-22)
 
 
