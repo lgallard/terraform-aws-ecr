@@ -1,43 +1,5 @@
-# ----------------------------------------------------------
-# Configuration Locals
-# ----------------------------------------------------------
-
-locals {
-  # Determine if we need to create a new KMS key
-  should_create_kms_key = var.encryption_type == "KMS" && var.kms_key == null
-
-  # Configure encryption settings based on encryption type and KMS key
-  encryption_configuration = (
-    var.encryption_type == "KMS" ? [{
-      encryption_type = "KMS"
-      kms_key         = local.should_create_kms_key ? aws_kms_key.kms_key[0].arn : var.kms_key
-    }] : []
-  )
-
-  # Image scanning configuration with default fallback
-  image_scanning_configuration = [{
-    scan_on_push = coalesce(
-      try(var.image_scanning_configuration.scan_on_push, null),
-      var.scan_on_push
-    )
-  }]
-
-  # Timeouts configuration with default fallback
-  timeouts = (
-    length(var.timeouts) > 0 ? [var.timeouts] : (
-      var.timeouts_delete != null ? [{
-        delete = var.timeouts_delete
-      }] : []
-    )
-  )
-}
-
-# ----------------------------------------------------------
-# ECR Repository
-# ----------------------------------------------------------
-
-# ECR Repository with conditional lifecycle configurations
 resource "aws_ecr_repository" "repo" {
+  count                = var.prevent_destroy ? 0 : 1
   name                 = var.name
   force_delete         = var.force_delete
   image_tag_mutability = var.image_tag_mutability
@@ -67,12 +29,50 @@ resource "aws_ecr_repository" "repo" {
     }
   }
 
-  # Prevent accidental deletion of the repository if configured
-  dynamic "lifecycle" {
-    for_each = var.prevent_destroy ? [true] : []
+  tags = merge(
+    {
+      "Name"      = var.name
+      "ManagedBy" = "Terraform"
+    },
+    var.tags
+  )
+}
+
+# Repository with prevent_destroy enabled
+resource "aws_ecr_repository" "repo_protected" {
+  count                = var.prevent_destroy ? 1 : 0
+  name                 = var.name
+  force_delete         = var.force_delete
+  image_tag_mutability = var.image_tag_mutability
+
+  # Encryption configuration for the repository
+  dynamic "encryption_configuration" {
+    for_each = local.encryption_configuration
     content {
-      prevent_destroy = true
+      encryption_type = encryption_configuration.value.encryption_type
+      kms_key         = encryption_configuration.value.kms_key
     }
+  }
+
+  # Configure image scanning settings
+  dynamic "image_scanning_configuration" {
+    for_each = local.image_scanning_configuration
+    content {
+      scan_on_push = image_scanning_configuration.value.scan_on_push
+    }
+  }
+
+  # Repository deletion timeout settings
+  dynamic "timeouts" {
+    for_each = local.timeouts
+    content {
+      delete = timeouts.value.delete
+    }
+  }
+
+  # Prevent accidental deletion of the repository
+  lifecycle {
+    prevent_destroy = true
   }
 
   tags = merge(
@@ -84,18 +84,13 @@ resource "aws_ecr_repository" "repo" {
   )
 }
 
-# Repository output references
+# Local reference to whichever repository was created
 locals {
-  # Repository output references for use in other resources and outputs
-  repository_id   = aws_ecr_repository.repo.id
-  repository_name = aws_ecr_repository.repo.name
-  repository_url  = aws_ecr_repository.repo.repository_url
-  registry_id     = aws_ecr_repository.repo.registry_id
+  repository_id   = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].id : aws_ecr_repository.repo[0].id
+  repository_name = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].name : aws_ecr_repository.repo[0].name
+  repository_url  = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].repository_url : aws_ecr_repository.repo[0].repository_url
+  registry_id     = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].registry_id : aws_ecr_repository.repo[0].registry_id
 }
-
-# ----------------------------------------------------------
-# Repository Policies
-# ----------------------------------------------------------
 
 # Repository policy - controls access to the repository
 resource "aws_ecr_repository_policy" "policy" {
@@ -105,7 +100,8 @@ resource "aws_ecr_repository_policy" "policy" {
 
   # Ensure policy is applied after repository is created
   depends_on = [
-    aws_ecr_repository.repo
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
   ]
 }
 
@@ -117,13 +113,10 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
 
   # Ensure policy is applied after repository is created
   depends_on = [
-    aws_ecr_repository.repo
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
   ]
 }
-
-# ----------------------------------------------------------
-# AWS Identity and KMS Resources
-# ----------------------------------------------------------
 
 # Get current AWS account ID
 data "aws_caller_identity" "current" {}
@@ -214,10 +207,6 @@ resource "aws_kms_alias" "kms_key_alias" {
   }
 }
 
-# ----------------------------------------------------------
-# Logging Resources
-# ----------------------------------------------------------
-
 # CloudWatch Log Group for ECR logs
 resource "aws_cloudwatch_log_group" "ecr_logs" {
   count             = var.enable_logging ? 1 : 0
@@ -282,4 +271,34 @@ resource "aws_iam_role_policy" "ecr_logging" {
       }
     ]
   })
+}
+
+locals {
+  # Determine if we need to create a new KMS key
+  should_create_kms_key = var.encryption_type == "KMS" && var.kms_key == null
+
+  # Configure encryption settings based on encryption type and KMS key
+  encryption_configuration = (
+    var.encryption_type == "KMS" ? [{
+      encryption_type = "KMS"
+      kms_key         = local.should_create_kms_key ? aws_kms_key.kms_key[0].arn : var.kms_key
+    }] : []
+  )
+
+  # Image scanning configuration with default fallback
+  image_scanning_configuration = [{
+    scan_on_push = coalesce(
+      try(var.image_scanning_configuration.scan_on_push, null),
+      var.scan_on_push
+    )
+  }]
+
+  # Timeouts configuration with default fallback
+  timeouts = (
+    length(var.timeouts) > 0 ? [var.timeouts] : (
+      var.timeouts_delete != null ? [{
+        delete = var.timeouts_delete
+      }] : []
+    )
+  )
 }
