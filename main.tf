@@ -1,3 +1,14 @@
+# ----------------------------------------------------------
+# Configuration Locals
+# ----------------------------------------------------------
+
+
+
+# ----------------------------------------------------------
+# ECR Repository
+# ----------------------------------------------------------
+
+# ECR Repository - Standard version (prevent_destroy = false)
 resource "aws_ecr_repository" "repo" {
   count                = var.prevent_destroy ? 0 : 1
   name                 = var.name
@@ -84,13 +95,18 @@ resource "aws_ecr_repository" "repo_protected" {
   )
 }
 
-# Local reference to whichever repository was created
+# Repository output references
 locals {
+  # Repository output references for use in other resources and outputs
   repository_id   = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].id : aws_ecr_repository.repo[0].id
   repository_name = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].name : aws_ecr_repository.repo[0].name
   repository_url  = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].repository_url : aws_ecr_repository.repo[0].repository_url
   registry_id     = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].registry_id : aws_ecr_repository.repo[0].registry_id
 }
+
+# ----------------------------------------------------------
+# Repository Policies
+# ----------------------------------------------------------
 
 # Repository policy - controls access to the repository
 resource "aws_ecr_repository_policy" "policy" {
@@ -117,6 +133,10 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
     aws_ecr_repository.repo_protected
   ]
 }
+
+# ----------------------------------------------------------
+# AWS Identity and KMS Resources
+# ----------------------------------------------------------
 
 # Get current AWS account ID
 data "aws_caller_identity" "current" {}
@@ -206,6 +226,10 @@ resource "aws_kms_alias" "kms_key_alias" {
     create_before_destroy = true
   }
 }
+
+# ----------------------------------------------------------
+# Logging Resources
+# ----------------------------------------------------------
 
 # CloudWatch Log Group for ECR logs
 resource "aws_cloudwatch_log_group" "ecr_logs" {
