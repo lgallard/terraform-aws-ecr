@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.9.0...v0.9.1) (2025-05-22)
+
+
+### Reverts
+
+* Revert PR [#48](https://github.com/lgallard/terraform-aws-ecr/issues/48) - lifecycle prevent_destroy cannot use variables ([323b033](https://github.com/lgallard/terraform-aws-ecr/commit/323b033debe7f9de821850fd66efedbef42fe5a5))
+
 ## [0.9.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.8.0...v0.9.0) (2025-05-22)
 
 
