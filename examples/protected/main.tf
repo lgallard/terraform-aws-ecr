@@ -1,8 +1,11 @@
+# Get AWS account ID for policy ARNs
+data "aws_caller_identity" "current" {}
+
 # Example demonstrating repository protection
 module "ecr" {
   source = "../.."
 
-  name                 = "ecr-repo-protected"
+  name                 = "protected-ecr-repo"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = false # Prevent accidental deletion of images
   prevent_destroy      = true  # Protect repository from being destroyed via Terraform
@@ -47,13 +50,9 @@ module "ecr" {
 
   # Tags
   tags = {
-    Name        = "ecr-repo-protected"
+    Name        = "protected-ecr-repo"
     Environment = "production"
     Protected   = "true"
     ManagedBy   = "Terraform"
-    CreatedAt   = timestamp()
   }
 }
-
-# Get AWS account ID for policy ARNs
-data "aws_caller_identity" "current" {}
