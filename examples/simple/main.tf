@@ -1,7 +1,7 @@
 module "ecr" {
   source = "../../"
 
-  name                 = var.name
+  name                 = "simple-ecr-repo"
   scan_on_push         = true        # Enable security scanning
   image_tag_mutability = "IMMUTABLE" # Prevent tag overwrites
   force_delete         = false       # Prevent accidental deletion

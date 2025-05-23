@@ -4,7 +4,7 @@ data "aws_caller_identity" "current" {}
 module "ecr" {
   source = "../.."
 
-  name                 = var.name
+  name                 = "complete-ecr-repo"
   timeouts_delete      = "60m"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true
@@ -79,7 +79,7 @@ module "ecr" {
   # Tags - using merge to combine with default tags
   tags = merge(
     {
-      Name        = var.name
+      Name        = "complete-ecr-repo"
       Owner       = "DevOps team"
       Environment = "development"
       Project     = "example"
@@ -92,7 +92,7 @@ module "ecr" {
 module "ecr_protected" {
   source = "../.."
 
-  name                 = "ecr-repo-prod"
+  name                 = "protected-ecr-repo"
   timeouts_delete      = "60m"
   image_tag_mutability = "IMMUTABLE" # Prevent image tags from being overwritten
   force_delete         = false       # Prevent accidental deletion of images
@@ -169,7 +169,7 @@ module "ecr_protected" {
   # Tags for production repository
   tags = merge(
     {
-      Name        = "ecr-repo-prod"
+      Name        = "protected-ecr-repo"
       Owner       = "DevOps team"
       Environment = "production"
       Project     = "example"
