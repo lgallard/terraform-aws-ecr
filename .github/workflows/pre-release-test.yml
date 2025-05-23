@@ -123,6 +123,11 @@ jobs:
 
       - name: Create Test Configuration
         run: |
+          # Check and remove any existing provider-test.tf to prevent conflicts
+          if [ -f provider-test.tf ]; then
+            rm provider-test.tf
+          fi
+          
           cat << EOF > provider-test.tf
           terraform {
             required_providers {
@@ -132,12 +137,8 @@ jobs:
               }
             }
           }
-          provider "aws" {
-            region = "us-east-1"
-            # These are mock values that won't work for real AWS operations
-            access_key = "mock-access-key-for-testing"
-            secret_key = "mock-secret-key-for-testing"
-          }
+          # Using environment variables instead of hardcoding in provider block
+          # to avoid conflicts with versions.tf provider configuration
           module "ecr" {
             source = "./"
             name   = "ecr-test-repo"
