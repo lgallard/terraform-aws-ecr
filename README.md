@@ -266,6 +266,56 @@ Common issues and solutions when working with ECR repositories:
 
 For detailed troubleshooting steps, see [docs/troubleshooting.md](docs/troubleshooting.md).
 
+## Variable Usage Examples
+
+This module offers many configuration options through variables. Here are some examples of common variable configurations:
+
+### Basic Configuration
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name   = "my-app-repo"
+  tags   = {
+    Environment = "Production"
+  }
+}
+```
+
+### Security Settings
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name                 = "secure-repo"
+  image_tag_mutability = "IMMUTABLE"    # Prevent tag overwriting
+  scan_on_push         = true           # Enable vulnerability scanning
+  encryption_type      = "KMS"          # Use KMS encryption
+  prevent_destroy      = true           # Protect from accidental deletion
+}
+```
+
+### Advanced Options
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name            = "advanced-repo"
+  force_delete    = false
+  enable_logging  = true
+  
+  # Set custom timeouts
+  timeouts = {
+    delete = "45m"
+  }
+}
+```
+
+For detailed examples of all variables with explanations, see [docs/variable-examples.md](docs/variable-examples.md).
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
