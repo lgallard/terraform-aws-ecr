@@ -145,55 +145,45 @@ jobs:
         with:
           terraform_version: latest
 
-      - name: Create AWS Provider Override
+      - name: Clean test environment
         run: |
-          # Create AWS provider with version constraint for testing
-          cat << EOF > aws-provider-version-test.tf
-          provider "aws" {
-            region = "us-east-1"
-            # These values are dummy placeholders that will be overridden by environment variables
-            access_key = "mock"
-            secret_key = "mock"
-            
-            # Adding this skip prevents AWS provider initialization errors during testing
-            skip_credentials_validation = true
-            skip_requesting_account_id  = true
-            skip_metadata_api_check     = true
+          # Remove any existing test files or state
+          rm -f aws-provider-version-test.tf test-module.tf .terraform.lock.hcl
+          rm -rf .terraform
+          
+      - name: Create version-specific test configuration
+        run: |
+          # Create a simple test file that only references the required provider version
+          cat << EOF > test-version.tf
+          terraform {
+            required_providers {
+              aws = {
+                source  = "hashicorp/aws"
+                version = "${{ matrix.aws-provider }}"
+              }
+            }
           }
           
-          module "ecr" {
+          # Create minimal module usage (no provider block, uses the one from versions.tf)
+          module "ecr_test" {
             source = "./"
-            name   = "ecr-test-repo"
+            name   = "test-repo"
           }
           EOF
-        
-      - name: Clean Terraform Modules Cache
-        run: |
-          if [ -d .terraform/modules ]; then
-            echo "Cleaning up .terraform/modules directory..."
-            find .terraform/modules -type d -name "*" -prune -exec rm -rf {} \; 2>/dev/null || true
-          fi
-          # Clean any potential terraform lock file
-          if [ -f .terraform.lock.hcl ]; then
-            rm .terraform.lock.hcl
-          fi
-        working-directory: .
 
-      - name: Terraform Init with AWS Provider ${{ matrix.aws-provider }}
-        run: terraform init -backend=false -get=false
+      - name: Terraform Init
+        run: |
+          # Initialize with a clean environment
+          terraform init -backend=false -get=false
         env:
-          # Using environment variable to specify provider version without config conflicts
-          TF_CLI_ARGS_init: "-plugin-dir=/tmp/terraform-plugins -lock=false"
-          TF_VAR_aws_provider_version: "${{ matrix.aws-provider }}"
           # Mock credentials for testing
           AWS_ACCESS_KEY_ID: "mock-access-key-for-testing"
           AWS_SECRET_ACCESS_KEY: "mock-secret-key-for-testing"
           AWS_REGION: "us-east-1"
-        
-      - name: Terraform Validate with AWS Provider ${{ matrix.aws-provider }}
+          
+      - name: Terraform Validate
         run: terraform validate
         env:
-          # Mock credentials for testing
           AWS_ACCESS_KEY_ID: "mock-access-key-for-testing"
           AWS_SECRET_ACCESS_KEY: "mock-secret-key-for-testing"
           AWS_REGION: "us-east-1"
