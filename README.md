@@ -2,6 +2,31 @@
 # terraform-aws-ecr
 Terraform module to create [AWS ECR](https://aws.amazon.com/ecr/) (Elastic Container Registry) which is a fully-managed Docker container registry.
 
+## Architecture
+
+The terraform-aws-ecr module enables several common architectures for container image management.
+
+### Basic ECR Architecture
+
+```
+┌──────────────┐     ┌───────────────────────┐     ┌─────────────────┐
+│              │     │                       │     │                 │
+│  Developer   │────▶│    AWS ECR Registry   │◀────│  CI/CD Pipeline │
+│  Workstation │     │                       │     │                 │
+│              │     └───────────────────────┘     └─────────────────┘
+└──────────────┘               │  ▲
+                               │  │
+                               ▼  │
+                        ┌─────────────────┐
+                        │                 │
+                        │   ECS / EKS     │
+                        │   Services      │
+                        │                 │
+                        └─────────────────┘
+```
+
+For more detailed architecture diagrams including CI/CD integration, multi-region deployments, and security controls, see [docs/diagrams.md](docs/diagrams.md).
+
 ## Versioning
 
 This module follows [Semantic Versioning](https://semver.org/) principles. For full details on the versioning scheme, release process, and compatibility guarantees, see the following documentation:
@@ -12,7 +37,12 @@ This module follows [Semantic Versioning](https://semver.org/) principles. For f
 ## Usage
 You can use this module to create an ECR registry using few parameters (simple example) or define in detail every aspect of the registry (complete example).
 
-Check the [examples](examples/) for the  **simple** and the **complete** snippets.
+Check the [examples](examples/) directory for examples including:
+- **Simple** - Basic ECR repository with minimal configuration 
+- **Complete** - Full-featured ECR repository with all options
+- **Protected** - Repository with deletion protection
+- **With ECS Integration** - ECR configured for use with ECS
+- **Multi-Region** - Repository configured for cross-region replication
 
 ### Simple example
 This example creates an ECR registry using few parameters
@@ -196,6 +226,95 @@ terraform destroy
 ```
 
 This approach allows protecting repositories by default while providing a controlled way to remove them when needed.
+
+## Security Best Practices
+
+Here are key security best practices for your ECR repositories:
+
+1. **Enable Immutable Tags**: Prevent tags from being overwritten to ensure image integrity.
+   ```hcl
+   image_tag_mutability = "IMMUTABLE"
+   ```
+
+2. **Enable Vulnerability Scanning**: Automatically scan images for security vulnerabilities.
+   ```hcl
+   scan_on_push = true
+   ```
+
+3. **Implement Least Privilege Access**: Use repository policies that grant only necessary permissions.
+   
+4. **Enable KMS Encryption**: Use AWS KMS for enhanced encryption of container images.
+   ```hcl
+   encryption_type = "KMS"
+   ```
+
+5. **Configure Lifecycle Policies**: Automatically clean up old or unused images.
+
+For a comprehensive guide with detailed examples, see [docs/security-best-practices.md](docs/security-best-practices.md).
+
+## Troubleshooting
+
+Common issues and solutions when working with ECR repositories:
+
+| Issue | Solution |
+|-------|----------|
+| Authentication failures | Re-authenticate with `aws ecr get-login-password` |
+| Permission denied errors | Check IAM policies and repository policies |
+| Cannot delete repository | Check for `prevent_destroy` setting and set to `false` |
+| Image scan failures | Verify supported image format and AWS region |
+| Lifecycle policy not working | Check rule syntax and priorities |
+
+For detailed troubleshooting steps, see [docs/troubleshooting.md](docs/troubleshooting.md).
+
+## Variable Usage Examples
+
+This module offers many configuration options through variables. Here are some examples of common variable configurations:
+
+### Basic Configuration
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name   = "my-app-repo"
+  tags   = {
+    Environment = "Production"
+  }
+}
+```
+
+### Security Settings
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name                 = "secure-repo"
+  image_tag_mutability = "IMMUTABLE"    # Prevent tag overwriting
+  scan_on_push         = true           # Enable vulnerability scanning
+  encryption_type      = "KMS"          # Use KMS encryption
+  prevent_destroy      = true           # Protect from accidental deletion
+}
+```
+
+### Advanced Options
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name            = "advanced-repo"
+  force_delete    = false
+  enable_logging  = true
+  
+  # Set custom timeouts
+  timeouts = {
+    delete = "45m"
+  }
+}
+```
+
+For detailed examples of all variables with explanations, see [docs/variable-examples.md](docs/variable-examples.md).
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

@@ -30,24 +30,78 @@ Version 1.0.0 will mark the first stable release with a compatibility guarantee.
 
 When upgrading from versions prior to 0.9.x:
 
-1. Review the prevent_destroy variable implementation changes
-2. Be aware that the AWS provider requirement is now 5.0.0+ 
-3. Update your Terraform code to match examples if using prevent_destroy functionality
+1. Update your Terraform code to use AWS provider version 5.0.0+:
+
+```hcl
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0.0"
+    }
+  }
+}
+```
+
+2. Review the `prevent_destroy` variable implementation changes:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "your-repo-name"
+  
+  # In 0.9.x, prevent_destroy works with a different implementation
+  prevent_destroy = true  # Repository protected from deletion
+}
+```
+
+3. If you were using custom encryption settings, check that your KMS configuration is compatible with the updated module.
 
 ### Upgrading to 0.8.x
 
 When upgrading from versions prior to 0.8.x:
 
-1. The module now supports ECR logging configuration with CloudWatch
-2. Review the new logging configuration parameters if you want to implement this feature
+1. The module now supports ECR logging configuration with CloudWatch. To enable this feature:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "your-repo-name"
+  
+  # New logging feature in 0.8.x
+  enable_logging = true
+  log_retention_days = 30  # Optional, defaults to 30
+}
+```
+
+2. Review the outputs as new logging-related outputs have been added:
+   - `cloudwatch_log_group_arn`
+   - `logging_role_arn`
+
+3. If you don't want to use logging, you don't need any changes - logging is disabled by default.
 
 ### Upgrading to 0.7.x
 
 When upgrading from versions prior to 0.7.x:
 
-1. The module now uses separate resources based on prevent_destroy
-2. State migrations are handled automatically
-3. Ensure you're using Terraform 1.3.0+
+1. The module now uses separate resources based on `prevent_destroy` value. Update your code to explicitly set this value:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "your-repo-name"
+  
+  # Explicitly set prevent_destroy
+  prevent_destroy = true  # Or false, based on your needs
+}
+```
+
+2. State migrations are handled automatically via Terraform's `moved` blocks, but you should verify that your repository has the correct protection status after upgrade.
+
+3. Ensure you're using Terraform 1.3.0+ as this version is required for the new implementation.
 
 ## Testing Methodology
 
