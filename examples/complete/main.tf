@@ -4,7 +4,7 @@ data "aws_caller_identity" "current" {}
 module "ecr" {
   source = "../.."
 
-  name                 = "ecr-repo-dev"
+  name                 = var.name
   timeouts_delete      = "60m"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true
@@ -79,7 +79,7 @@ module "ecr" {
   # Tags - using merge to combine with default tags
   tags = merge(
     {
-      Name        = "ecr-repo-dev"
+      Name        = var.name
       Owner       = "DevOps team"
       Environment = "development"
       Project     = "example"

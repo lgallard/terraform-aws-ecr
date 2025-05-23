@@ -5,7 +5,7 @@ data "aws_caller_identity" "current" {}
 module "ecr" {
   source = "../.."
 
-  name                 = "ecr-repo-protected"
+  name                 = var.name
   image_tag_mutability = "IMMUTABLE"
   force_delete         = false # Prevent accidental deletion of images
   prevent_destroy      = true  # Protect repository from being destroyed via Terraform
@@ -50,7 +50,7 @@ module "ecr" {
 
   # Tags
   tags = {
-    Name        = "ecr-repo-protected"
+    Name        = var.name
     Environment = "production"
     Protected   = "true"
     ManagedBy   = "Terraform"
