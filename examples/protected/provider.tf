@@ -5,7 +5,6 @@ provider "aws" {
   default_tags {
     tags = {
       ManagedBy = "Terraform"
-      CreatedAt = timestamp()
     }
   }
 }

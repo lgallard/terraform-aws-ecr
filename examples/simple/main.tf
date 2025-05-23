@@ -15,6 +15,5 @@ module "ecr" {
     Terraform   = true
     ManagedBy   = "Terraform"
     Project     = "ECR"
-    CreatedAt   = timestamp()
   }
 }

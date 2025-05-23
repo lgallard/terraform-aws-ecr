@@ -83,7 +83,6 @@ module "ecr" {
       Owner       = "DevOps team"
       Environment = "development"
       Project     = "example"
-      CreatedAt   = timestamp()
     },
     var.tags
   )
@@ -174,7 +173,6 @@ module "ecr_protected" {
       Owner       = "DevOps team"
       Environment = "production"
       Project     = "example"
-      CreatedAt   = timestamp()
       Protected   = "true"
     },
     var.tags

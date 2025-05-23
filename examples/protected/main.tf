@@ -54,6 +54,5 @@ module "ecr" {
     Environment = "production"
     Protected   = "true"
     ManagedBy   = "Terraform"
-    CreatedAt   = timestamp()
   }
 }
