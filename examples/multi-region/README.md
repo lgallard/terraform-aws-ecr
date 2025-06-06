@@ -1,9 +1,35 @@
 # Multi-Region ECR Repository Example
 
-This example demonstrates how to create an ECR repository that replicates images across multiple AWS regions for disaster recovery and global distribution use cases.
+This example demonstrates two approaches for creating ECR repositories across multiple AWS regions for disaster recovery and global distribution use cases:
+
+1. **Built-in Replication (Recommended)** - Uses the module's new replication features for automatic cross-region replication
+2. **Manual Setup (Alternative)** - Manually creates repositories in each region with custom replication configuration
 
 ## Architecture
 
+### Built-in Replication Approach (Recommended)
+```
+┌─────────────────┐     ┌──────────────────────┐
+│                 │     │  Primary Region      │
+│  CI/CD System   │────▶│  ┌───────────────┐   │
+│  (Image Builds) │     │  │ ECR Repository│   │
+│                 │     │  │  + Replication│   │
+│                 │     │  └───────────────┘   │
+└─────────────────┘     └──────────┬───────────┘
+                                   │
+                                   │ Automatic Replication
+                                   │ (Managed by AWS)
+                                   ▼
+┌─────────────────────┐                   
+│  Secondary Region   │                   
+│  ┌───────────────┐  │                   
+│  │ ECR Repository│  │                   
+│  │   (Replica)   │  │                   
+│  └───────────────┘  │                   
+└─────────────────────┘                   
+```
+
+### Manual Setup Approach (Alternative)
 ```
 ┌─────────────────┐     ┌──────────────────────┐
 │                 │     │  Primary Region      │
@@ -12,17 +38,15 @@ This example demonstrates how to create an ECR repository that replicates images
 │                 │     │  └───────────────┘   │
 └─────────────────┘     └──────────┬───────────┘
                                    │
-                                   │ Replication
+                                   │ Manual Replication Config
                                    ▼
-        ┌────────────────────────────────────────────┐
-        │                                            │
-        ▼                                            ▼
-┌─────────────────────┐                   ┌─────────────────────┐
-│  Secondary Region A │                   │  Secondary Region B │
-│  ┌───────────────┐  │                   │  ┌───────────────┐  │
-│  │ ECR Repository│  │                   │  │ ECR Repository│  │
-│  └───────────────┘  │                   │  └───────────────┘  │
-└─────────────────────┘                   └─────────────────────┘
+┌─────────────────────┐                   
+│  Secondary Region   │                   
+│  ┌───────────────┐  │                   
+│  │ ECR Repository│  │                   
+│  │   (Manual)    │  │                   
+│  └───────────────┘  │                   
+└─────────────────────┘                   
 ```
 
 ## Use Cases

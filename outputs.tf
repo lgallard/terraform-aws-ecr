@@ -34,3 +34,23 @@ output "logging_role_arn" {
   description = "The ARN of the IAM role used for ECR logging (if logging is enabled)"
   value       = try(aws_iam_role.ecr_logging[0].arn, null)
 }
+
+# Replication outputs
+output "replication_configuration_arn" {
+  description = "The ARN of the ECR replication configuration (if replication is enabled)"
+  value       = try(aws_ecr_replication_configuration.replication[0].id, null)
+}
+
+output "replication_regions" {
+  description = "List of regions where ECR images are replicated to (if replication is enabled)"
+  value       = var.enable_replication ? var.replication_regions : []
+}
+
+output "replication_status" {
+  description = "Status of ECR replication configuration"
+  value = {
+    enabled             = var.enable_replication
+    regions             = var.enable_replication ? var.replication_regions : []
+    kms_key_for_replica = var.replication_kms_key
+  }
+}
