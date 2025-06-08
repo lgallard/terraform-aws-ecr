@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.11.2](https://github.com/lgallard/terraform-aws-ecr/compare/0.11.1...v0.11.2) (2025-06-08)
+
+
+### Bug Fixes
+
+* add .release-please-config.json to root directory for workflow ([#64](https://github.com/lgallard/terraform-aws-ecr/issues/64)) ([6b1f6db](https://github.com/lgallard/terraform-aws-ecr/commit/6b1f6db6dae1332d6154d4eda32fbc07ba44072c))
+* move release-please manifest to root directory ([#65](https://github.com/lgallard/terraform-aws-ecr/issues/65)) ([d61003c](https://github.com/lgallard/terraform-aws-ecr/commit/d61003c7ad391e764d492d9bf9593b62d4847202))
+* remove "v" prefix from release-please tags ([#63](https://github.com/lgallard/terraform-aws-ecr/issues/63)) ([397c135](https://github.com/lgallard/terraform-aws-ecr/commit/397c135cf0fda3479ba8be5a383cc78dc39e9f1e))
+
 ## [0.11.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.11.0...v0.11.1) (2025-06-08)
 
 
