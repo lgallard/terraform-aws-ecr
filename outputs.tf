@@ -49,8 +49,7 @@ output "replication_regions" {
 output "replication_status" {
   description = "Status of ECR replication configuration"
   value = {
-    enabled             = var.enable_replication
-    regions             = var.enable_replication ? var.replication_regions : []
-    kms_key_for_replica = var.replication_kms_key
+    enabled = var.enable_replication
+    regions = var.enable_replication ? var.replication_regions : []
   }
 }

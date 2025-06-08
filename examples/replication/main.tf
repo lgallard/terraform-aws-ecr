@@ -29,9 +29,6 @@ module "ecr_with_replication" {
   enable_replication  = var.enable_replication
   replication_regions = var.replication_regions
 
-  # Optional: Use KMS encryption for replication
-  replication_kms_key = var.replication_kms_key
-
   # Optional: Enable logging for monitoring
   enable_logging = var.enable_logging
 

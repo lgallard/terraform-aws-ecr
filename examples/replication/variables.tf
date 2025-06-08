@@ -22,11 +22,6 @@ variable "replication_regions" {
   default     = ["us-west-2", "eu-west-1"]
 }
 
-variable "replication_kms_key" {
-  description = "KMS key ARN for encrypted replication (optional)"
-  type        = string
-  default     = null
-}
 
 variable "enable_logging" {
   description = "Whether to enable CloudWatch logging"

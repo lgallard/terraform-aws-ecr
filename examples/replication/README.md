@@ -65,21 +65,6 @@ module "ecr_with_replication" {
   # Enable replication
   enable_replication  = true
   replication_regions = ["us-west-2", "eu-west-1"]
-}
-```
-
-### Advanced Configuration with KMS
-
-```hcl
-module "ecr_with_replication" {
-  source = "lgallard/ecr/aws"
-  
-  name = "my-app"
-  
-  # Enable replication with KMS encryption
-  enable_replication  = true
-  replication_regions = ["us-west-2", "eu-west-1"]
-  replication_kms_key = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
   
   # Additional options
   image_tag_mutability = "IMMUTABLE"

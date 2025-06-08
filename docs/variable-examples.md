@@ -373,21 +373,6 @@ module "ecr" {
 - Use immutable tags for consistency across regions
 - Additional costs apply for cross-region data transfer
 
-### `replication_kms_key` - KMS Key for Encrypted Replication
-
-Optionally specify a KMS key for encrypting replicated images.
-
-```hcl
-module "ecr" {
-  source = "lgallard/ecr/aws"
-  name   = "production-app"
-  
-  enable_replication  = true
-  replication_regions = ["us-west-2", "eu-west-1"]
-  replication_kms_key = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-}
-```
-
 ### Complete Replication Example
 
 ```hcl
@@ -402,9 +387,8 @@ module "ecr_with_replication" {
   enable_replication  = true
   replication_regions = ["us-west-2", "eu-west-1", "ap-southeast-1"]
   
-  # Optional: Use KMS encryption for replicated images
-  encryption_type     = "KMS"
-  replication_kms_key = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+  # Optional: Use KMS encryption for source repository
+  encryption_type = "KMS"
   
   # Enable logging for monitoring
   enable_logging = true

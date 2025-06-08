@@ -124,9 +124,6 @@ module "ecr" {
   enable_replication  = true
   replication_regions = ["us-west-2", "eu-west-1", "ap-southeast-1"]
 
-  # Optional: specify KMS key for encrypted replication
-  replication_kms_key = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-
   tags = {
     Environment = "production"
     Application = "my-app"

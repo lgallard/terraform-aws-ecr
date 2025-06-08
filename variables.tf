@@ -233,20 +233,6 @@ variable "replication_regions" {
   EOT
   type        = list(string)
   default     = []
-  validation {
-    condition = length(var.replication_regions) == 0 || alltrue([
-      for region in var.replication_regions : can(regex("^[a-z]{2}-[a-z]+-[0-9]$", region))
-    ])
-    error_message = "Replication regions must be valid AWS region names (e.g., us-west-2, eu-west-1)."
-  }
 }
 
-variable "replication_kms_key" {
-  description = <<-EOT
-    The ARN of the KMS key to use for encrypting replicated images.
-    If not specified, the default ECR encryption will be used for replicated images.
-    Only applicable when enable_replication is true.
-  EOT
-  type        = string
-  default     = null
-}
+
