@@ -30,6 +30,9 @@ func TestEcrCompleteRepository(t *testing.T) {
 		Vars: map[string]interface{}{
 			"name": repoName,
 		},
+
+		// Explicitly use terraform binary
+		TerraformBinary: "terraform",
 	}
 
 	// Clean up resources when the test is finished
