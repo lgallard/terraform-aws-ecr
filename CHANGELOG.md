@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.9.2...v0.10.0) (2025-06-08)
+
+
+### Features
+
+* Add Terratest framework for automated testing ([#54](https://github.com/lgallard/terraform-aws-ecr/issues/54)) ([b5554c1](https://github.com/lgallard/terraform-aws-ecr/commit/b5554c10738af16b3238628c07460794ba09ac61))
+
 ## [0.9.2](https://github.com/lgallard/terraform-aws-ecr/compare/v0.9.1...v0.9.2) (2025-05-22)
 
 
