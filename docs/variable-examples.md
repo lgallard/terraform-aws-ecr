@@ -65,6 +65,54 @@ module "ecr" {
 }
 ```
 
+### `enable_registry_scanning` - Enhanced Scanning with AWS Inspector
+
+Enable registry-level enhanced scanning for comprehensive vulnerability assessment:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "application-backend"
+  
+  # Enhanced scanning configuration
+  enable_registry_scanning = true
+  registry_scan_type      = "ENHANCED"
+  enable_secret_scanning  = true
+  
+  # Filter for high and critical vulnerabilities only
+  registry_scan_filters = [
+    {
+      name   = "PACKAGE_VULNERABILITY_SEVERITY"
+      values = ["HIGH", "CRITICAL"]
+    }
+  ]
+}
+```
+
+### `enable_pull_through_cache` - Pull-Through Cache Configuration
+
+Configure pull-through cache to cache images from upstream registries:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "application-backend"
+  
+  # Enable pull-through cache
+  enable_pull_through_cache = true
+  pull_through_cache_rules = [
+    {
+      ecr_repository_prefix = "docker-hub"
+      upstream_registry_url = "registry-1.docker.io"
+    },
+    {
+      ecr_repository_prefix = "quay"
+      upstream_registry_url = "quay.io"
+    }
+  ]
+}
+```
+
 ### `image_tag_mutability` - Tag Immutability
 
 Controls whether image tags can be overwritten. Setting to "IMMUTABLE" prevents tags from being overwritten, which is a security best practice.
