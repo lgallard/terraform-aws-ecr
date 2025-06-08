@@ -1,6 +1,9 @@
 ![Terraform](https://lgallardo.com/images/terraform.jpg)
 # terraform-aws-ecr
+
 Terraform module to create [AWS ECR](https://aws.amazon.com/ecr/) (Elastic Container Registry) which is a fully-managed Docker container registry.
+
+[![Test](https://github.com/lgallard/terraform-aws-ecr/actions/workflows/test.yml/badge.svg)](https://github.com/lgallard/terraform-aws-ecr/actions/workflows/test.yml)
 
 ## Architecture
 
@@ -315,6 +318,37 @@ module "ecr" {
 ```
 
 For detailed examples of all variables with explanations, see [docs/variable-examples.md](docs/variable-examples.md).
+
+## Testing
+
+This module uses [Terratest](https://github.com/gruntwork-io/terratest) for automated testing of the module functionality. The tests validate that the module can correctly:
+
+- Create an ECR repository with basic settings
+- Apply repository and lifecycle policies
+- Configure KMS encryption
+- Set up image tag mutability
+- Configure scan on push features
+
+### Running Tests Locally
+
+To run the tests locally, you'll need:
+
+1. [Go](https://golang.org/) 1.16+
+2. [Terraform](https://www.terraform.io/) 1.3.0+
+3. AWS credentials configured locally
+
+```bash
+# Clone the repository
+git clone https://github.com/lgallard/terraform-aws-ecr.git
+cd terraform-aws-ecr
+
+# Run the tests
+cd test
+go mod tidy
+go test -v
+```
+
+For more details on tests, see the [test directory README](test/README.md).
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
