@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.4](https://github.com/lgallard/terraform-aws-ecr/compare/0.11.3...0.11.4) (2025-06-08)
+
+
+### Bug Fixes
+
+* remove "v" prefix inconsistencies in CHANGELOG.md comparison URLs ([#69](https://github.com/lgallard/terraform-aws-ecr/issues/69)) ([53df957](https://github.com/lgallard/terraform-aws-ecr/commit/53df957ea3f75d273c78f4447fc29fca506a2a0b))
+
 ## [0.11.3](https://github.com/lgallard/terraform-aws-ecr/compare/0.11.2...0.11.3) (2025-06-08)
 
 
