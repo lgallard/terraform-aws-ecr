@@ -336,16 +336,11 @@ resource "aws_ecr_registry_scanning_configuration" "scanning" {
 
   # Always create a rule to scan all repositories when registry scanning is enabled
   rule {
+    scan_frequency = "SCAN_ON_PUSH"
+    
     repository_filter {
       filter      = "*"
       filter_type = "WILDCARD"
-    }
-    
-    dynamic "scan_frequency" {
-      for_each = var.registry_scan_type == "ENHANCED" ? [1] : []
-      content {
-        scan_frequency = "SCAN_ON_PUSH"
-      }
     }
   }
 
