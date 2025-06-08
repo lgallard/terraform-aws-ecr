@@ -2,7 +2,8 @@
   "packages": {
     ".": {
       "release-type": "terraform-module",
-      "package-name": "terraform-aws-ecr"
+      "package-name": "terraform-aws-ecr",
+      "include-v-in-tag": false
     }
   },
   "changelog-types": [
@@ -28,7 +29,6 @@
   },
   "release-search-depth": 10,
   "include-component-in-tag": false,
-  "include-v-in-tag": false,
   "tag-separator": "",
   "release-title-pattern": "${package-name} ${version}",
   "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
