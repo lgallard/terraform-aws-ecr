@@ -86,6 +86,11 @@ output "pull_through_cache_role_arn" {
   value       = try(aws_iam_role.pull_through_cache[0].arn, null)
 }
 
+output "registry_scan_filters" {
+  description = "The configured scan filters for filtering scan results (e.g., by vulnerability severity)"
+  value       = var.registry_scan_filters
+}
+
 output "security_status" {
   description = "Comprehensive security status of the ECR configuration"
   value = {
@@ -97,5 +102,6 @@ output "security_status" {
     kms_encryption_enabled    = var.encryption_type == "KMS"
     image_tag_mutability      = var.image_tag_mutability
     replication_enabled       = var.enable_replication
+    scan_filters_configured   = length(var.registry_scan_filters) > 0
   }
 }

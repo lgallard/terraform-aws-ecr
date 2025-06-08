@@ -267,9 +267,13 @@ variable "registry_scan_type" {
 
 variable "registry_scan_filters" {
   description = <<-EOT
-    List of scan filters to apply to registry scanning.
-    Each filter should specify name, values, and resource_tags.
+    List of scan filters for filtering scan results when querying ECR scan findings.
+    These filters can be used by external tools or scripts to filter scan results by criteria such as vulnerability severity.
+    Each filter should specify name and values.
     Example: [{ name = "PACKAGE_VULNERABILITY_SEVERITY", values = ["HIGH", "CRITICAL"] }]
+    
+    Note: These filters are not applied at the registry scanning configuration level, but are made available 
+    as outputs for use in querying and filtering scan results.
   EOT
   type = list(object({
     name   = string
