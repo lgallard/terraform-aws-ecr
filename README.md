@@ -280,19 +280,37 @@ Here are key security best practices for your ECR repositories:
    image_tag_mutability = "IMMUTABLE"
    ```
 
-2. **Enable Vulnerability Scanning**: Automatically scan images for security vulnerabilities.
+2. **Enable Enhanced Scanning**: Use AWS Inspector for comprehensive vulnerability assessment.
+   ```hcl
+   enable_registry_scanning = true
+   registry_scan_type      = "ENHANCED"
+   enable_secret_scanning  = true
+   ```
+
+3. **Configure Pull-Through Cache**: Reduce external dependencies and improve performance.
+   ```hcl
+   enable_pull_through_cache = true
+   pull_through_cache_rules = [
+     {
+       ecr_repository_prefix = "docker-hub"
+       upstream_registry_url = "registry-1.docker.io"
+     }
+   ]
+   ```
+
+4. **Enable Basic Scanning**: Automatically scan images for security vulnerabilities (if not using enhanced).
    ```hcl
    scan_on_push = true
    ```
 
-3. **Implement Least Privilege Access**: Use repository policies that grant only necessary permissions.
+5. **Implement Least Privilege Access**: Use repository policies that grant only necessary permissions.
    
-4. **Enable KMS Encryption**: Use AWS KMS for enhanced encryption of container images.
+6. **Enable KMS Encryption**: Use AWS KMS for enhanced encryption of container images.
    ```hcl
    encryption_type = "KMS"
    ```
 
-5. **Configure Lifecycle Policies**: Automatically clean up old or unused images.
+7. **Configure Lifecycle Policies**: Automatically clean up old or unused images.
 
 For a comprehensive guide with detailed examples, see [docs/security-best-practices.md](docs/security-best-practices.md).
 
@@ -335,9 +353,43 @@ module "ecr" {
   
   name                 = "secure-repo"
   image_tag_mutability = "IMMUTABLE"    # Prevent tag overwriting
-  scan_on_push         = true           # Enable vulnerability scanning
+  scan_on_push         = true           # Enable basic vulnerability scanning
   encryption_type      = "KMS"          # Use KMS encryption
   prevent_destroy      = true           # Protect from accidental deletion
+}
+```
+
+### Enhanced Security Configuration
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name                 = "enhanced-secure-repo"
+  image_tag_mutability = "IMMUTABLE"
+  encryption_type      = "KMS"
+  
+  # Enhanced scanning with AWS Inspector
+  enable_registry_scanning = true
+  registry_scan_type      = "ENHANCED"
+  enable_secret_scanning  = true
+  
+  # Registry scan filters for high/critical vulnerabilities
+  registry_scan_filters = [
+    {
+      name   = "PACKAGE_VULNERABILITY_SEVERITY"
+      values = ["HIGH", "CRITICAL"]
+    }
+  ]
+  
+  # Pull-through cache for Docker Hub
+  enable_pull_through_cache = true
+  pull_through_cache_rules = [
+    {
+      ecr_repository_prefix = "docker-hub"
+      upstream_registry_url = "registry-1.docker.io"
+    }
+  ]
 }
 ```
 

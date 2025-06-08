@@ -63,9 +63,39 @@ module "ecr" {
 
 ## Image Scanning and Vulnerability Management
 
-### Enable Automatic Scanning
+### Enable Enhanced Scanning with AWS Inspector
 
-Enable automatic scanning of images to detect vulnerabilities:
+For comprehensive security assessment, enable enhanced scanning with AWS Inspector integration:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "secure-ecr-repo"
+  
+  # Enhanced scanning configuration
+  enable_registry_scanning = true
+  registry_scan_type      = "ENHANCED"
+  enable_secret_scanning  = true
+  
+  # Filter for high and critical vulnerabilities
+  registry_scan_filters = [
+    {
+      name   = "PACKAGE_VULNERABILITY_SEVERITY"
+      values = ["HIGH", "CRITICAL"]
+    }
+  ]
+}
+```
+
+Enhanced scanning provides:
+- **OS and application vulnerability detection**: Comprehensive assessment using AWS Inspector
+- **Secret detection**: Automatic identification of exposed API keys, passwords, and tokens
+- **Compliance reporting**: Integration with AWS Security Hub and other services
+- **Detailed remediation guidance**: Specific recommendations for fixing vulnerabilities
+
+### Enable Basic Scanning (Alternative)
+
+For basic vulnerability scanning without Inspector integration:
 
 ```hcl
 module "ecr" {
@@ -192,6 +222,47 @@ module "ecr" {
     ]
   })
 }
+```
+
+## Pull-Through Cache for Enhanced Security
+
+Configure pull-through cache to reduce external dependencies and improve security posture:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "secure-ecr-repo"
+  
+  # Enable pull-through cache for trusted registries
+  enable_pull_through_cache = true
+  pull_through_cache_rules = [
+    {
+      ecr_repository_prefix = "docker-hub"
+      upstream_registry_url = "registry-1.docker.io"
+    },
+    {
+      ecr_repository_prefix = "quay"
+      upstream_registry_url = "quay.io"
+    }
+  ]
+}
+```
+
+Pull-through cache benefits:
+- **Reduced external dependencies**: Images are cached locally, reducing reliance on external registries
+- **Improved performance**: Faster image pulls from local cache
+- **Enhanced security**: Centralized control over which upstream registries are allowed
+- **Cost optimization**: Reduced data transfer costs from external registries
+- **Availability**: Images remain accessible even if upstream registries are unavailable
+
+### Usage with Pull-Through Cache
+
+```bash
+# Pull from cached Docker Hub image
+docker pull <account>.dkr.ecr.<region>.amazonaws.com/docker-hub/library/nginx:latest
+
+# Pull from cached Quay image
+docker pull <account>.dkr.ecr.<region>.amazonaws.com/quay/prometheus/prometheus:latest
 ```
 
 ## Cross-Account Access Controls

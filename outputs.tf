@@ -53,3 +53,56 @@ output "replication_status" {
     regions = var.enable_replication ? var.replication_regions : []
   }
 }
+
+# Enhanced scanning outputs
+output "registry_scanning_configuration_arn" {
+  description = "The ARN of the ECR registry scanning configuration (if enhanced scanning is enabled)"
+  value       = try(aws_ecr_registry_scanning_configuration.scanning[0].id, null)
+}
+
+output "registry_scanning_status" {
+  description = "Status of ECR registry scanning configuration"
+  value = {
+    enabled                 = var.enable_registry_scanning
+    scan_type               = var.enable_registry_scanning ? (var.enable_secret_scanning ? "ENHANCED" : var.registry_scan_type) : null
+    secret_scanning_enabled = var.enable_secret_scanning
+    repository_filters      = var.enable_registry_scanning ? var.scan_repository_filters : []
+  }
+}
+
+# Pull-through cache outputs
+output "pull_through_cache_rules" {
+  description = "List of pull-through cache rules (if enabled)"
+  value = var.enable_pull_through_cache ? [
+    for rule in aws_ecr_pull_through_cache_rule.cache_rules : {
+      ecr_repository_prefix = rule.ecr_repository_prefix
+      upstream_registry_url = rule.upstream_registry_url
+      registry_id           = rule.registry_id
+    }
+  ] : []
+}
+
+output "pull_through_cache_role_arn" {
+  description = "The ARN of the IAM role used for pull-through cache operations (if enabled)"
+  value       = try(aws_iam_role.pull_through_cache[0].arn, null)
+}
+
+output "registry_scan_filters" {
+  description = "The configured scan filters for filtering scan results (e.g., by vulnerability severity)"
+  value       = var.registry_scan_filters
+}
+
+output "security_status" {
+  description = "Comprehensive security status of the ECR configuration"
+  value = {
+    basic_scanning_enabled     = local.image_scanning_configuration[0].scan_on_push
+    enhanced_scanning_enabled  = var.enable_registry_scanning
+    secret_scanning_enabled    = var.enable_secret_scanning
+    pull_through_cache_enabled = var.enable_pull_through_cache
+    encryption_type            = var.encryption_type
+    kms_encryption_enabled     = var.encryption_type == "KMS"
+    image_tag_mutability       = var.image_tag_mutability
+    replication_enabled        = var.enable_replication
+    scan_filters_configured    = length(var.registry_scan_filters) > 0
+  }
+}
