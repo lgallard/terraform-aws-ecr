@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.11.0...v0.11.1) (2025-06-08)
+
+
+### Bug Fixes
+
+* update deprecated upload-artifact action from v3 to v4 ([#61](https://github.com/lgallard/terraform-aws-ecr/issues/61)) ([62f137a](https://github.com/lgallard/terraform-aws-ecr/commit/62f137a4c247d2d19b2d77be1c616fe483d20e8b))
+
 ## [0.11.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.10.0...v0.11.0) (2025-06-08)
 
 
