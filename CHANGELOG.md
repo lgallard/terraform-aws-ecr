@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.10.0...v0.11.0) (2025-06-08)
+
+
+### Features
+
+* Add support for repository replication ([#55](https://github.com/lgallard/terraform-aws-ecr/issues/55)) ([5ef83b8](https://github.com/lgallard/terraform-aws-ecr/commit/5ef83b885450135ced47d7f302bf2b35b7c4d5ab))
+
 ## [0.10.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.9.2...v0.10.0) (2025-06-08)
 
 
