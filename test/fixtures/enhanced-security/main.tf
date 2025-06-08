@@ -11,6 +11,7 @@ module "ecr" {
   enable_registry_scanning = var.enable_registry_scanning
   registry_scan_type      = var.registry_scan_type
   enable_secret_scanning  = var.enable_secret_scanning
+  scan_repository_filters = var.scan_repository_filters
   
   # Registry scan filters
   registry_scan_filters = var.registry_scan_filters

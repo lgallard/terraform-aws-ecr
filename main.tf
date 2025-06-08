@@ -334,13 +334,16 @@ resource "aws_ecr_registry_scanning_configuration" "scanning" {
 
   scan_type = var.registry_scan_type
 
-  # Always create a rule to scan all repositories when registry scanning is enabled
-  rule {
-    scan_frequency = "SCAN_ON_PUSH"
-    
-    repository_filter {
-      filter      = "*"
-      filter_type = "WILDCARD"
+  # Create rules for each repository filter pattern
+  dynamic "rule" {
+    for_each = var.scan_repository_filters
+    content {
+      scan_frequency = "SCAN_ON_PUSH"
+      
+      repository_filter {
+        filter      = rule.value
+        filter_type = "WILDCARD"
+      }
     }
   }
 
@@ -349,6 +352,14 @@ resource "aws_ecr_registry_scanning_configuration" "scanning" {
     aws_ecr_repository.repo,
     aws_ecr_repository.repo_protected
   ]
+
+  # Add validation for secret scanning requirements
+  lifecycle {
+    precondition {
+      condition     = !var.enable_secret_scanning || (var.enable_registry_scanning && var.registry_scan_type == "ENHANCED")
+      error_message = "Secret scanning (enable_secret_scanning = true) requires registry scanning to be enabled (enable_registry_scanning = true) and scan type to be ENHANCED (registry_scan_type = \"ENHANCED\")."
+    }
+  }
 }
 
 # ----------------------------------------------------------

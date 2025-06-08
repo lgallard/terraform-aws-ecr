@@ -325,4 +325,16 @@ variable "enable_secret_scanning" {
   default     = false
 }
 
+variable "scan_repository_filters" {
+  description = <<-EOT
+    List of repository filters to apply for registry scanning.
+    Each filter specifies which repositories should be scanned.
+    Supports wildcard patterns using '*' character.
+    If empty, defaults to scanning all repositories ("*").
+    Example: ["my-app-*", "important-service"]
+  EOT
+  type        = list(string)
+  default     = ["*"]
+}
+
 

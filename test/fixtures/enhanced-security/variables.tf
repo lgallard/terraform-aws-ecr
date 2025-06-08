@@ -46,6 +46,12 @@ variable "pull_through_cache_rules" {
   default = []
 }
 
+variable "scan_repository_filters" {
+  description = "Repository filters for scanning"
+  type        = list(string)
+  default     = ["*"]
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
