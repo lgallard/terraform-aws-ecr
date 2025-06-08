@@ -325,6 +325,113 @@ resource "aws_ecr_replication_configuration" "replication" {
 }
 
 # ----------------------------------------------------------
+# Enhanced Scanning Configuration
+# ----------------------------------------------------------
+
+# Registry scanning configuration for enhanced security scanning
+resource "aws_ecr_registry_scanning_configuration" "scanning" {
+  count = var.enable_registry_scanning ? 1 : 0
+
+  scan_type = var.registry_scan_type
+
+  dynamic "rule" {
+    for_each = length(var.registry_scan_filters) > 0 ? [1] : []
+    content {
+      repository_filter {
+        filter      = "*"
+        filter_type = "WILDCARD"
+      }
+      
+      dynamic "scan_frequency" {
+        for_each = var.registry_scan_type == "ENHANCED" ? [1] : []
+        content {
+          scan_frequency = "SCAN_ON_PUSH"
+        }
+      }
+    }
+  }
+
+  # Ensure scanning is configured after repository is created
+  depends_on = [
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
+  ]
+}
+
+# ----------------------------------------------------------
+# Pull-Through Cache Configuration
+# ----------------------------------------------------------
+
+# Pull-through cache rules for upstream registries
+resource "aws_ecr_pull_through_cache_rule" "cache_rules" {
+  count = var.enable_pull_through_cache ? length(var.pull_through_cache_rules) : 0
+
+  ecr_repository_prefix = var.pull_through_cache_rules[count.index].ecr_repository_prefix
+  upstream_registry_url = var.pull_through_cache_rules[count.index].upstream_registry_url
+  credential_arn        = var.pull_through_cache_rules[count.index].credential_arn
+
+  # Ensure cache rules are created after repository is created
+  depends_on = [
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
+  ]
+}
+
+# IAM role for pull-through cache operations
+resource "aws_iam_role" "pull_through_cache" {
+  count = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? 1 : 0
+  name  = "ecr-pull-through-cache-${var.name}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecr.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = merge(
+    {
+      Name      = "${var.name}-pull-through-cache-role"
+      ManagedBy = "Terraform"
+    },
+    var.tags
+  )
+}
+
+# IAM policy for pull-through cache operations
+resource "aws_iam_role_policy" "pull_through_cache" {
+  count = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? 1 : 0
+  name  = "ecr-pull-through-cache-${var.name}"
+  role  = aws_iam_role.pull_through_cache[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:CreateRepository",
+          "ecr:BatchImportLayerAvailability",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload"
+        ]
+        Resource = [
+          "arn:aws:ecr:*:${data.aws_caller_identity.current.account_id}:repository/*"
+        ]
+      }
+    ]
+  })
+}
+
+# ----------------------------------------------------------
 # Configuration Locals
 # ----------------------------------------------------------
 

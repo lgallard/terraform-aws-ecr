@@ -235,4 +235,90 @@ variable "replication_regions" {
   default     = []
 }
 
+# ----------------------------------------------------------
+# Enhanced Scanning Configuration
+# ----------------------------------------------------------
+
+variable "enable_registry_scanning" {
+  description = <<-EOT
+    Whether to enable enhanced scanning for the ECR registry.
+    Enhanced scanning uses Amazon Inspector to provide detailed vulnerability assessments.
+    This is a registry-level configuration that affects all repositories in the account.
+    Defaults to false.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "registry_scan_type" {
+  description = <<-EOT
+    The type of scanning to configure for the registry.
+    - BASIC: Basic scanning for OS vulnerabilities
+    - ENHANCED: Enhanced scanning with Amazon Inspector integration
+    Only applicable when enable_registry_scanning is true.
+  EOT
+  type        = string
+  default     = "ENHANCED"
+  validation {
+    condition     = contains(["BASIC", "ENHANCED"], var.registry_scan_type)
+    error_message = "Registry scan type must be either BASIC or ENHANCED."
+  }
+}
+
+variable "registry_scan_filters" {
+  description = <<-EOT
+    List of scan filters to apply to registry scanning.
+    Each filter should specify name, values, and resource_tags.
+    Example: [{ name = "PACKAGE_VULNERABILITY_SEVERITY", values = ["HIGH", "CRITICAL"] }]
+  EOT
+  type = list(object({
+    name   = string
+    values = list(string)
+  }))
+  default = []
+}
+
+# ----------------------------------------------------------
+# Pull-Through Cache Configuration
+# ----------------------------------------------------------
+
+variable "enable_pull_through_cache" {
+  description = <<-EOT
+    Whether to create pull-through cache rules.
+    Pull-through cache rules allow you to cache images from upstream registries.
+    Defaults to false.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "pull_through_cache_rules" {
+  description = <<-EOT
+    List of pull-through cache rules to create.
+    Each rule should specify ecr_repository_prefix and upstream_registry_url.
+    Example: [{ ecr_repository_prefix = "docker-hub", upstream_registry_url = "registry-1.docker.io" }]
+  EOT
+  type = list(object({
+    ecr_repository_prefix  = string
+    upstream_registry_url  = string
+    credential_arn         = optional(string)
+  }))
+  default = []
+}
+
+# ----------------------------------------------------------
+# Secret Scanning Configuration
+# ----------------------------------------------------------
+
+variable "enable_secret_scanning" {
+  description = <<-EOT
+    Whether to enable secret scanning as part of enhanced scanning.
+    This feature detects secrets like API keys, passwords, and tokens in container images.
+    Requires enable_registry_scanning to be true and registry_scan_type to be ENHANCED.
+    Defaults to false.
+  EOT
+  type        = bool
+  default     = false
+}
+
 
