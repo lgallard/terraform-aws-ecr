@@ -21,3 +21,21 @@ variable "environment" {
   type        = string
   default     = "prod"
 }
+
+variable "enable_replication" {
+  description = "Whether to use built-in ECR replication (recommended)"
+  type        = bool
+  default     = true
+}
+
+variable "use_manual_setup" {
+  description = "Whether to demonstrate manual multi-region setup (alternative approach)"
+  type        = bool
+  default     = false
+}
+
+variable "enable_logging" {
+  description = "Whether to enable CloudWatch logging"
+  type        = bool
+  default     = false
+}

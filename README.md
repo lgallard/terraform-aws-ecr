@@ -45,7 +45,8 @@ Check the [examples](examples/) directory for examples including:
 - **Complete** - Full-featured ECR repository with all options
 - **Protected** - Repository with deletion protection
 - **With ECS Integration** - ECR configured for use with ECS
-- **Multi-Region** - Repository configured for cross-region replication
+- **Multi-Region** - Repository configured for cross-region replication (manual and automatic approaches)
+- **Replication** - ECR repository with built-in cross-region replication support
 
 ### Simple example
 This example creates an ECR registry using few parameters
@@ -111,6 +112,46 @@ module "ecr" {
 The module outputs logging-related ARNs:
 - `cloudwatch_log_group_arn` - The ARN of the CloudWatch Log Group
 - `logging_role_arn` - The ARN of the IAM role used for logging
+
+### Cross-Region Replication
+
+The module now supports automatic cross-region replication for disaster recovery and multi-region deployments. When enabled, images are automatically replicated to specified regions whenever they are pushed to the primary repository.
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name = "my-application"
+
+  # Enable cross-region replication
+  enable_replication  = true
+  replication_regions = ["us-west-2", "eu-west-1", "ap-southeast-1"]
+
+  tags = {
+    Environment = "production"
+    Application = "my-app"
+  }
+}
+```
+
+**Key Benefits:**
+- **Disaster Recovery** - Images remain available if a region becomes unavailable
+- **Reduced Latency** - Pull images from the nearest region
+- **High Availability** - Improved resilience for multi-region workloads
+- **Automatic Sync** - No manual intervention required for replication
+
+**Important Notes:**
+- Replication is configured at the registry level (affects all repositories in the account)
+- Use immutable tags (`image_tag_mutability = "IMMUTABLE"`) for consistency across regions
+- Additional costs apply for cross-region data transfer and storage
+- Replication is one-way from the source region to destination regions
+
+The module provides replication-related outputs:
+- `replication_status` - Overall replication configuration status
+- `replication_regions` - List of destination regions
+- `replication_configuration_arn` - ARN of the replication configuration
+
+For more detailed examples, see the [replication example](examples/replication/) and [multi-region example](examples/multi-region/).
 
 ### Complete example
 In this example the register is defined in detailed.

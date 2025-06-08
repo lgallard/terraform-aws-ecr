@@ -325,11 +325,77 @@ module "ecr" {
   enable_logging     = true
   log_retention_days = 90
   
+  # Cross-region replication
+  enable_replication  = true
+  replication_regions = ["us-west-2", "eu-west-1"]
+  
   # Tags
   tags = {
     Environment = "Production"
     Department  = "Engineering"
     Project     = "MyApp"
     ManagedBy   = "Terraform"
+  }
+}
+```
+
+## Cross-Region Replication Settings
+
+### `enable_replication` - Enable Cross-Region Replication
+
+Enable automatic cross-region replication for disaster recovery and multi-region deployments.
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "production-app"
+  
+  enable_replication = true  # Enable automatic replication
+}
+```
+
+### `replication_regions` - Target Regions for Replication
+
+Specify the AWS regions where images should be automatically replicated.
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "production-app"
+  
+  enable_replication  = true
+  replication_regions = ["us-west-2", "eu-west-1", "ap-southeast-1"]
+}
+```
+
+**Important Notes:**
+- Replication is configured at the registry level (affects all repositories in the account)
+- Use immutable tags for consistency across regions
+- Additional costs apply for cross-region data transfer
+
+### Complete Replication Example
+
+```hcl
+module "ecr_with_replication" {
+  source = "lgallard/ecr/aws"
+  
+  name                 = "global-application"
+  image_tag_mutability = "IMMUTABLE"  # Recommended for replication
+  scan_on_push         = true
+  
+  # Enable replication for disaster recovery
+  enable_replication  = true
+  replication_regions = ["us-west-2", "eu-west-1", "ap-southeast-1"]
+  
+  # Optional: Use KMS encryption for source repository
+  encryption_type = "KMS"
+  
+  # Enable logging for monitoring
+  enable_logging = true
+  
+  tags = {
+    Environment = "Production"
+    Application = "GlobalApp"
+    Purpose     = "MultiRegion"
   }
 }

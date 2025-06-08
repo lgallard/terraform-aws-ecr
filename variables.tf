@@ -209,3 +209,30 @@ variable "log_retention_days" {
     error_message = "Log retention days must be one of: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653."
   }
 }
+
+# ----------------------------------------------------------
+# Replication Configuration
+# ----------------------------------------------------------
+
+variable "enable_replication" {
+  description = <<-EOT
+    Whether to enable cross-region replication for the ECR registry.
+    When enabled, images will be automatically replicated to the specified regions.
+    Note: This is a registry-level configuration that affects all repositories in the account.
+    Defaults to false.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "replication_regions" {
+  description = <<-EOT
+    List of AWS regions to replicate ECR images to.
+    Only applicable when enable_replication is true.
+    Example: ["us-west-2", "eu-west-1"]
+  EOT
+  type        = list(string)
+  default     = []
+}
+
+

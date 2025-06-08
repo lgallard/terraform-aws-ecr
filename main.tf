@@ -297,6 +297,37 @@ resource "aws_iam_role_policy" "ecr_logging" {
   })
 }
 
+# ----------------------------------------------------------
+# Replication Configuration
+# ----------------------------------------------------------
+
+# ECR replication configuration for cross-region replication
+resource "aws_ecr_replication_configuration" "replication" {
+  count = var.enable_replication && length(var.replication_regions) > 0 ? 1 : 0
+
+  replication_configuration {
+    rule {
+      dynamic "destination" {
+        for_each = var.replication_regions
+        content {
+          region      = destination.value
+          registry_id = data.aws_caller_identity.current.account_id
+        }
+      }
+    }
+  }
+
+  # Ensure replication is configured after repository is created
+  depends_on = [
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
+  ]
+}
+
+# ----------------------------------------------------------
+# Configuration Locals
+# ----------------------------------------------------------
+
 locals {
   # Determine if we need to create a new KMS key
   should_create_kms_key = var.encryption_type == "KMS" && var.kms_key == null
