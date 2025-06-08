@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.11.4...0.12.0) (2025-06-08)
+
+
+### Features
+
+* Enhance security configurations with registry scanning, pull-through cache, and secret scanning ([#71](https://github.com/lgallard/terraform-aws-ecr/issues/71)) ([666e7bc](https://github.com/lgallard/terraform-aws-ecr/commit/666e7bc1d28382a1b6a30606eaec07f0c5a5a778))
+
 ## [0.11.4](https://github.com/lgallard/terraform-aws-ecr/compare/0.11.3...0.11.4) (2025-06-08)
 
 
