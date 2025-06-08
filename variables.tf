@@ -318,7 +318,8 @@ variable "enable_secret_scanning" {
   description = <<-EOT
     Whether to enable secret scanning as part of enhanced scanning.
     This feature detects secrets like API keys, passwords, and tokens in container images.
-    Requires enable_registry_scanning to be true and registry_scan_type to be ENHANCED.
+    When enabled, automatically sets the registry scan type to ENHANCED, overriding registry_scan_type.
+    Requires enable_registry_scanning to be true.
     Defaults to false.
   EOT
   type        = bool

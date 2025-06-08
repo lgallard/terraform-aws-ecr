@@ -354,11 +354,11 @@ resource "aws_ecr_registry_scanning_configuration" "scanning" {
     aws_ecr_repository.repo_protected
   ]
 
-  # Add validation for secret scanning requirements
+  # Validation for secret scanning requirements
   lifecycle {
     precondition {
-      condition     = !var.enable_secret_scanning || (var.enable_registry_scanning && var.registry_scan_type == "ENHANCED")
-      error_message = "Secret scanning (enable_secret_scanning = true) requires registry scanning to be enabled (enable_registry_scanning = true) and scan type to be ENHANCED (registry_scan_type = \"ENHANCED\")."
+      condition     = !var.enable_secret_scanning || var.enable_registry_scanning
+      error_message = "Secret scanning (enable_secret_scanning = true) requires registry scanning to be enabled (enable_registry_scanning = true). The scan type will be automatically set to ENHANCED when secret scanning is enabled."
     }
   }
 }

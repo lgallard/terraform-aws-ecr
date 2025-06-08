@@ -64,7 +64,7 @@ output "registry_scanning_status" {
   description = "Status of ECR registry scanning configuration"
   value = {
     enabled                 = var.enable_registry_scanning
-    scan_type               = var.enable_registry_scanning ? var.registry_scan_type : null
+    scan_type               = var.enable_registry_scanning ? (var.enable_secret_scanning ? "ENHANCED" : var.registry_scan_type) : null
     secret_scanning_enabled = var.enable_secret_scanning
     repository_filters      = var.enable_registry_scanning ? var.scan_repository_filters : []
   }
