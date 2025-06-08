@@ -332,14 +332,15 @@ resource "aws_ecr_replication_configuration" "replication" {
 resource "aws_ecr_registry_scanning_configuration" "scanning" {
   count = var.enable_registry_scanning ? 1 : 0
 
-  scan_type = var.registry_scan_type
+  # Use ENHANCED scan type when secret scanning is enabled, otherwise use the configured type
+  scan_type = var.enable_secret_scanning ? "ENHANCED" : var.registry_scan_type
 
   # Create rules for each repository filter pattern
   dynamic "rule" {
     for_each = var.scan_repository_filters
     content {
       scan_frequency = "SCAN_ON_PUSH"
-      
+
       repository_filter {
         filter      = rule.value
         filter_type = "WILDCARD"

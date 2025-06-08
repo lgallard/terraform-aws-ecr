@@ -303,9 +303,9 @@ variable "pull_through_cache_rules" {
     Example: [{ ecr_repository_prefix = "docker-hub", upstream_registry_url = "registry-1.docker.io" }]
   EOT
   type = list(object({
-    ecr_repository_prefix  = string
-    upstream_registry_url  = string
-    credential_arn         = optional(string)
+    ecr_repository_prefix = string
+    upstream_registry_url = string
+    credential_arn        = optional(string)
   }))
   default = []
 }

@@ -63,10 +63,10 @@ output "registry_scanning_configuration_arn" {
 output "registry_scanning_status" {
   description = "Status of ECR registry scanning configuration"
   value = {
-    enabled                   = var.enable_registry_scanning
-    scan_type                = var.enable_registry_scanning ? var.registry_scan_type : null
-    secret_scanning_enabled  = var.enable_secret_scanning
-    repository_filters       = var.enable_registry_scanning ? var.scan_repository_filters : []
+    enabled                 = var.enable_registry_scanning
+    scan_type               = var.enable_registry_scanning ? var.registry_scan_type : null
+    secret_scanning_enabled = var.enable_secret_scanning
+    repository_filters      = var.enable_registry_scanning ? var.scan_repository_filters : []
   }
 }
 
@@ -77,7 +77,7 @@ output "pull_through_cache_rules" {
     for rule in aws_ecr_pull_through_cache_rule.cache_rules : {
       ecr_repository_prefix = rule.ecr_repository_prefix
       upstream_registry_url = rule.upstream_registry_url
-      registry_id          = rule.registry_id
+      registry_id           = rule.registry_id
     }
   ] : []
 }
@@ -97,12 +97,12 @@ output "security_status" {
   value = {
     basic_scanning_enabled     = local.image_scanning_configuration[0].scan_on_push
     enhanced_scanning_enabled  = var.enable_registry_scanning
-    secret_scanning_enabled   = var.enable_secret_scanning
+    secret_scanning_enabled    = var.enable_secret_scanning
     pull_through_cache_enabled = var.enable_pull_through_cache
-    encryption_type           = var.encryption_type
-    kms_encryption_enabled    = var.encryption_type == "KMS"
-    image_tag_mutability      = var.image_tag_mutability
-    replication_enabled       = var.enable_replication
-    scan_filters_configured   = length(var.registry_scan_filters) > 0
+    encryption_type            = var.encryption_type
+    kms_encryption_enabled     = var.encryption_type == "KMS"
+    image_tag_mutability       = var.image_tag_mutability
+    replication_enabled        = var.enable_replication
+    scan_filters_configured    = length(var.registry_scan_filters) > 0
   }
 }
