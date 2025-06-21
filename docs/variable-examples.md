@@ -275,6 +275,99 @@ module "ecr" {
 }
 ```
 
+### Enhanced Lifecycle Policy Configuration
+
+The module now provides enhanced lifecycle policy configuration through helper variables and predefined templates, making it easier to implement common lifecycle patterns without writing complex JSON.
+
+#### Using Helper Variables
+
+Configure lifecycle policies using individual helper variables for maximum flexibility:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "application-backend"
+  
+  # Keep only the latest 30 images
+  lifecycle_keep_latest_n_images = 30
+  
+  # Delete untagged images after 7 days  
+  lifecycle_expire_untagged_after_days = 7
+  
+  # Delete tagged images after 90 days
+  lifecycle_expire_tagged_after_days = 90
+  
+  # Apply retention rules only to specific tag prefixes
+  lifecycle_tag_prefixes_to_keep = ["v", "release", "prod"]
+}
+```
+
+#### Using Predefined Templates
+
+Use predefined templates for common scenarios:
+
+```hcl
+# Development environment optimized for frequent builds
+module "ecr_dev" {
+  source = "lgallard/ecr/aws"
+  name   = "dev-application"
+  
+  lifecycle_policy_template = "development"
+  # Keeps 50 images, expires untagged after 7 days
+}
+
+# Production environment with longer retention
+module "ecr_prod" {
+  source = "lgallard/ecr/aws"
+  name   = "prod-application"
+  
+  lifecycle_policy_template = "production"  
+  # Keeps 100 images, expires untagged after 14 days, tagged after 90 days
+}
+
+# Cost-optimized for minimal storage usage
+module "ecr_cost" {
+  source = "lgallard/ecr/aws"
+  name   = "test-application"
+  
+  lifecycle_policy_template = "cost_optimization"
+  # Keeps 10 images, expires untagged after 3 days, tagged after 30 days  
+}
+
+# Compliance environment with long retention
+module "ecr_compliance" {
+  source = "lgallard/ecr/aws"
+  name   = "audit-application"
+  
+  lifecycle_policy_template = "compliance"
+  # Keeps 200 images, expires untagged after 30 days, tagged after 365 days
+}
+```
+
+#### Configuration Precedence
+
+When multiple lifecycle policy configurations are provided, they follow this precedence order:
+
+1. **Manual `lifecycle_policy`** (highest) - Overrides all other settings
+2. **Template `lifecycle_policy_template`** - Overrides helper variables
+3. **Helper variables** (lowest) - Used when no template or manual policy is specified
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "example"
+  
+  # Manual policy takes precedence (this will be used)
+  lifecycle_policy = jsonencode({
+    rules = [{ /* custom rules */ }]
+  })
+  
+  # These will be ignored since manual policy is provided
+  lifecycle_policy_template = "production"
+  lifecycle_keep_latest_n_images = 50
+}
+```
+
 ## Timeouts
 
 ### `timeouts` and `timeouts_delete` - Operation Timeouts

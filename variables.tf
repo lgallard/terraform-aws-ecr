@@ -138,10 +138,110 @@ variable "lifecycle_policy" {
   description = <<-EOT
     JSON string representing the lifecycle policy.
     If null (default), no lifecycle policy will be created.
+    Takes precedence over helper variables and templates if specified.
     See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/lifecycle_policy_examples.html
   EOT
   type        = string
   default     = null
+}
+
+# ----------------------------------------------------------
+# Lifecycle Policy Helper Variables
+# ----------------------------------------------------------
+
+variable "lifecycle_keep_latest_n_images" {
+  description = <<-EOT
+    Number of latest images to keep in the repository.
+    If specified, creates a lifecycle policy rule to keep only the N most recent images.
+    Set to null to disable this rule.
+  EOT
+  type        = number
+  default     = null
+  validation {
+    condition = (
+      var.lifecycle_keep_latest_n_images == null ||
+      (var.lifecycle_keep_latest_n_images > 0 && var.lifecycle_keep_latest_n_images <= 10000)
+    )
+    error_message = "lifecycle_keep_latest_n_images must be between 1 and 10000 if specified."
+  }
+}
+
+variable "lifecycle_expire_untagged_after_days" {
+  description = <<-EOT
+    Number of days after which untagged images should be expired.
+    If specified, creates a lifecycle policy rule to delete untagged images older than N days.
+    Set to null to disable this rule.
+  EOT
+  type        = number
+  default     = null
+  validation {
+    condition = (
+      var.lifecycle_expire_untagged_after_days == null ||
+      (var.lifecycle_expire_untagged_after_days > 0 && var.lifecycle_expire_untagged_after_days <= 3650)
+    )
+    error_message = "lifecycle_expire_untagged_after_days must be between 1 and 3650 days if specified."
+  }
+}
+
+variable "lifecycle_expire_tagged_after_days" {
+  description = <<-EOT
+    Number of days after which tagged images should be expired.
+    If specified, creates a lifecycle policy rule to delete tagged images older than N days.
+    Set to null to disable this rule.
+  EOT
+  type        = number
+  default     = null
+  validation {
+    condition = (
+      var.lifecycle_expire_tagged_after_days == null ||
+      (var.lifecycle_expire_tagged_after_days > 0 && var.lifecycle_expire_tagged_after_days <= 3650)
+    )
+    error_message = "lifecycle_expire_tagged_after_days must be between 1 and 3650 days if specified."
+  }
+}
+
+variable "lifecycle_tag_prefixes_to_keep" {
+  description = <<-EOT
+    List of tag prefixes for images that should be kept longer.
+    When used with lifecycle_keep_latest_n_images, applies the keep rule only to images with these tag prefixes.
+    Example: ["v", "release-", "stable-"]
+    Set to empty list to apply rules to all images.
+  EOT
+  type        = list(string)
+  default     = []
+  validation {
+    condition = (
+      length(var.lifecycle_tag_prefixes_to_keep) <= 100 &&
+      alltrue([for prefix in var.lifecycle_tag_prefixes_to_keep : length(prefix) <= 255])
+    )
+    error_message = "Maximum of 100 tag prefixes allowed, each with maximum length of 255 characters."
+  }
+}
+
+# ----------------------------------------------------------
+# Lifecycle Policy Templates
+# ----------------------------------------------------------
+
+variable "lifecycle_policy_template" {
+  description = <<-EOT
+    Predefined lifecycle policy template to use.
+    Available templates:
+    - "development": Keep 50 images, expire untagged after 7 days
+    - "production": Keep 100 images, expire untagged after 14 days, keep release tags longer
+    - "cost_optimization": Keep 10 images, expire untagged after 3 days, aggressive cleanup
+    - "compliance": Keep 200 images, expire untagged after 30 days, long retention for audit
+    Set to null to use custom helper variables or manual lifecycle_policy.
+    Takes precedence over helper variables but not over manual lifecycle_policy.
+  EOT
+  type        = string
+  default     = null
+  validation {
+    condition = (
+      var.lifecycle_policy_template == null ||
+      contains(["development", "production", "cost_optimization", "compliance"], var.lifecycle_policy_template)
+    )
+    error_message = "lifecycle_policy_template must be one of: development, production, cost_optimization, compliance."
+  }
 }
 
 # ----------------------------------------------------------
