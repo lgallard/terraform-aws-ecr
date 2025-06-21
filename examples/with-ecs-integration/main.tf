@@ -146,8 +146,8 @@ resource "aws_iam_role_policy" "ecr_pull" {
         Resource = module.ecr.repository_arn
       },
       {
-        Effect = "Allow"
-        Action = "ecr:GetAuthorizationToken"
+        Effect   = "Allow"
+        Action   = "ecr:GetAuthorizationToken"
         Resource = "*"
       }
     ]

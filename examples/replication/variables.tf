@@ -26,7 +26,7 @@ variable "replication_regions" {
 variable "enable_logging" {
   description = "Whether to enable CloudWatch logging"
   type        = bool
-  default     = false  # Keep it false by default for simplicity
+  default     = false # Keep it false by default for simplicity
 }
 
 variable "environment" {
