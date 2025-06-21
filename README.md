@@ -271,6 +271,87 @@ terraform destroy
 
 This approach allows protecting repositories by default while providing a controlled way to remove them when needed.
 
+## Enhanced Lifecycle Policy Configuration
+
+The module provides enhanced lifecycle policy configuration through helper variables and predefined templates, making it easier to implement common lifecycle patterns without writing complex JSON.
+
+### Using Helper Variables
+
+Configure lifecycle policies using individual helper variables:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Keep only the latest 30 images
+  lifecycle_keep_latest_n_images = 30
+  
+  # Delete untagged images after 7 days
+  lifecycle_expire_untagged_after_days = 7
+  
+  # Delete tagged images after 90 days
+  lifecycle_expire_tagged_after_days = 90
+  
+  # Apply rules only to specific tag prefixes
+  lifecycle_tag_prefixes_to_keep = ["v", "release", "prod"]
+}
+```
+
+### Using Predefined Templates
+
+Use predefined templates for common scenarios:
+
+```hcl
+# Development environment (50 images, expire untagged after 7 days)
+module "ecr_dev" {
+  source = "lgallard/ecr/aws"
+  name   = "dev-app"
+  lifecycle_policy_template = "development"
+}
+
+# Production environment (100 images, longer retention)
+module "ecr_prod" {
+  source = "lgallard/ecr/aws"
+  name   = "prod-app"
+  lifecycle_policy_template = "production"
+}
+
+# Cost-optimized (10 images, aggressive cleanup)
+module "ecr_cost" {
+  source = "lgallard/ecr/aws"
+  name   = "test-app"
+  lifecycle_policy_template = "cost_optimization"
+}
+
+# Compliance (200 images, long retention for audit)
+module "ecr_compliance" {
+  source = "lgallard/ecr/aws"
+  name   = "audit-app"
+  lifecycle_policy_template = "compliance"
+}
+```
+
+### Available Templates
+
+| Template | Keep Images | Untagged Expiry | Tagged Expiry | Use Case |
+|----------|-------------|-----------------|---------------|----------|
+| `development` | 50 | 7 days | - | Frequent builds |
+| `production` | 100 | 14 days | 90 days | Stable releases |
+| `cost_optimization` | 10 | 3 days | 30 days | Minimal storage |
+| `compliance` | 200 | 30 days | 365 days | Audit requirements |
+
+### Configuration Precedence
+
+When multiple lifecycle configuration methods are provided:
+
+1. **Manual `lifecycle_policy`** (highest precedence)
+2. **Template `lifecycle_policy_template`**
+3. **Helper variables** (lowest precedence)
+
+See the [lifecycle policies example](examples/lifecycle-policies/) for comprehensive usage examples.
+
 ## Security Best Practices
 
 Here are key security best practices for your ECR repositories:
