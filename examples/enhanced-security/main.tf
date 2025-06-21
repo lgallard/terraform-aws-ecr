@@ -30,9 +30,9 @@ module "ecr_enhanced_security" {
 
   # Enhanced scanning configuration
   enable_registry_scanning = true
-  registry_scan_type      = "ENHANCED"
-  enable_secret_scanning  = true
-  
+  registry_scan_type       = "ENHANCED"
+  enable_secret_scanning   = true
+
   # Enhanced scanning filters for high and critical vulnerabilities
   registry_scan_filters = [
     {

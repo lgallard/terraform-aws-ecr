@@ -165,9 +165,8 @@ variable "lifecycle_keep_latest_n_images" {
   type        = number
   default     = null
   validation {
-    condition = (
-      var.lifecycle_keep_latest_n_images == null ||
-      (var.lifecycle_keep_latest_n_images > 0 && var.lifecycle_keep_latest_n_images <= 10000)
+    condition = var.lifecycle_keep_latest_n_images == null ? true : (
+      var.lifecycle_keep_latest_n_images > 0 && var.lifecycle_keep_latest_n_images <= 10000
     )
     error_message = "lifecycle_keep_latest_n_images must be between 1 and 10000 if specified."
   }
@@ -188,9 +187,8 @@ variable "lifecycle_expire_untagged_after_days" {
   type        = number
   default     = null
   validation {
-    condition = (
-      var.lifecycle_expire_untagged_after_days == null ||
-      (var.lifecycle_expire_untagged_after_days > 0 && var.lifecycle_expire_untagged_after_days <= 3650)
+    condition = var.lifecycle_expire_untagged_after_days == null ? true : (
+      var.lifecycle_expire_untagged_after_days > 0 && var.lifecycle_expire_untagged_after_days <= 3650
     )
     error_message = "lifecycle_expire_untagged_after_days must be between 1 and 3650 days if specified."
   }
@@ -212,9 +210,8 @@ variable "lifecycle_expire_tagged_after_days" {
   type        = number
   default     = null
   validation {
-    condition = (
-      var.lifecycle_expire_tagged_after_days == null ||
-      (var.lifecycle_expire_tagged_after_days > 0 && var.lifecycle_expire_tagged_after_days <= 3650)
+    condition = var.lifecycle_expire_tagged_after_days == null ? true : (
+      var.lifecycle_expire_tagged_after_days > 0 && var.lifecycle_expire_tagged_after_days <= 3650
     )
     error_message = "lifecycle_expire_tagged_after_days must be between 1 and 3650 days if specified."
   }
@@ -292,9 +289,9 @@ variable "lifecycle_policy_template" {
   type        = string
   default     = null
   validation {
-    condition = (
-      var.lifecycle_policy_template == null ||
-      contains(["development", "production", "cost_optimization", "compliance"], var.lifecycle_policy_template)
+    condition = var.lifecycle_policy_template == null ? true : contains(
+      ["development", "production", "cost_optimization", "compliance"],
+      var.lifecycle_policy_template
     )
     error_message = "lifecycle_policy_template must be one of: development, production, cost_optimization, compliance."
   }

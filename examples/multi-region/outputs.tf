@@ -45,8 +45,8 @@ output "approach_summary" {
   description = "Summary of the multi-region approach being used"
   value = {
     built_in_replication = var.enable_replication
-    manual_setup        = var.use_manual_setup
-    primary_region      = var.primary_region
-    secondary_region    = var.secondary_region
+    manual_setup         = var.use_manual_setup
+    primary_region       = var.primary_region
+    secondary_region     = var.secondary_region
   }
 }
