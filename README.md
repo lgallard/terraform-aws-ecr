@@ -273,11 +273,19 @@ This approach allows protecting repositories by default while providing a contro
 
 ## Enhanced Lifecycle Policy Configuration
 
-The module provides enhanced lifecycle policy configuration through helper variables and predefined templates, making it easier to implement common lifecycle patterns without writing complex JSON.
+The module provides enhanced lifecycle policy configuration through helper variables and predefined templates, making it easier to implement common lifecycle patterns without writing complex JSON. This feature significantly simplifies ECR image lifecycle management while maintaining full backwards compatibility.
 
-### Using Helper Variables
+### Configuration Methods
 
-Configure lifecycle policies using individual helper variables:
+There are three ways to configure lifecycle policies, listed in order of precedence:
+
+1. **Manual JSON Policy** (`lifecycle_policy`) - Highest precedence, full control
+2. **Predefined Templates** (`lifecycle_policy_template`) - Medium precedence, common patterns
+3. **Helper Variables** - Lowest precedence, individual settings
+
+### Helper Variables
+
+Configure lifecycle policies using individual helper variables for maximum flexibility:
 
 ```hcl
 module "ecr" {
@@ -285,47 +293,54 @@ module "ecr" {
   
   name = "my-app"
   
-  # Keep only the latest 30 images
+  # Keep only the latest 30 images (range: 1-10000)
   lifecycle_keep_latest_n_images = 30
   
-  # Delete untagged images after 7 days
+  # Delete untagged images after 7 days (range: 1-3650)
   lifecycle_expire_untagged_after_days = 7
   
-  # Delete tagged images after 90 days
+  # Delete tagged images after 90 days (range: 1-3650)
   lifecycle_expire_tagged_after_days = 90
   
-  # Apply rules only to specific tag prefixes
+  # Apply rules only to specific tag prefixes (optional)
   lifecycle_tag_prefixes_to_keep = ["v", "release", "prod"]
 }
 ```
 
-### Using Predefined Templates
+#### Helper Variable Details
 
-Use predefined templates for common scenarios:
+- **`lifecycle_keep_latest_n_images`**: Controls how many of the most recent images to retain. When combined with `lifecycle_tag_prefixes_to_keep`, only applies to images with those tag prefixes.
+- **`lifecycle_expire_untagged_after_days`**: Automatically deletes untagged images after the specified number of days.
+- **`lifecycle_expire_tagged_after_days`**: Automatically deletes tagged images after the specified number of days.
+- **`lifecycle_tag_prefixes_to_keep`**: When specified, limits the `lifecycle_keep_latest_n_images` rule to only images with these tag prefixes. Other lifecycle rules still apply to all images.
+
+### Predefined Templates
+
+Use predefined templates for common scenarios. Each template encapsulates best practices for specific environments:
 
 ```hcl
-# Development environment (50 images, expire untagged after 7 days)
+# Development environment - optimized for frequent builds and testing
 module "ecr_dev" {
   source = "lgallard/ecr/aws"
   name   = "dev-app"
   lifecycle_policy_template = "development"
 }
 
-# Production environment (100 images, longer retention)
+# Production environment - balanced retention and stability
 module "ecr_prod" {
   source = "lgallard/ecr/aws"
   name   = "prod-app"
   lifecycle_policy_template = "production"
 }
 
-# Cost-optimized (10 images, aggressive cleanup)
+# Cost optimization - minimal storage costs
 module "ecr_cost" {
   source = "lgallard/ecr/aws"
   name   = "test-app"
   lifecycle_policy_template = "cost_optimization"
 }
 
-# Compliance (200 images, long retention for audit)
+# Compliance - long retention for audit requirements
 module "ecr_compliance" {
   source = "lgallard/ecr/aws"
   name   = "audit-app"
@@ -335,22 +350,181 @@ module "ecr_compliance" {
 
 ### Available Templates
 
-| Template | Keep Images | Untagged Expiry | Tagged Expiry | Use Case |
-|----------|-------------|-----------------|---------------|----------|
-| `development` | 50 | 7 days | - | Frequent builds |
-| `production` | 100 | 14 days | 90 days | Stable releases |
-| `cost_optimization` | 10 | 3 days | 30 days | Minimal storage |
-| `compliance` | 200 | 30 days | 365 days | Audit requirements |
+| Template | Keep Images | Untagged Expiry | Tagged Expiry | Tag Prefixes | Use Case |
+|----------|-------------|-----------------|---------------|--------------|----------|
+| `development` | 50 | 7 days | - | `["dev", "feature"]` | Development workflows with frequent builds |
+| `production` | 100 | 14 days | 90 days | `["v", "release", "prod"]` | Production environments requiring stability |
+| `cost_optimization` | 10 | 3 days | 30 days | `[]` (all images) | Test environments with aggressive cost optimization |
+| `compliance` | 200 | 30 days | 365 days | `["v", "release", "audit"]` | Compliance environments requiring long retention |
 
-### Configuration Precedence
+### Configuration Precedence and Examples
 
-When multiple lifecycle configuration methods are provided:
+The module follows a clear precedence order when multiple configuration methods are specified:
 
-1. **Manual `lifecycle_policy`** (highest precedence)
-2. **Template `lifecycle_policy_template`**
-3. **Helper variables** (lowest precedence)
+#### 1. Manual Policy (Highest Precedence)
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "custom-app"
+  
+  # This manual policy takes precedence over everything else
+  lifecycle_policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Custom rule"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 5
+        }
+        action = { type = "expire" }
+      }
+    ]
+  })
+  
+  # These are ignored when lifecycle_policy is specified
+  lifecycle_policy_template = "production"
+  lifecycle_keep_latest_n_images = 30
+}
+```
 
-See the [lifecycle policies example](examples/lifecycle-policies/) for comprehensive usage examples.
+#### 2. Template Configuration
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "template-app"
+  
+  # Template takes precedence over helper variables
+  lifecycle_policy_template = "production"
+  
+  # These helper variables are ignored when template is specified
+  lifecycle_keep_latest_n_images = 30
+  lifecycle_expire_untagged_after_days = 5
+}
+```
+
+#### 3. Helper Variables (Lowest Precedence)
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "helper-app"
+  
+  # Only helper variables specified - these will be used
+  lifecycle_keep_latest_n_images = 30
+  lifecycle_expire_untagged_after_days = 5
+  lifecycle_expire_tagged_after_days = 60
+  lifecycle_tag_prefixes_to_keep = ["v", "stable"]
+}
+```
+
+### Advanced Usage Patterns
+
+#### Environment-Specific Configurations
+```hcl
+# Development with custom retention
+module "ecr_dev_custom" {
+  source = "lgallard/ecr/aws"
+  name   = "dev-custom-app"
+  
+  lifecycle_keep_latest_n_images      = 20    # Fewer than default dev template
+  lifecycle_expire_untagged_after_days = 3    # Faster cleanup than default
+  lifecycle_tag_prefixes_to_keep      = ["dev", "feat", "fix"]
+}
+
+# Production with extended retention for releases
+module "ecr_prod_extended" {
+  source = "lgallard/ecr/aws"
+  name   = "prod-extended-app"
+  
+  lifecycle_keep_latest_n_images      = 150   # More than default prod template
+  lifecycle_expire_untagged_after_days = 21   # Longer than default
+  lifecycle_expire_tagged_after_days   = 180  # Extended retention
+  lifecycle_tag_prefixes_to_keep      = ["v", "release", "hotfix"]
+}
+```
+
+#### Cost-Conscious Multi-Environment Setup
+```hcl
+# Aggressive cleanup for test environments
+module "ecr_test" {
+  source = "lgallard/ecr/aws"
+  name   = "test-app"
+  
+  lifecycle_keep_latest_n_images      = 5     # Minimal retention
+  lifecycle_expire_untagged_after_days = 1    # Daily cleanup
+  lifecycle_expire_tagged_after_days   = 7    # Weekly cleanup
+}
+
+# Balanced approach for staging
+module "ecr_staging" {
+  source = "lgallard/ecr/aws"
+  name   = "staging-app"
+  
+  lifecycle_policy_template = "development"  # Use template for consistency
+}
+```
+
+### Best Practices
+
+#### Template Selection Guidelines
+
+- **Use `development`** for: CI/CD environments, feature branch testing, development workflows
+- **Use `production`** for: Live applications, staging environments, release candidates
+- **Use `cost_optimization`** for: Temporary test environments, proof-of-concepts, experimental workloads
+- **Use `compliance`** for: Regulated environments, audit trails, long-term archival needs
+
+#### Custom Configuration Guidelines
+
+1. **Start with a template** that's closest to your needs, then use helper variables if needed
+2. **Use tag prefixes** to apply different retention rules to different image types
+3. **Monitor storage costs** and adjust retention periods based on usage patterns
+4. **Consider compliance requirements** when setting retention periods
+
+#### Tag Prefix Strategy Examples
+
+```hcl
+# Strategy 1: Environment-based prefixes
+lifecycle_tag_prefixes_to_keep = ["prod", "staging", "release"]
+
+# Strategy 2: Version-based prefixes  
+lifecycle_tag_prefixes_to_keep = ["v", "release-"]
+
+# Strategy 3: Branch-based prefixes
+lifecycle_tag_prefixes_to_keep = ["main", "develop", "hotfix"]
+
+# Strategy 4: Mixed strategy
+lifecycle_tag_prefixes_to_keep = ["v", "release", "prod", "stable"]
+```
+
+### Validation and Constraints
+
+The module includes built-in validation to prevent common configuration errors:
+
+- **Image count**: Must be between 1 and 10,000
+- **Days**: Must be between 1 and 3,650 (10 years)
+- **Tag prefixes**: Maximum 100 prefixes, each up to 255 characters
+- **Template names**: Must be one of the four predefined templates
+
+### Generated Policy Structure
+
+When using helper variables or templates, the module generates policies with this structure:
+
+1. **Rule 1**: Expire untagged images (if `expire_untagged_after_days` specified)
+2. **Rule 2**: Keep latest N images (if `keep_latest_n_images` specified)
+3. **Rule 3**: Expire tagged images (if `expire_tagged_after_days` specified)
+
+### Migration from Manual Policies
+
+To migrate from manual `lifecycle_policy` to the enhanced configuration:
+
+1. **Analyze your current policy** to identify the patterns
+2. **Choose the closest template** or use helper variables
+3. **Test in a non-production environment** first
+4. **Update gradually** to ensure no unexpected image deletions
+
+See the [lifecycle policies example](examples/lifecycle-policies/) for comprehensive usage examples and the [troubleshooting guide](docs/troubleshooting.md) for common issues.
 
 ## Security Best Practices
 

@@ -153,7 +153,14 @@ variable "lifecycle_keep_latest_n_images" {
   description = <<-EOT
     Number of latest images to keep in the repository.
     If specified, creates a lifecycle policy rule to keep only the N most recent images.
-    Set to null to disable this rule.
+    When used with lifecycle_tag_prefixes_to_keep, only applies to images with those tag prefixes.
+    Other images are not affected by this rule and may be managed by other rules.
+    Range: 1-10000 images. Set to null to disable this rule.
+    
+    Examples:
+    - 30: Keep the 30 most recent images
+    - 100: Keep the 100 most recent images (production default)
+    - 10: Keep only 10 images (cost optimization)
   EOT
   type        = number
   default     = null
@@ -170,7 +177,13 @@ variable "lifecycle_expire_untagged_after_days" {
   description = <<-EOT
     Number of days after which untagged images should be expired.
     If specified, creates a lifecycle policy rule to delete untagged images older than N days.
-    Set to null to disable this rule.
+    This rule applies to ALL untagged images regardless of lifecycle_tag_prefixes_to_keep.
+    Range: 1-3650 days (up to 10 years). Set to null to disable this rule.
+    
+    Examples:
+    - 7: Delete untagged images after 7 days (development default)
+    - 14: Delete untagged images after 14 days (production default)
+    - 1: Delete untagged images daily (aggressive cleanup)
   EOT
   type        = number
   default     = null
@@ -187,7 +200,14 @@ variable "lifecycle_expire_tagged_after_days" {
   description = <<-EOT
     Number of days after which tagged images should be expired.
     If specified, creates a lifecycle policy rule to delete tagged images older than N days.
-    Set to null to disable this rule.
+    This rule applies to ALL tagged images regardless of lifecycle_tag_prefixes_to_keep.
+    Use with caution as this may delete images you want to keep long-term.
+    Range: 1-3650 days (up to 10 years). Set to null to disable this rule.
+    
+    Examples:
+    - 90: Delete tagged images after 90 days (production default)
+    - 30: Delete tagged images after 30 days (cost optimization)
+    - 365: Delete tagged images after 1 year (compliance)
   EOT
   type        = number
   default     = null
@@ -202,9 +222,18 @@ variable "lifecycle_expire_tagged_after_days" {
 
 variable "lifecycle_tag_prefixes_to_keep" {
   description = <<-EOT
-    List of tag prefixes for images that should be kept longer.
-    When used with lifecycle_keep_latest_n_images, applies the keep rule only to images with these tag prefixes.
-    Example: ["v", "release-", "stable-"]
+    List of tag prefixes for images that should be managed by the keep-latest rule.
+    When used with lifecycle_keep_latest_n_images, applies the keep rule ONLY to images with these tag prefixes.
+    Images without these prefixes are not affected by the keep-latest rule.
+    The expire rules (untagged/tagged) still apply to ALL images regardless of this setting.
+    
+    Common patterns:
+    - ["v"]: Apply keep rule to semantic versions (v1.0.0, v2.1.3, etc.)
+    - ["release-", "prod-"]: Apply to release and production builds
+    - ["main", "develop"]: Apply to main branch builds
+    - []: Apply keep rule to ALL images (empty list)
+    
+    Constraints: Maximum 100 prefixes, each up to 255 characters.
     Set to empty list to apply rules to all images.
   EOT
   type        = list(string)
@@ -224,14 +253,41 @@ variable "lifecycle_tag_prefixes_to_keep" {
 
 variable "lifecycle_policy_template" {
   description = <<-EOT
-    Predefined lifecycle policy template to use.
+    Predefined lifecycle policy template to use for common scenarios.
+    Templates provide tested configurations and best practices for different environments.
+    
     Available templates:
-    - "development": Keep 50 images, expire untagged after 7 days
-    - "production": Keep 100 images, expire untagged after 14 days, keep release tags longer
-    - "cost_optimization": Keep 10 images, expire untagged after 3 days, aggressive cleanup
-    - "compliance": Keep 200 images, expire untagged after 30 days, long retention for audit
+    
+    - "development": Optimized for dev workflows with frequent builds
+      * Keep 50 images
+      * Expire untagged after 7 days  
+      * No tagged expiry (developers may need old builds)
+      * Tag prefixes: ["dev", "feature"]
+      
+    - "production": Balanced retention for production stability
+      * Keep 100 images
+      * Expire untagged after 14 days
+      * Expire tagged after 90 days
+      * Tag prefixes: ["v", "release", "prod"]
+      
+    - "cost_optimization": Aggressive cleanup to minimize storage costs
+      * Keep 10 images
+      * Expire untagged after 3 days
+      * Expire tagged after 30 days
+      * Tag prefixes: [] (applies to all images)
+      
+    - "compliance": Long retention for audit and compliance
+      * Keep 200 images
+      * Expire untagged after 30 days
+      * Expire tagged after 365 days (1 year)
+      * Tag prefixes: ["v", "release", "audit"]
+    
     Set to null to use custom helper variables or manual lifecycle_policy.
-    Takes precedence over helper variables but not over manual lifecycle_policy.
+    
+    Configuration precedence:
+    1. Manual lifecycle_policy (highest - overrides template)
+    2. Template lifecycle_policy_template (overrides helper variables) 
+    3. Helper variables (lowest precedence)
   EOT
   type        = string
   default     = null
