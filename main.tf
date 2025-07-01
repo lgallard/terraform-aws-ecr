@@ -580,42 +580,41 @@ locals {
 # ----------------------------------------------------------
 
 # Validate mutually exclusive lifecycle policy configurations
+locals {
+  # Validation checks for mutually exclusive configurations
+  lifecycle_validation = {
+    manual_and_template = var.lifecycle_policy != null && var.lifecycle_policy_template != null
+    manual_and_helpers = var.lifecycle_policy != null && (
+      var.lifecycle_keep_latest_n_images != null ||
+      var.lifecycle_expire_untagged_after_days != null ||
+      var.lifecycle_expire_tagged_after_days != null ||
+      length(var.lifecycle_tag_prefixes_to_keep) > 0
+    )
+    template_and_helpers = var.lifecycle_policy_template != null && (
+      var.lifecycle_keep_latest_n_images != null ||
+      var.lifecycle_expire_untagged_after_days != null ||
+      var.lifecycle_expire_tagged_after_days != null ||
+      length(var.lifecycle_tag_prefixes_to_keep) > 0
+    )
+  }
+}
+
+# Check validation rules and produce helpful errors
 resource "null_resource" "lifecycle_policy_validation" {
-  count = 0  # This resource is only for validation, never created
+  count = local.lifecycle_validation.manual_and_template || local.lifecycle_validation.manual_and_helpers || local.lifecycle_validation.template_and_helpers ? 1 : 0
+  
+  triggers = {
+    validation_error = local.lifecycle_validation.manual_and_template ? "Cannot specify both 'lifecycle_policy' and 'lifecycle_policy_template'. The manual 'lifecycle_policy' takes precedence - remove 'lifecycle_policy_template' if you want to use a custom JSON policy." : (
+      local.lifecycle_validation.manual_and_helpers ? "Cannot specify both 'lifecycle_policy' and helper variables (lifecycle_keep_latest_n_images, lifecycle_expire_*_after_days, lifecycle_tag_prefixes_to_keep). The manual 'lifecycle_policy' takes precedence - remove helper variables if you want to use a custom JSON policy." : (
+        local.lifecycle_validation.template_and_helpers ? "Cannot specify both 'lifecycle_policy_template' and helper variables (lifecycle_keep_latest_n_images, lifecycle_expire_*_after_days, lifecycle_tag_prefixes_to_keep). The template overrides helper variables - remove helper variables if you want to use a predefined template." : ""
+      )
+    )
+  }
   
   lifecycle {
     precondition {
-      condition = !(
-        var.lifecycle_policy != null && 
-        var.lifecycle_policy_template != null
-      )
-      error_message = "Cannot specify both 'lifecycle_policy' and 'lifecycle_policy_template'. The manual 'lifecycle_policy' takes precedence - remove 'lifecycle_policy_template' if you want to use a custom JSON policy."
-    }
-    
-    precondition {
-      condition = !(
-        var.lifecycle_policy != null && 
-        (
-          var.lifecycle_keep_latest_n_images != null ||
-          var.lifecycle_expire_untagged_after_days != null ||
-          var.lifecycle_expire_tagged_after_days != null ||
-          length(var.lifecycle_tag_prefixes_to_keep) > 0
-        )
-      )
-      error_message = "Cannot specify both 'lifecycle_policy' and helper variables (lifecycle_keep_latest_n_images, lifecycle_expire_*_after_days, lifecycle_tag_prefixes_to_keep). The manual 'lifecycle_policy' takes precedence - remove helper variables if you want to use a custom JSON policy."
-    }
-    
-    precondition {
-      condition = !(
-        var.lifecycle_policy_template != null && 
-        (
-          var.lifecycle_keep_latest_n_images != null ||
-          var.lifecycle_expire_untagged_after_days != null ||
-          var.lifecycle_expire_tagged_after_days != null ||
-          length(var.lifecycle_tag_prefixes_to_keep) > 0
-        )
-      )
-      error_message = "Cannot specify both 'lifecycle_policy_template' and helper variables (lifecycle_keep_latest_n_images, lifecycle_expire_*_after_days, lifecycle_tag_prefixes_to_keep). The template overrides helper variables - remove helper variables if you want to use a predefined template."
+      condition = !local.lifecycle_validation.manual_and_template && !local.lifecycle_validation.manual_and_helpers && !local.lifecycle_validation.template_and_helpers
+      error_message = "Lifecycle policy configuration conflict detected. Please use only one configuration method: either 'lifecycle_policy' (manual JSON), 'lifecycle_policy_template' (predefined template), or helper variables (lifecycle_keep_latest_n_images, etc.)."
     }
   }
 }
