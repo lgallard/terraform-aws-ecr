@@ -280,8 +280,17 @@ The module provides enhanced lifecycle policy configuration through helper varia
 There are three ways to configure lifecycle policies, listed in order of precedence:
 
 1. **Manual JSON Policy** (`lifecycle_policy`) - Highest precedence, full control
-2. **Predefined Templates** (`lifecycle_policy_template`) - Medium precedence, common patterns
+2. **Predefined Templates** (`lifecycle_policy_template`) - Medium precedence, common patterns  
 3. **Helper Variables** - Lowest precedence, individual settings
+
+**🚨 Important: Configuration Precedence Rules**
+
+- When `lifecycle_policy` is specified, ALL template and helper variable settings are ignored
+- When `lifecycle_policy_template` is specified, ALL helper variable settings are ignored
+- Only helper variables are used when neither `lifecycle_policy` nor `lifecycle_policy_template` are specified
+- **AWS ECR Limitations**: Maximum 25 rules per policy, rule priorities must be unique (1-999), up to 100 tag prefixes per rule
+
+For complete AWS ECR lifecycle policy documentation and examples, see [AWS ECR Lifecycle Policy Documentation](https://docs.aws.amazon.com/AmazonECR/latest/userguide/lifecycle_policy_examples.html).
 
 ### Helper Variables
 
@@ -517,12 +526,107 @@ When using helper variables or templates, the module generates policies with thi
 
 ### Migration from Manual Policies
 
-To migrate from manual `lifecycle_policy` to the enhanced configuration:
+To migrate from existing manual `lifecycle_policy` to the enhanced configuration:
 
-1. **Analyze your current policy** to identify the patterns
-2. **Choose the closest template** or use helper variables
-3. **Test in a non-production environment** first
-4. **Update gradually** to ensure no unexpected image deletions
+#### Migration Steps
+
+1. **Analyze Your Current Policy**: Review your existing JSON lifecycle policy to understand the rules.
+
+   ```bash
+   # Get current policy from Terraform state
+   terraform show | grep -A 20 lifecycle_policy
+   ```
+
+2. **Choose Migration Path**: 
+   - Use a **template** if your policy matches common patterns
+   - Use **helper variables** for custom configurations
+   - Keep **manual policy** for complex, non-standard rules
+
+3. **Template Migration Example**:
+   ```hcl
+   # Before (manual policy)
+   module "ecr" {
+     source = "lgallard/ecr/aws"
+     name   = "my-app"
+     
+     lifecycle_policy = jsonencode({
+       rules = [
+         {
+           rulePriority = 1
+           description  = "Keep last 100 images"
+           selection = {
+             tagStatus   = "any"
+             countType   = "imageCountMoreThan"
+             countNumber = 100
+           }
+           action = { type = "expire" }
+         },
+         {
+           rulePriority = 2
+           description  = "Expire untagged after 14 days"
+           selection = {
+             tagStatus   = "untagged"
+             countType   = "sinceImagePushed"
+             countUnit   = "days"
+             countNumber = 14
+           }
+           action = { type = "expire" }
+         }
+       ]
+     })
+   }
+   
+   # After (using production template)
+   module "ecr" {
+     source = "lgallard/ecr/aws"
+     name   = "my-app"
+     
+     lifecycle_policy_template = "production"  # Matches the pattern above
+   }
+   ```
+
+4. **Helper Variables Migration Example**:
+   ```hcl
+   # Before (manual policy)
+   lifecycle_policy = jsonencode({
+     rules = [
+       {
+         rulePriority = 1
+         description  = "Keep 30 images with specific prefixes"
+         selection = {
+           tagStatus     = "tagged"
+           tagPrefixList = ["v", "release"]
+           countType     = "imageCountMoreThan"
+           countNumber   = 30
+         }
+         action = { type = "expire" }
+       }
+     ]
+   })
+   
+   # After (using helper variables)
+   lifecycle_keep_latest_n_images = 30
+   lifecycle_tag_prefixes_to_keep = ["v", "release"]
+   ```
+
+5. **Test Migration**: Apply changes in a non-production environment first:
+   ```bash
+   terraform plan  # Review the changes carefully
+   terraform apply # Apply when ready
+   ```
+
+6. **Verify Results**: Check that lifecycle policies are correctly applied:
+   ```bash
+   aws ecr describe-lifecycle-policy --repository-name my-app
+   ```
+
+#### Migration Validation
+
+- **Before migration**: Document current retention behavior
+- **After migration**: Verify identical behavior with new configuration
+- **Monitor**: Watch for unexpected image deletions in the first week
+
+For more complex migration scenarios, see the [migration examples](examples/lifecycle-policies/migration-examples.md).
 
 See the [lifecycle policies example](examples/lifecycle-policies/) for comprehensive usage examples and the [troubleshooting guide](docs/troubleshooting.md) for common issues.
 

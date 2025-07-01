@@ -285,6 +285,9 @@ variable "lifecycle_policy_template" {
     1. Manual lifecycle_policy (highest - overrides template)
     2. Template lifecycle_policy_template (overrides helper variables) 
     3. Helper variables (lowest precedence)
+    
+    Note: When using a template, all helper variables (lifecycle_keep_latest_n_images, 
+    lifecycle_expire_untagged_after_days, etc.) will be ignored to prevent conflicts.
   EOT
   type        = string
   default     = null

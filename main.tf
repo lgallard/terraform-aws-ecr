@@ -2,8 +2,6 @@
 # Configuration Locals
 # ----------------------------------------------------------
 
-
-
 # ----------------------------------------------------------
 # ECR Repository
 # ----------------------------------------------------------
@@ -575,4 +573,49 @@ locals {
     var.lifecycle_policy,
     local.generated_lifecycle_policy
   )
+}
+
+# ----------------------------------------------------------
+# Configuration Validation
+# ----------------------------------------------------------
+
+# Validate mutually exclusive lifecycle policy configurations
+resource "null_resource" "lifecycle_policy_validation" {
+  count = 0  # This resource is only for validation, never created
+  
+  lifecycle {
+    precondition {
+      condition = !(
+        var.lifecycle_policy != null && 
+        var.lifecycle_policy_template != null
+      )
+      error_message = "Cannot specify both 'lifecycle_policy' and 'lifecycle_policy_template'. The manual 'lifecycle_policy' takes precedence - remove 'lifecycle_policy_template' if you want to use a custom JSON policy."
+    }
+    
+    precondition {
+      condition = !(
+        var.lifecycle_policy != null && 
+        (
+          var.lifecycle_keep_latest_n_images != null ||
+          var.lifecycle_expire_untagged_after_days != null ||
+          var.lifecycle_expire_tagged_after_days != null ||
+          length(var.lifecycle_tag_prefixes_to_keep) > 0
+        )
+      )
+      error_message = "Cannot specify both 'lifecycle_policy' and helper variables (lifecycle_keep_latest_n_images, lifecycle_expire_*_after_days, lifecycle_tag_prefixes_to_keep). The manual 'lifecycle_policy' takes precedence - remove helper variables if you want to use a custom JSON policy."
+    }
+    
+    precondition {
+      condition = !(
+        var.lifecycle_policy_template != null && 
+        (
+          var.lifecycle_keep_latest_n_images != null ||
+          var.lifecycle_expire_untagged_after_days != null ||
+          var.lifecycle_expire_tagged_after_days != null ||
+          length(var.lifecycle_tag_prefixes_to_keep) > 0
+        )
+      )
+      error_message = "Cannot specify both 'lifecycle_policy_template' and helper variables (lifecycle_keep_latest_n_images, lifecycle_expire_*_after_days, lifecycle_tag_prefixes_to_keep). The template overrides helper variables - remove helper variables if you want to use a predefined template."
+    }
+  }
 }
