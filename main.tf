@@ -121,7 +121,7 @@ resource "aws_ecr_repository_policy" "policy" {
 
 # Lifecycle policy - controls image retention and cleanup
 resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
-  count      = local.final_lifecycle_policy == null ? 0 : 1
+  count      = local.final_lifecycle_policy != null && local.final_lifecycle_policy != "" ? 1 : 0
   repository = local.repository_name
   policy     = local.final_lifecycle_policy
 
@@ -569,7 +569,8 @@ locals {
   }) : null
 
   # Final lifecycle policy (manual takes precedence over generated)
-  final_lifecycle_policy = var.lifecycle_policy != null ? var.lifecycle_policy : local.generated_lifecycle_policy
+  # Ensure we never pass an empty string or invalid JSON to AWS
+  final_lifecycle_policy = var.lifecycle_policy != null && var.lifecycle_policy != "" ? var.lifecycle_policy : local.generated_lifecycle_policy
 }
 
 # ----------------------------------------------------------
