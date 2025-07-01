@@ -569,10 +569,7 @@ locals {
   }) : null
 
   # Final lifecycle policy (manual takes precedence over generated)
-  final_lifecycle_policy = coalesce(
-    var.lifecycle_policy,
-    local.generated_lifecycle_policy
-  )
+  final_lifecycle_policy = var.lifecycle_policy != null ? var.lifecycle_policy : local.generated_lifecycle_policy
 }
 
 # ----------------------------------------------------------
