@@ -13,7 +13,8 @@ func TestTerraformEcrLifecyclePolicies(t *testing.T) {
 	t.Parallel()
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		TerraformDir: "fixtures/lifecycle-policies",
+		TerraformDir:    "fixtures/lifecycle-policies",
+		TerraformBinary: "terraform", // Explicitly use terraform binary
 	})
 
 	defer terraform.Destroy(t, terraformOptions)
@@ -45,7 +46,8 @@ func TestTerraformEcrLifecyclePolicyHelperVariables(t *testing.T) {
 	t.Parallel()
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		TerraformDir: "fixtures/lifecycle-policies-helper-vars",
+		TerraformDir:    "fixtures/lifecycle-policies-helper-vars",
+		TerraformBinary: "terraform", // Explicitly use terraform binary
 		Vars: map[string]interface{}{
 			"lifecycle_expire_untagged_after_days": 14,
 			"lifecycle_keep_latest_n_images":      25,
@@ -128,7 +130,8 @@ func TestLifecyclePolicyGeneration(t *testing.T) {
 	// This test verifies that the Terraform configuration is valid
 	// by running terraform validate instead of plan/apply
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		TerraformDir: "fixtures/lifecycle-policies",
+		TerraformDir:    "fixtures/lifecycle-policies",
+		TerraformBinary: "terraform", // Explicitly use terraform binary
 	})
 
 	// Run terraform init and validate the configuration
@@ -145,7 +148,8 @@ func TestLifecyclePolicyTemplates(t *testing.T) {
 			t.Parallel()
 
 			terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-				TerraformDir: "fixtures/lifecycle-policies-templates",
+				TerraformDir:    "fixtures/lifecycle-policies-templates",
+				TerraformBinary: "terraform", // Explicitly use terraform binary
 				Vars: map[string]interface{}{
 					"template_name": template,
 				},

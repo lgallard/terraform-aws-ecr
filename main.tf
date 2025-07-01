@@ -570,7 +570,10 @@ locals {
 
   # Final lifecycle policy (manual takes precedence over generated)
   # Ensure we never pass an empty string or invalid JSON to AWS
-  final_lifecycle_policy = var.lifecycle_policy != null && var.lifecycle_policy != "" ? var.lifecycle_policy : local.generated_lifecycle_policy
+  final_lifecycle_policy = (
+    var.lifecycle_policy != null && var.lifecycle_policy != "" ? var.lifecycle_policy : 
+    local.generated_lifecycle_policy
+  )
 }
 
 # ----------------------------------------------------------
