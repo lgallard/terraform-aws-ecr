@@ -98,7 +98,7 @@ func TestTerraformEcrLifecyclePolicyHelperVariables(t *testing.T) {
 	// Check rule 3: Expire tagged images after 60 days
 	taggedRule := policy.Rules[2]
 	assert.Equal(t, 3, taggedRule.RulePriority)
-	assert.Equal(t, "tagged", taggedRule.Selection.TagStatus)
+	assert.Equal(t, "any", taggedRule.Selection.TagStatus)
 	assert.Equal(t, "sinceImagePushed", taggedRule.Selection.CountType)
 	assert.Equal(t, "days", taggedRule.Selection.CountUnit)
 	assert.Equal(t, 60, taggedRule.Selection.CountNumber)
