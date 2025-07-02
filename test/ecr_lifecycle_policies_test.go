@@ -147,8 +147,10 @@ func TestLifecyclePolicyTemplates(t *testing.T) {
 		t.Run(template, func(t *testing.T) {
 			t.Parallel()
 
+			terraformDir := terraform.CopyTerraformFolderToTemp(t, "fixtures/lifecycle-policies-templates", template)
+
 			terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-				TerraformDir:    "fixtures/lifecycle-policies-templates",
+				TerraformDir:    terraformDir,
 				TerraformBinary: "terraform", // Explicitly use terraform binary
 				Vars: map[string]interface{}{
 					"template_name": template,
