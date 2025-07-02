@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -147,7 +148,7 @@ func TestLifecyclePolicyTemplates(t *testing.T) {
 		t.Run(template, func(t *testing.T) {
 			t.Parallel()
 
-			terraformDir := terraform.CopyTerraformFolderToTemp(t, "fixtures/lifecycle-policies-templates", template)
+			terraformDir := test_structure.CopyTerraformFolderToTemp(t, "../..", "test/fixtures/lifecycle-policies-templates")
 
 			terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 				TerraformDir:    terraformDir,

@@ -38,6 +38,7 @@ jobs:
         run: |
           mkdir -p ~/.terraform.d/plugin-cache
           echo 'plugin_cache_dir = "~/.terraform.d/plugin-cache"' > ~/.terraformrc
+          echo "✅ Plugin cache directory created: $(ls -la ~/.terraform.d/)"
 
       - name: Setup Go
         uses: actions/setup-go@v5
