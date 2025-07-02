@@ -38,13 +38,7 @@ resource "aws_ecr_repository" "repo" {
     }
   }
 
-  tags = merge(
-    {
-      "Name"      = var.name
-      "ManagedBy" = "Terraform"
-    },
-    var.tags
-  )
+  tags = local.final_tags
 }
 
 # Repository with prevent_destroy enabled
@@ -84,13 +78,7 @@ resource "aws_ecr_repository" "repo_protected" {
     prevent_destroy = true
   }
 
-  tags = merge(
-    {
-      "Name"      = var.name
-      "ManagedBy" = "Terraform"
-    },
-    var.tags
-  )
+  tags = local.final_tags
 }
 
 # Repository output references
@@ -148,11 +136,10 @@ resource "aws_kms_key" "kms_key" {
   multi_region            = false
 
   tags = merge(
+    local.final_tags,
     {
-      Name      = "${var.name}-kms-key"
-      ManagedBy = "Terraform"
-    },
-    var.tags
+      Name = "${var.name}-kms-key"
+    }
   )
 
   policy = jsonencode({
@@ -236,11 +223,10 @@ resource "aws_cloudwatch_log_group" "ecr_logs" {
   retention_in_days = var.log_retention_days
 
   tags = merge(
+    local.final_tags,
     {
-      Name      = "${var.name}-logs"
-      ManagedBy = "Terraform"
-    },
-    var.tags
+      Name = "${var.name}-logs"
+    }
   )
 }
 
@@ -263,11 +249,10 @@ resource "aws_iam_role" "ecr_logging" {
   })
 
   tags = merge(
+    local.final_tags,
     {
-      Name      = "${var.name}-logging-role"
-      ManagedBy = "Terraform"
-    },
-    var.tags
+      Name = "${var.name}-logging-role"
+    }
   )
 }
 
@@ -399,11 +384,10 @@ resource "aws_iam_role" "pull_through_cache" {
   })
 
   tags = merge(
+    local.final_tags,
     {
-      Name      = "${var.name}-pull-through-cache-role"
-      ManagedBy = "Terraform"
-    },
-    var.tags
+      Name = "${var.name}-pull-through-cache-role"
+    }
   )
 }
 
@@ -432,6 +416,141 @@ resource "aws_iam_role_policy" "pull_through_cache" {
       }
     ]
   })
+}
+
+# ----------------------------------------------------------
+# Advanced Tagging Configuration
+# ----------------------------------------------------------
+
+locals {
+  # ----------------------------------------------------------
+  # Tag Normalization Functions
+  # ----------------------------------------------------------
+
+  # Default Tag Templates
+  default_tag_templates = {
+    basic = {
+      CreatedBy   = "Terraform"
+      ManagedBy   = "Terraform"
+      Environment = var.default_tags_environment
+      Owner       = var.default_tags_owner
+      Project     = var.default_tags_project
+    }
+    cost_allocation = {
+      CreatedBy        = "Terraform"
+      ManagedBy        = "Terraform"
+      Environment      = var.default_tags_environment
+      Owner            = var.default_tags_owner
+      Project          = var.default_tags_project
+      CostCenter       = var.default_tags_cost_center
+      BillingProject   = var.default_tags_project
+      ResourceType     = "ECR"
+      Service          = "ECR"
+      Billable         = "true"
+    }
+    compliance = {
+      CreatedBy        = "Terraform"
+      ManagedBy        = "Terraform"
+      Environment      = var.default_tags_environment
+      Owner            = var.default_tags_owner
+      Project          = var.default_tags_project
+      CostCenter       = var.default_tags_cost_center
+      DataClass        = "Internal"
+      Compliance       = "Required"
+      BackupRequired   = "true"
+      MonitoringLevel  = "Standard"
+      SecurityReview   = "Required"
+    }
+    sdlc = {
+      CreatedBy        = "Terraform"
+      ManagedBy        = "Terraform"
+      Environment      = var.default_tags_environment
+      Owner            = var.default_tags_owner
+      Project          = var.default_tags_project
+      Application      = var.default_tags_project
+      Version          = "latest"
+      DeploymentStage  = var.default_tags_environment
+      LifecycleStage   = var.default_tags_environment
+      MaintenanceWindow = "weekend"
+    }
+  }
+
+  # Compute default tags based on template or individual settings first
+  computed_default_tags = var.enable_default_tags ? (
+    var.default_tags_template != null ? 
+    { for k, v in local.default_tag_templates[var.default_tags_template] : k => v if v != null } :
+    { for k, v in {
+      CreatedBy   = "Terraform"
+      ManagedBy   = "Terraform"
+      Environment = var.default_tags_environment
+      Owner       = var.default_tags_owner
+      Project     = var.default_tags_project
+      CostCenter  = var.default_tags_cost_center
+    } : k => v if v != null }
+  ) : {}
+
+  # Raw tags before normalization
+  final_tags_raw = merge(local.computed_default_tags, var.tags)
+
+  # Simple tag key normalization
+  normalized_tag_keys = var.enable_tag_normalization && var.tag_key_case != null ? {
+    for key in keys(local.final_tags_raw) :
+    key => (
+      var.tag_key_case == "PascalCase" ? replace(title(replace(key, "_", " ")), " ", "") :
+      var.tag_key_case == "camelCase" ? (
+        length(regexall("_", key)) > 0 ?
+        join("", [
+          lower(split("_", key)[0]),
+          join("", [for word in slice(split("_", key), 1, length(split("_", key))) : title(word)])
+        ]) :
+        key
+      ) :
+      var.tag_key_case == "snake_case" ? lower(replace(key, "-", "_")) :
+      var.tag_key_case == "kebab-case" ? lower(replace(key, "_", "-")) :
+      key
+    )
+  } : {
+    for key in keys(local.final_tags_raw) : key => key
+  }
+
+  # Apply normalization to create final tags
+  final_tags_normalized = var.enable_tag_normalization ? {
+    for original_key, value in local.final_tags_raw :
+    local.normalized_tag_keys[original_key] => var.normalize_tag_values ? trimspace(tostring(value)) : tostring(value)
+  } : {
+    for key, value in local.final_tags_raw : key => tostring(value)
+  }
+
+  # Add repository-specific tags
+  final_tags = merge(
+    local.final_tags_normalized,
+    {
+      Name = var.name
+    }
+  )
+
+  # ----------------------------------------------------------
+  # Tag Validation
+  # ----------------------------------------------------------
+
+  # Validation checks
+  missing_required_tags = var.enable_tag_validation ? [
+    for required_tag in var.required_tags :
+    required_tag if !contains(keys(local.final_tags), required_tag)
+  ] : []
+
+  # Validation error message
+  tag_validation_error = length(local.missing_required_tags) > 0 ? 
+    "Missing required tags: ${join(", ", local.missing_required_tags)}" : ""
+}
+
+# Tag validation check using a local with validation
+locals {
+  # This will cause plan to fail if validation fails
+  tag_validation_check = var.enable_tag_validation ? (
+    length(local.missing_required_tags) == 0 ? true : 
+    tobool("Tag validation failed: ${local.tag_validation_error}")
+  ) : true
 }
 
 # ----------------------------------------------------------
