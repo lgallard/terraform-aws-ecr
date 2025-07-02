@@ -2,7 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -149,7 +148,7 @@ func TestLifecyclePolicyTemplates(t *testing.T) {
 		t.Run(template, func(t *testing.T) {
 			t.Parallel()
 
-			terraformDir := test_structure.CopyTerraformFolderToTemp(t, "..", fmt.Sprintf("test/fixtures/lifecycle-policies-templates/%s", template))
+			terraformDir := test_structure.CopyTerraformFolderToTemp(t, "..", "test/fixtures/lifecycle-policies-templates")
 
 			terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 				TerraformDir:    terraformDir,
