@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.12.0...0.13.0) (2025-07-02)
+
+
+### Features
+
+* Improve lifecycle policies with helper variables and standardized templates ([#74](https://github.com/lgallard/terraform-aws-ecr/issues/74)) ([975129a](https://github.com/lgallard/terraform-aws-ecr/commit/975129a7611506dbf8c84be95780dcb522f70a36))
+
 ## [0.12.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.11.4...0.12.0) (2025-06-08)
 
 
