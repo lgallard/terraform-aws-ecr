@@ -41,7 +41,7 @@ This module follows [Semantic Versioning](https://semver.org/) principles. For f
 You can use this module to create an ECR registry using few parameters (simple example) or define in detail every aspect of the registry (complete example).
 
 Check the [examples](examples/) directory for examples including:
-- **Simple** - Basic ECR repository with minimal configuration 
+- **Simple** - Basic ECR repository with minimal configuration
 - **Complete** - Full-featured ECR repository with all options
 - **Protected** - Repository with deletion protection
 - **With ECS Integration** - ECR configured for use with ECS
@@ -280,7 +280,7 @@ The module provides enhanced lifecycle policy configuration through helper varia
 There are three ways to configure lifecycle policies, listed in order of precedence:
 
 1. **Manual JSON Policy** (`lifecycle_policy`) - Highest precedence, full control
-2. **Predefined Templates** (`lifecycle_policy_template`) - Medium precedence, common patterns  
+2. **Predefined Templates** (`lifecycle_policy_template`) - Medium precedence, common patterns
 3. **Helper Variables** - Lowest precedence, individual settings
 
 **🚨 Important: Configuration Precedence Rules**
@@ -299,18 +299,18 @@ Configure lifecycle policies using individual helper variables for maximum flexi
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Keep only the latest 30 images (range: 1-10000)
   lifecycle_keep_latest_n_images = 30
-  
+
   # Delete untagged images after 7 days (range: 1-3650)
   lifecycle_expire_untagged_after_days = 7
-  
+
   # Delete tagged images after 90 days (range: 1-3650)
   lifecycle_expire_tagged_after_days = 90
-  
+
   # Apply rules only to specific tag prefixes (optional)
   lifecycle_tag_prefixes_to_keep = ["v", "release", "prod"]
 }
@@ -375,7 +375,7 @@ The module follows a clear precedence order when multiple configuration methods 
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "custom-app"
-  
+
   # This manual policy takes precedence over everything else
   lifecycle_policy = jsonencode({
     rules = [
@@ -392,7 +392,7 @@ module "ecr" {
       }
     ]
   })
-  
+
   # These are ignored when lifecycle_policy is specified
   lifecycle_policy_template = "production"
   lifecycle_keep_latest_n_images = 30
@@ -404,10 +404,10 @@ module "ecr" {
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "template-app"
-  
+
   # Template takes precedence over helper variables
   lifecycle_policy_template = "production"
-  
+
   # These helper variables are ignored when template is specified
   lifecycle_keep_latest_n_images = 30
   lifecycle_expire_untagged_after_days = 5
@@ -419,7 +419,7 @@ module "ecr" {
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "helper-app"
-  
+
   # Only helper variables specified - these will be used
   lifecycle_keep_latest_n_images = 30
   lifecycle_expire_untagged_after_days = 5
@@ -436,7 +436,7 @@ module "ecr" {
 module "ecr_dev_custom" {
   source = "lgallard/ecr/aws"
   name   = "dev-custom-app"
-  
+
   lifecycle_keep_latest_n_images      = 20    # Fewer than default dev template
   lifecycle_expire_untagged_after_days = 3    # Faster cleanup than default
   lifecycle_tag_prefixes_to_keep      = ["dev", "feat", "fix"]
@@ -446,7 +446,7 @@ module "ecr_dev_custom" {
 module "ecr_prod_extended" {
   source = "lgallard/ecr/aws"
   name   = "prod-extended-app"
-  
+
   lifecycle_keep_latest_n_images      = 150   # More than default prod template
   lifecycle_expire_untagged_after_days = 21   # Longer than default
   lifecycle_expire_tagged_after_days   = 180  # Extended retention
@@ -460,7 +460,7 @@ module "ecr_prod_extended" {
 module "ecr_test" {
   source = "lgallard/ecr/aws"
   name   = "test-app"
-  
+
   lifecycle_keep_latest_n_images      = 5     # Minimal retention
   lifecycle_expire_untagged_after_days = 1    # Daily cleanup
   lifecycle_expire_tagged_after_days   = 7    # Weekly cleanup
@@ -470,7 +470,7 @@ module "ecr_test" {
 module "ecr_staging" {
   source = "lgallard/ecr/aws"
   name   = "staging-app"
-  
+
   lifecycle_policy_template = "development"  # Use template for consistency
 }
 ```
@@ -497,7 +497,7 @@ module "ecr_staging" {
 # Strategy 1: Environment-based prefixes
 lifecycle_tag_prefixes_to_keep = ["prod", "staging", "release"]
 
-# Strategy 2: Version-based prefixes  
+# Strategy 2: Version-based prefixes
 lifecycle_tag_prefixes_to_keep = ["v", "release-"]
 
 # Strategy 3: Branch-based prefixes
@@ -537,7 +537,7 @@ To migrate from existing manual `lifecycle_policy` to the enhanced configuration
    terraform show | grep -A 20 lifecycle_policy
    ```
 
-2. **Choose Migration Path**: 
+2. **Choose Migration Path**:
    - Use a **template** if your policy matches common patterns
    - Use **helper variables** for custom configurations
    - Keep **manual policy** for complex, non-standard rules
@@ -548,7 +548,7 @@ To migrate from existing manual `lifecycle_policy` to the enhanced configuration
    module "ecr" {
      source = "lgallard/ecr/aws"
      name   = "my-app"
-     
+
      lifecycle_policy = jsonencode({
        rules = [
          {
@@ -575,12 +575,12 @@ To migrate from existing manual `lifecycle_policy` to the enhanced configuration
        ]
      })
    }
-   
+
    # After (using production template)
    module "ecr" {
      source = "lgallard/ecr/aws"
      name   = "my-app"
-     
+
      lifecycle_policy_template = "production"  # Matches the pattern above
    }
    ```
@@ -603,7 +603,7 @@ To migrate from existing manual `lifecycle_policy` to the enhanced configuration
        }
      ]
    })
-   
+
    # After (using helper variables)
    lifecycle_keep_latest_n_images = 30
    lifecycle_tag_prefixes_to_keep = ["v", "release"]
@@ -663,7 +663,7 @@ Here are key security best practices for your ECR repositories:
    ```
 
 5. **Implement Least Privilege Access**: Use repository policies that grant only necessary permissions.
-   
+
 6. **Enable KMS Encryption**: Use AWS KMS for enhanced encryption of container images.
    ```hcl
    encryption_type = "KMS"
@@ -696,7 +696,7 @@ This module offers many configuration options through variables. Here are some e
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name   = "my-app-repo"
   tags   = {
     Environment = "Production"
@@ -709,7 +709,7 @@ module "ecr" {
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name                 = "secure-repo"
   image_tag_mutability = "IMMUTABLE"    # Prevent tag overwriting
   scan_on_push         = true           # Enable basic vulnerability scanning
@@ -723,16 +723,16 @@ module "ecr" {
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name                 = "enhanced-secure-repo"
   image_tag_mutability = "IMMUTABLE"
   encryption_type      = "KMS"
-  
+
   # Enhanced scanning with AWS Inspector
   enable_registry_scanning = true
   registry_scan_type      = "ENHANCED"
   enable_secret_scanning  = true
-  
+
   # Registry scan filters for high/critical vulnerabilities
   registry_scan_filters = [
     {
@@ -740,7 +740,7 @@ module "ecr" {
       values = ["HIGH", "CRITICAL"]
     }
   ]
-  
+
   # Pull-through cache for Docker Hub
   enable_pull_through_cache = true
   pull_through_cache_rules = [
@@ -757,11 +757,11 @@ module "ecr" {
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name            = "advanced-repo"
   force_delete    = false
   enable_logging  = true
-  
+
   # Set custom timeouts
   timeouts = {
     delete = "45m"
@@ -826,11 +826,16 @@ No modules.
 |------|------|
 | [aws_cloudwatch_log_group.ecr_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_ecr_lifecycle_policy.lifecycle_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_lifecycle_policy) | resource |
+| [aws_ecr_pull_through_cache_rule.cache_rules](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_pull_through_cache_rule) | resource |
+| [aws_ecr_registry_scanning_configuration.scanning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
+| [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
 | [aws_ecr_repository.repo](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
 | [aws_ecr_repository.repo_protected](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
 | [aws_ecr_repository_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_policy) | resource |
 | [aws_iam_role.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.pull_through_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.pull_through_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_kms_alias.kms_key_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
@@ -840,17 +845,31 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | Whether to enable CloudWatch logging for the repository.<br/>When enabled, ECR API actions and image push/pull events will be logged to CloudWatch.<br/>Defaults to false. | `bool` | `false` | no |
+| <a name="input_enable_pull_through_cache"></a> [enable\_pull\_through\_cache](#input\_enable\_pull\_through\_cache) | Whether to create pull-through cache rules.<br/>Pull-through cache rules allow you to cache images from upstream registries.<br/>Defaults to false. | `bool` | `false` | no |
+| <a name="input_enable_registry_scanning"></a> [enable\_registry\_scanning](#input\_enable\_registry\_scanning) | Whether to enable enhanced scanning for the ECR registry.<br/>Enhanced scanning uses Amazon Inspector to provide detailed vulnerability assessments.<br/>This is a registry-level configuration that affects all repositories in the account.<br/>Defaults to false. | `bool` | `false` | no |
+| <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Whether to enable cross-region replication for the ECR registry.<br/>When enabled, images will be automatically replicated to the specified regions.<br/>Note: This is a registry-level configuration that affects all repositories in the account.<br/>Defaults to false. | `bool` | `false` | no |
+| <a name="input_enable_secret_scanning"></a> [enable\_secret\_scanning](#input\_enable\_secret\_scanning) | Whether to enable secret scanning as part of enhanced scanning.<br/>This feature detects secrets like API keys, passwords, and tokens in container images.<br/>When enabled, automatically sets the registry scan type to ENHANCED, overriding registry\_scan\_type.<br/>Requires enable\_registry\_scanning to be true.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | The encryption type for the repository. Valid values are "KMS" or "AES256". | `string` | `"AES256"` | no |
 | <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to delete the repository even if it contains images.<br/>Setting this to true will delete all images in the repository when the repository is deleted.<br/>Use with caution as this operation cannot be undone.<br/>Defaults to false for safety. | `bool` | `false` | no |
 | <a name="input_image_scanning_configuration"></a> [image\_scanning\_configuration](#input\_image\_scanning\_configuration) | Configuration block that defines image scanning configuration for the repository.<br/>Set to null to use the scan\_on\_push variable setting.<br/>Example: { scan\_on\_push = true } | <pre>object({<br/>    scan_on_push = bool<br/>  })</pre> | `null` | no |
 | <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository.<br/>- MUTABLE: Image tags can be overwritten<br/>- IMMUTABLE: Image tags cannot be overwritten (recommended for production)<br/>Defaults to MUTABLE to maintain backwards compatibility. | `string` | `"MUTABLE"` | no |
 | <a name="input_kms_key"></a> [kms\_key](#input\_kms\_key) | The ARN of an existing KMS key to use for repository encryption.<br/>Only applicable when encryption\_type is set to 'KMS'.<br/>If not specified when using KMS encryption, a new KMS key will be created. | `string` | `null` | no |
-| <a name="input_lifecycle_policy"></a> [lifecycle\_policy](#input\_lifecycle\_policy) | JSON string representing the lifecycle policy.<br/>If null (default), no lifecycle policy will be created.<br/>See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/lifecycle_policy_examples.html | `string` | `null` | no |
+| <a name="input_lifecycle_expire_tagged_after_days"></a> [lifecycle\_expire\_tagged\_after\_days](#input\_lifecycle\_expire\_tagged\_after\_days) | Number of days after which tagged images should be expired.<br/>If specified, creates a lifecycle policy rule to delete tagged images older than N days.<br/>This rule applies to ALL tagged images regardless of lifecycle\_tag\_prefixes\_to\_keep.<br/>Use with caution as this may delete images you want to keep long-term.<br/>Range: 1-3650 days (up to 10 years). Set to null to disable this rule.<br/><br/>Examples:<br/>- 90: Delete tagged images after 90 days (production default)<br/>- 30: Delete tagged images after 30 days (cost optimization)<br/>- 365: Delete tagged images after 1 year (compliance) | `number` | `null` | no |
+| <a name="input_lifecycle_expire_untagged_after_days"></a> [lifecycle\_expire\_untagged\_after\_days](#input\_lifecycle\_expire\_untagged\_after\_days) | Number of days after which untagged images should be expired.<br/>If specified, creates a lifecycle policy rule to delete untagged images older than N days.<br/>This rule applies to ALL untagged images regardless of lifecycle\_tag\_prefixes\_to\_keep.<br/>Range: 1-3650 days (up to 10 years). Set to null to disable this rule.<br/><br/>Examples:<br/>- 7: Delete untagged images after 7 days (development default)<br/>- 14: Delete untagged images after 14 days (production default)<br/>- 1: Delete untagged images daily (aggressive cleanup) | `number` | `null` | no |
+| <a name="input_lifecycle_keep_latest_n_images"></a> [lifecycle\_keep\_latest\_n\_images](#input\_lifecycle\_keep\_latest\_n\_images) | Number of latest images to keep in the repository.<br/>If specified, creates a lifecycle policy rule to keep only the N most recent images.<br/>When used with lifecycle\_tag\_prefixes\_to\_keep, only applies to images with those tag prefixes.<br/>Other images are not affected by this rule and may be managed by other rules.<br/>Range: 1-10000 images. Set to null to disable this rule.<br/><br/>Examples:<br/>- 30: Keep the 30 most recent images<br/>- 100: Keep the 100 most recent images (production default)<br/>- 10: Keep only 10 images (cost optimization) | `number` | `null` | no |
+| <a name="input_lifecycle_policy"></a> [lifecycle\_policy](#input\_lifecycle\_policy) | JSON string representing the lifecycle policy.<br/>If null (default), no lifecycle policy will be created.<br/>Takes precedence over helper variables and templates if specified.<br/>See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/lifecycle_policy_examples.html | `string` | `null` | no |
+| <a name="input_lifecycle_policy_template"></a> [lifecycle\_policy\_template](#input\_lifecycle\_policy\_template) | Predefined lifecycle policy template to use for common scenarios.<br/>Templates provide tested configurations and best practices for different environments.<br/><br/>Available templates:<br/><br/>- "development": Optimized for dev workflows with frequent builds<br/>  * Keep 50 images<br/>  * Expire untagged after 7 days<br/>  * No tagged expiry (developers may need old builds)<br/>  * Tag prefixes: ["dev", "feature"]<br/><br/>- "production": Balanced retention for production stability<br/>  * Keep 100 images<br/>  * Expire untagged after 14 days<br/>  * Expire tagged after 90 days<br/>  * Tag prefixes: ["v", "release", "prod"]<br/><br/>- "cost\_optimization": Aggressive cleanup to minimize storage costs<br/>  * Keep 10 images<br/>  * Expire untagged after 3 days<br/>  * Expire tagged after 30 days<br/>  * Tag prefixes: [] (applies to all images)<br/><br/>- "compliance": Long retention for audit and compliance<br/>  * Keep 200 images<br/>  * Expire untagged after 30 days<br/>  * Expire tagged after 365 days (1 year)<br/>  * Tag prefixes: ["v", "release", "audit"]<br/><br/>Set to null to use custom helper variables or manual lifecycle\_policy.<br/><br/>Configuration precedence:<br/>1. Manual lifecycle\_policy (highest - overrides template)<br/>2. Template lifecycle\_policy\_template (overrides helper variables)<br/>3. Helper variables (lowest precedence)<br/><br/>Note: When using a template, all helper variables (lifecycle\_keep\_latest\_n\_images,<br/>lifecycle\_expire\_untagged\_after\_days, etc.) will be ignored to prevent conflicts. | `string` | `null` | no |
+| <a name="input_lifecycle_tag_prefixes_to_keep"></a> [lifecycle\_tag\_prefixes\_to\_keep](#input\_lifecycle\_tag\_prefixes\_to\_keep) | List of tag prefixes for images that should be managed by the keep-latest rule.<br/>When used with lifecycle\_keep\_latest\_n\_images, applies the keep rule ONLY to images with these tag prefixes.<br/>Images without these prefixes are not affected by the keep-latest rule.<br/>The expire rules (untagged/tagged) still apply to ALL images regardless of this setting.<br/><br/>Common patterns:<br/>- ["v"]: Apply keep rule to semantic versions (v1.0.0, v2.1.3, etc.)<br/>- ["release-", "prod-"]: Apply to release and production builds<br/>- ["main", "develop"]: Apply to main branch builds<br/>- []: Apply keep rule to ALL images (empty list)<br/><br/>Constraints: Maximum 100 prefixes, each up to 255 characters.<br/>Set to empty list to apply rules to all images. | `list(string)` | `[]` | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days to retain ECR logs in CloudWatch.<br/>Only applicable when enable\_logging is true.<br/>Defaults to 30 days. | `number` | `30` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the ECR repository. This name must be unique within the AWS account and region. | `string` | n/a | yes |
 | <a name="input_policy"></a> [policy](#input\_policy) | JSON string representing the repository policy.<br/>If null (default), no repository policy will be created.<br/>See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-policies.html | `string` | `null` | no |
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed.<br/>When set to true, the repository will have the lifecycle block with prevent\_destroy = true.<br/>When set to false, the repository can be destroyed.<br/>This provides a way to dynamically control protection against accidental deletion.<br/>Defaults to false to allow repository deletion. | `bool` | `false` | no |
+| <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create.<br/>Each rule should specify ecr\_repository\_prefix and upstream\_registry\_url.<br/>Example: [{ ecr\_repository\_prefix = "docker-hub", upstream\_registry\_url = "registry-1.docker.io" }] | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR scan findings.<br/>These filters can be used by external tools or scripts to filter scan results by criteria such as vulnerability severity.<br/>Each filter should specify name and values.<br/>Example: [{ name = "PACKAGE\_VULNERABILITY\_SEVERITY", values = ["HIGH", "CRITICAL"] }]<br/><br/>Note: These filters are not applied at the registry scanning configuration level, but are made available<br/>as outputs for use in querying and filtering scan results. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry.<br/>- BASIC: Basic scanning for OS vulnerabilities<br/>- ENHANCED: Enhanced scanning with Amazon Inspector integration<br/>Only applicable when enable\_registry\_scanning is true. | `string` | `"ENHANCED"` | no |
+| <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of AWS regions to replicate ECR images to.<br/>Only applicable when enable\_replication is true.<br/>Example: ["us-west-2", "eu-west-1"] | `list(string)` | `[]` | no |
 | <a name="input_scan_on_push"></a> [scan\_on\_push](#input\_scan\_on\_push) | Indicates whether images should be scanned for vulnerabilities after being pushed to the repository.<br/>- true: Images will be automatically scanned after each push<br/>- false: Images must be scanned manually<br/>Only used if image\_scanning\_configuration is null. | `bool` | `true` | no |
+| <a name="input_scan_repository_filters"></a> [scan\_repository\_filters](#input\_scan\_repository\_filters) | List of repository filters to apply for registry scanning.<br/>Each filter specifies which repositories should be scanned.<br/>Supports wildcard patterns using '*' character.<br/>If empty, defaults to scanning all repositories ("*").<br/>Example: ["my-app-*", "important-service"] | `list(string)` | <pre>[<br/>  "*"<br/>]</pre> | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to all resources created by this module.<br/>Tags are key-value pairs that help you manage, identify, organize, search for and filter resources.<br/>Example: { Environment = "Production", Owner = "Team" } | `map(string)` | `{}` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Timeout configuration for repository operations.<br/>Specify as an object with a 'delete' key containing a duration string (e.g. "20m").<br/>Example: { delete = "20m" } | <pre>object({<br/>    delete = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_timeouts_delete"></a> [timeouts\_delete](#input\_timeouts\_delete) | Deprecated: Use timeouts = { delete = "duration" } instead.<br/>How long to wait for a repository to be deleted.<br/>Specify as a duration string, e.g. "20m" for 20 minutes. | `string` | `null` | no |
@@ -861,9 +880,19 @@ No modules.
 |------|-------------|
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | The ARN of the CloudWatch Log Group used for ECR logs (if logging is enabled) |
 | <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | The ARN of the KMS key used for repository encryption. |
+| <a name="output_lifecycle_policy"></a> [lifecycle\_policy](#output\_lifecycle\_policy) | The lifecycle policy JSON applied to the repository (if any) |
 | <a name="output_logging_role_arn"></a> [logging\_role\_arn](#output\_logging\_role\_arn) | The ARN of the IAM role used for ECR logging (if logging is enabled) |
+| <a name="output_pull_through_cache_role_arn"></a> [pull\_through\_cache\_role\_arn](#output\_pull\_through\_cache\_role\_arn) | The ARN of the IAM role used for pull-through cache operations (if enabled) |
+| <a name="output_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#output\_pull\_through\_cache\_rules) | List of pull-through cache rules (if enabled) |
 | <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | ID of the ECR registry |
+| <a name="output_registry_scan_filters"></a> [registry\_scan\_filters](#output\_registry\_scan\_filters) | The configured scan filters for filtering scan results (e.g., by vulnerability severity) |
+| <a name="output_registry_scanning_configuration_arn"></a> [registry\_scanning\_configuration\_arn](#output\_registry\_scanning\_configuration\_arn) | The ARN of the ECR registry scanning configuration (if enhanced scanning is enabled) |
+| <a name="output_registry_scanning_status"></a> [registry\_scanning\_status](#output\_registry\_scanning\_status) | Status of ECR registry scanning configuration |
+| <a name="output_replication_configuration_arn"></a> [replication\_configuration\_arn](#output\_replication\_configuration\_arn) | The ARN of the ECR replication configuration (if replication is enabled) |
+| <a name="output_replication_regions"></a> [replication\_regions](#output\_replication\_regions) | List of regions where ECR images are replicated to (if replication is enabled) |
+| <a name="output_replication_status"></a> [replication\_status](#output\_replication\_status) | Status of ECR replication configuration |
 | <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
 | <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
 | <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
+| <a name="output_security_status"></a> [security\_status](#output\_security\_status) | Comprehensive security status of the ECR configuration |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

@@ -23,7 +23,7 @@ Tags to assign to all resources created by this module.
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   tags = {
     Environment = "Production"
     Department  = "Engineering"
@@ -44,7 +44,7 @@ Enabling this setting ensures that all images are scanned for vulnerabilities wh
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   scan_on_push = true  # Images will be automatically scanned after being pushed
 }
 ```
@@ -57,7 +57,7 @@ Alternative to using `scan_on_push` when more explicit configuration is preferre
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Equivalent to scan_on_push = true
   image_scanning_configuration = {
     scan_on_push = true
@@ -73,12 +73,12 @@ Enable registry-level enhanced scanning for comprehensive vulnerability assessme
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Enhanced scanning configuration
   enable_registry_scanning = true
   registry_scan_type      = "ENHANCED"
   enable_secret_scanning  = true
-  
+
   # Filter for high and critical vulnerabilities only
   registry_scan_filters = [
     {
@@ -97,7 +97,7 @@ Configure pull-through cache to cache images from upstream registries:
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Enable pull-through cache
   enable_pull_through_cache = true
   pull_through_cache_rules = [
@@ -121,7 +121,7 @@ Controls whether image tags can be overwritten. Setting to "IMMUTABLE" prevents 
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Prevent image tags from being overwritten
   image_tag_mutability = "IMMUTABLE"  # Requires users to create new tags rather than overwrite
 }
@@ -136,7 +136,7 @@ Controls how images are encrypted at rest. For sensitive workloads, KMS encrypti
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   encryption_type = "AES256"  # AWS-managed encryption (default)
 }
 
@@ -144,7 +144,7 @@ module "ecr" {
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend-secure"
-  
+
   encryption_type = "KMS"  # Module will create a KMS key
 }
 
@@ -152,7 +152,7 @@ module "ecr" {
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend-secure"
-  
+
   encryption_type = "KMS"
   kms_key         = "arn:aws:kms:us-east-1:123456789012:key/abcd1234-1234-1234-1234-123456789abc"
 }
@@ -166,7 +166,7 @@ Protects the repository from accidental deletion through Terraform. This is a sa
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "production-backend"
-  
+
   prevent_destroy = true  # Repository cannot be destroyed by Terraform without first changing this to false
 }
 ```
@@ -179,7 +179,7 @@ When set to true, the repository will be deleted even if it contains images. Use
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "temporary-repo"
-  
+
   force_delete = true  # Repository will be deleted even if it contains images
 }
 ```
@@ -194,7 +194,7 @@ JSON string representing the repository policy. This controls who can access the
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Allow specific IAM roles to pull images
   policy = jsonencode({
     Version = "2012-10-17"
@@ -227,7 +227,7 @@ JSON string representing the lifecycle policy. This controls how images are auto
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Complex lifecycle policy with multiple rules
   lifecycle_policy = jsonencode({
     rules = [
@@ -287,16 +287,16 @@ Configure lifecycle policies using individual helper variables for maximum flexi
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Keep only the latest 30 images
   lifecycle_keep_latest_n_images = 30
-  
-  # Delete untagged images after 7 days  
+
+  # Delete untagged images after 7 days
   lifecycle_expire_untagged_after_days = 7
-  
+
   # Delete tagged images after 90 days
   lifecycle_expire_tagged_after_days = 90
-  
+
   # Apply retention rules only to specific tag prefixes
   lifecycle_tag_prefixes_to_keep = ["v", "release", "prod"]
 }
@@ -311,7 +311,7 @@ Use predefined templates for common scenarios:
 module "ecr_dev" {
   source = "lgallard/ecr/aws"
   name   = "dev-application"
-  
+
   lifecycle_policy_template = "development"
   # Keeps 50 images, expires untagged after 7 days
 }
@@ -320,8 +320,8 @@ module "ecr_dev" {
 module "ecr_prod" {
   source = "lgallard/ecr/aws"
   name   = "prod-application"
-  
-  lifecycle_policy_template = "production"  
+
+  lifecycle_policy_template = "production"
   # Keeps 100 images, expires untagged after 14 days, tagged after 90 days
 }
 
@@ -329,16 +329,16 @@ module "ecr_prod" {
 module "ecr_cost" {
   source = "lgallard/ecr/aws"
   name   = "test-application"
-  
+
   lifecycle_policy_template = "cost_optimization"
-  # Keeps 10 images, expires untagged after 3 days, tagged after 30 days  
+  # Keeps 10 images, expires untagged after 3 days, tagged after 30 days
 }
 
 # Compliance environment with long retention
 module "ecr_compliance" {
   source = "lgallard/ecr/aws"
   name   = "audit-application"
-  
+
   lifecycle_policy_template = "compliance"
   # Keeps 200 images, expires untagged after 30 days, tagged after 365 days
 }
@@ -356,12 +356,12 @@ When multiple lifecycle policy configurations are provided, they follow this pre
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "example"
-  
+
   # Manual policy takes precedence (this will be used)
   lifecycle_policy = jsonencode({
     rules = [{ /* custom rules */ }]
   })
-  
+
   # These will be ignored since manual policy is provided
   lifecycle_policy_template = "production"
   lifecycle_keep_latest_n_images = 50
@@ -378,12 +378,12 @@ Configure how long Terraform will wait for repository operations to complete.
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Modern approach using the timeouts object
   timeouts = {
     delete = "60m"  # Wait up to 60 minutes for deletion to complete
   }
-  
+
   # Or using the legacy parameter (still supported but deprecated)
   # timeouts_delete = "60m"
 }
@@ -399,7 +399,7 @@ Enable logging of repository events to CloudWatch Logs and configure log retenti
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "application-backend"
-  
+
   # Enable logging to CloudWatch
   enable_logging     = true
   log_retention_days = 90  # Retain logs for 90 days
@@ -413,17 +413,17 @@ Here's a comprehensive example showing all variables:
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   # Basic settings
   name = "production-application"
-  
+
   # Security settings
   scan_on_push         = true
   image_tag_mutability = "IMMUTABLE"
   encryption_type      = "KMS"
   prevent_destroy      = true
   force_delete         = false
-  
+
   # Repository policy
   policy = jsonencode({
     Version = "2012-10-17"
@@ -439,7 +439,7 @@ module "ecr" {
       }
     ]
   })
-  
+
   # Lifecycle policy
   lifecycle_policy = jsonencode({
     rules = [
@@ -456,20 +456,20 @@ module "ecr" {
       }
     ]
   })
-  
+
   # Timeouts
   timeouts = {
     delete = "30m"
   }
-  
+
   # Logging
   enable_logging     = true
   log_retention_days = 90
-  
+
   # Cross-region replication
   enable_replication  = true
   replication_regions = ["us-west-2", "eu-west-1"]
-  
+
   # Tags
   tags = {
     Environment = "Production"
@@ -490,7 +490,7 @@ Enable automatic cross-region replication for disaster recovery and multi-region
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "production-app"
-  
+
   enable_replication = true  # Enable automatic replication
 }
 ```
@@ -503,7 +503,7 @@ Specify the AWS regions where images should be automatically replicated.
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "production-app"
-  
+
   enable_replication  = true
   replication_regions = ["us-west-2", "eu-west-1", "ap-southeast-1"]
 }
@@ -519,21 +519,21 @@ module "ecr" {
 ```hcl
 module "ecr_with_replication" {
   source = "lgallard/ecr/aws"
-  
+
   name                 = "global-application"
   image_tag_mutability = "IMMUTABLE"  # Recommended for replication
   scan_on_push         = true
-  
+
   # Enable replication for disaster recovery
   enable_replication  = true
   replication_regions = ["us-west-2", "eu-west-1", "ap-southeast-1"]
-  
+
   # Optional: Use KMS encryption for source repository
   encryption_type = "KMS"
-  
+
   # Enable logging for monitoring
   enable_logging = true
-  
+
   tags = {
     Environment = "Production"
     Application = "GlobalApp"

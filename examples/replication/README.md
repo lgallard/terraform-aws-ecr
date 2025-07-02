@@ -59,13 +59,13 @@ terraform apply
 ```hcl
 module "ecr_with_replication" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Enable replication
   enable_replication  = true
   replication_regions = ["us-west-2", "eu-west-1"]
-  
+
   # Additional options
   image_tag_mutability = "IMMUTABLE"
   scan_on_push         = true

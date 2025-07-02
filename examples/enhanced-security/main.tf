@@ -4,17 +4,6 @@
 # - Pull-through cache configuration
 # - Secret scanning capabilities
 
-# Provider configuration
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-  required_version = ">= 1.0"
-}
-
 # Get current AWS account ID
 data "aws_caller_identity" "current" {}
 

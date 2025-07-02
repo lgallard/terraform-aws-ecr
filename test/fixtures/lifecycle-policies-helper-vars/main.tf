@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1"
+    }
   }
 }
 
@@ -43,7 +47,7 @@ module "ecr_helper_vars_test" {
 
   # Use helper variables for lifecycle policy
   lifecycle_expire_untagged_after_days = var.lifecycle_expire_untagged_after_days
-  lifecycle_keep_latest_n_images      = var.lifecycle_keep_latest_n_images
+  lifecycle_keep_latest_n_images       = var.lifecycle_keep_latest_n_images
   lifecycle_expire_tagged_after_days   = var.lifecycle_expire_tagged_after_days
   lifecycle_tag_prefixes_to_keep       = var.lifecycle_tag_prefixes_to_keep
 

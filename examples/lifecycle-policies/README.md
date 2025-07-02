@@ -21,7 +21,7 @@ This example demonstrates the various ways to configure lifecycle policies using
   - Applies to tag prefixes: `["dev", "feature"]`
 - **Best for**: CI/CD pipelines, feature branch testing, development environments
 
-### Production Template  
+### Production Template
 - **Purpose**: Balanced retention and stability for production workloads
 - **Configuration**:
   - Keeps 100 images
@@ -58,10 +58,10 @@ Templates provide tested configurations for common use cases:
 # Development environment
 module "ecr_development" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app-dev"
   lifecycle_policy_template = "development"
-  
+
   tags = {
     Environment = "Development"
     Purpose     = "CI/CD"
@@ -71,10 +71,10 @@ module "ecr_development" {
 # Production environment
 module "ecr_production" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app-prod"
   lifecycle_policy_template = "production"
-  
+
   tags = {
     Environment = "Production"
     Purpose     = "Live Application"
@@ -90,17 +90,17 @@ Helper variables provide flexibility while maintaining simplicity:
 # Custom development configuration
 module "ecr_custom_dev" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app-custom-dev"
-  
+
   # Custom retention settings
   lifecycle_keep_latest_n_images      = 75    # More than standard dev template
   lifecycle_expire_untagged_after_days = 5    # Faster cleanup than standard
   lifecycle_expire_tagged_after_days   = 45   # Some tagged cleanup
-  
+
   # Custom tag strategy
   lifecycle_tag_prefixes_to_keep = ["dev", "feature", "bugfix", "experimental"]
-  
+
   tags = {
     Environment = "Development"
     Purpose     = "Custom Workflow"
@@ -110,17 +110,17 @@ module "ecr_custom_dev" {
 # Cost-conscious staging environment
 module "ecr_staging_cost" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app-staging"
-  
+
   # Aggressive cost optimization
   lifecycle_keep_latest_n_images      = 15
   lifecycle_expire_untagged_after_days = 2
   lifecycle_expire_tagged_after_days   = 14
-  
+
   # Focus on release candidates
   lifecycle_tag_prefixes_to_keep = ["rc", "staging"]
-  
+
   tags = {
     Environment = "Staging"
     Purpose     = "Cost Optimized Testing"
@@ -135,9 +135,9 @@ Manual JSON policies provide maximum control:
 ```hcl
 module "ecr_manual_complex" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app-complex"
-  
+
   # Complex multi-rule policy
   lifecycle_policy = jsonencode({
     rules = [
@@ -176,7 +176,7 @@ module "ecr_manual_complex" {
       }
     ]
   })
-  
+
   tags = {
     Environment = "Production"
     Purpose     = "Complex Lifecycle Management"
@@ -193,7 +193,7 @@ Understanding how different configuration methods interact:
 module "ecr_precedence_manual" {
   source = "lgallard/ecr/aws"
   name   = "precedence-manual"
-  
+
   # This manual policy takes precedence over everything below
   lifecycle_policy = jsonencode({
     rules = [
@@ -210,7 +210,7 @@ module "ecr_precedence_manual" {
       }
     ]
   })
-  
+
   # These are ignored when lifecycle_policy is specified
   lifecycle_policy_template = "production"
   lifecycle_keep_latest_n_images = 100
@@ -223,10 +223,10 @@ module "ecr_precedence_manual" {
 module "ecr_precedence_template" {
   source = "lgallard/ecr/aws"
   name   = "precedence-template"
-  
+
   # Template takes precedence over helper variables
   lifecycle_policy_template = "cost_optimization"
-  
+
   # These helper variables are ignored when template is specified
   lifecycle_keep_latest_n_images = 100        # Template uses 10
   lifecycle_expire_untagged_after_days = 30   # Template uses 3
@@ -238,7 +238,7 @@ module "ecr_precedence_template" {
 module "ecr_precedence_helpers" {
   source = "lgallard/ecr/aws"
   name   = "precedence-helpers"
-  
+
   # Only helper variables specified - these will be used
   lifecycle_keep_latest_n_images = 50
   lifecycle_expire_untagged_after_days = 10
@@ -261,7 +261,7 @@ module "ecr_dev" {
 module "ecr_staging" {
   source = "lgallard/ecr/aws"
   name   = "myapp-staging"
-  
+
   lifecycle_keep_latest_n_images      = 30
   lifecycle_expire_untagged_after_days = 5
   lifecycle_tag_prefixes_to_keep      = ["rc", "staging"]
@@ -288,17 +288,17 @@ module "ecr_audit" {
 module "ecr_versioned" {
   source = "lgallard/ecr/aws"
   name   = "versioned-app"
-  
+
   lifecycle_keep_latest_n_images      = 100
   lifecycle_expire_untagged_after_days = 7
   lifecycle_tag_prefixes_to_keep      = ["v", "release-"]  # v1.0.0, release-2023-01
 }
 
-# Branch-based tag strategy  
+# Branch-based tag strategy
 module "ecr_branched" {
   source = "lgallard/ecr/aws"
   name   = "branched-app"
-  
+
   lifecycle_keep_latest_n_images      = 50
   lifecycle_expire_untagged_after_days = 3
   lifecycle_tag_prefixes_to_keep      = ["main", "develop", "hotfix"]
@@ -308,7 +308,7 @@ module "ecr_branched" {
 module "ecr_env_tags" {
   source = "lgallard/ecr/aws"
   name   = "env-tagged-app"
-  
+
   lifecycle_keep_latest_n_images      = 75
   lifecycle_expire_untagged_after_days = 5
   lifecycle_tag_prefixes_to_keep      = ["prod", "staging", "dev"]
@@ -357,7 +357,7 @@ aws ecr describe-images --repository-name myapp-dev
    ```hcl
    # Start with closest template
    lifecycle_policy_template = "production"
-   
+
    # Then customize with helper variables if needed
    lifecycle_keep_latest_n_images = 150  # More than template default
    ```

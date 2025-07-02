@@ -37,7 +37,7 @@ Check and update the repository policy to include the necessary permissions:
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "my-ecr-repo"
-  
+
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -125,10 +125,10 @@ The module now provides enhanced lifecycle policy configuration. Here are common
    ```hcl
    # Manual policy overrides everything
    lifecycle_policy = "..." # This takes precedence
-   
+
    # Template overrides helper variables
    lifecycle_policy_template = "production" # This overrides helper variables below
-   
+
    # Helper variables (lowest precedence)
    lifecycle_keep_latest_n_images = 30
    ```
@@ -165,7 +165,7 @@ Check what each template includes:
    # This only applies keep-latest rule to images with these prefixes
    lifecycle_tag_prefixes_to_keep = ["v", "release"]
    lifecycle_keep_latest_n_images = 30
-   
+
    # But expiry rules still apply to ALL images
    lifecycle_expire_untagged_after_days = 7
    ```
@@ -187,16 +187,16 @@ Check what each template includes:
 
 2. **Check rule priority and conflicts:**
    - Rule 1: Expire untagged images
-   - Rule 2: Keep latest N images  
+   - Rule 2: Keep latest N images
    - Rule 3: Expire tagged images
-   
+
    Higher priority rules (lower numbers) execute first.
 
 3. **Test policy evaluation:**
    ```bash
    # Trigger manual evaluation
    aws ecr start-lifecycle-policy-preview --repository-name my-repo-name
-   
+
    # Check results after a few minutes
    aws ecr get-lifecycle-policy-preview --repository-name my-repo-name
    ```
@@ -206,7 +206,7 @@ Check what each template includes:
    # This configuration might not work as expected:
    lifecycle_keep_latest_n_images = 100
    lifecycle_expire_tagged_after_days = 30
-   
+
    # Because if images are older than 30 days, they'll be expired
    # even if you want to keep 100 latest images
    ```
@@ -219,10 +219,10 @@ Check what each template includes:
    ```hcl
    # Invalid - out of range
    lifecycle_keep_latest_n_images = 15000  # Max is 10000
-   
-   # Invalid - out of range  
+
+   # Invalid - out of range
    lifecycle_expire_untagged_after_days = 5000  # Max is 3650
-   
+
    # Invalid - too many prefixes
    lifecycle_tag_prefixes_to_keep = [/* more than 100 items */]
    ```
@@ -231,7 +231,7 @@ Check what each template includes:
    ```hcl
    # Invalid
    lifecycle_policy_template = "prod"  # Not a valid template
-   
+
    # Valid
    lifecycle_policy_template = "production"
    ```
@@ -257,7 +257,7 @@ When migrating from manual `lifecycle_policy`, follow this process:
          description  = "Expire untagged after 7 days"
          selection = {
            tagStatus   = "untagged"
-           countType   = "sinceImagePushed" 
+           countType   = "sinceImagePushed"
            countUnit   = "days"
            countNumber = 7
          }
@@ -265,7 +265,7 @@ When migrating from manual `lifecycle_policy`, follow this process:
        }
      ]
    })
-   
+
    # Equivalent using helper variables
    lifecycle_expire_untagged_after_days = 7
    ```
@@ -326,11 +326,11 @@ aws ecr get-lifecycle-policy-preview --repository-name my-repo-name
          "action": { "type": "expire" }
        },
        {
-         "rulePriority": 2,  
+         "rulePriority": 2,
          "selection": {
            "tagStatus": "tagged",
            "countType": "sinceImagePushed",
-           "countUnit": "days", 
+           "countUnit": "days",
            "countNumber": 30
          },
          "action": { "type": "expire" }
@@ -390,7 +390,7 @@ When you need to delete a protected repository:
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "my-ecr-repo"
-  
+
   prevent_destroy = false
 }
 ```
@@ -419,7 +419,7 @@ terraform destroy
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "my-ecr-repo"
-  
+
   enable_logging = true
 }
 ```

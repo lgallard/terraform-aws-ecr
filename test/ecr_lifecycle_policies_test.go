@@ -25,7 +25,7 @@ func TestTerraformEcrLifecyclePolicies(t *testing.T) {
 	templateRepoURL := terraform.Output(t, terraformOptions, "lifecycle_template_repository_url")
 	assert.NotEmpty(t, templateRepoURL)
 
-	// Test helper variables lifecycle policy  
+	// Test helper variables lifecycle policy
 	helperVarsRepoURL := terraform.Output(t, terraformOptions, "lifecycle_helper_vars_repository_url")
 	assert.NotEmpty(t, helperVarsRepoURL)
 

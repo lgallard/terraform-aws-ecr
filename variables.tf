@@ -156,7 +156,7 @@ variable "lifecycle_keep_latest_n_images" {
     When used with lifecycle_tag_prefixes_to_keep, only applies to images with those tag prefixes.
     Other images are not affected by this rule and may be managed by other rules.
     Range: 1-10000 images. Set to null to disable this rule.
-    
+
     Examples:
     - 30: Keep the 30 most recent images
     - 100: Keep the 100 most recent images (production default)
@@ -178,7 +178,7 @@ variable "lifecycle_expire_untagged_after_days" {
     If specified, creates a lifecycle policy rule to delete untagged images older than N days.
     This rule applies to ALL untagged images regardless of lifecycle_tag_prefixes_to_keep.
     Range: 1-3650 days (up to 10 years). Set to null to disable this rule.
-    
+
     Examples:
     - 7: Delete untagged images after 7 days (development default)
     - 14: Delete untagged images after 14 days (production default)
@@ -201,7 +201,7 @@ variable "lifecycle_expire_tagged_after_days" {
     This rule applies to ALL tagged images regardless of lifecycle_tag_prefixes_to_keep.
     Use with caution as this may delete images you want to keep long-term.
     Range: 1-3650 days (up to 10 years). Set to null to disable this rule.
-    
+
     Examples:
     - 90: Delete tagged images after 90 days (production default)
     - 30: Delete tagged images after 30 days (cost optimization)
@@ -223,13 +223,13 @@ variable "lifecycle_tag_prefixes_to_keep" {
     When used with lifecycle_keep_latest_n_images, applies the keep rule ONLY to images with these tag prefixes.
     Images without these prefixes are not affected by the keep-latest rule.
     The expire rules (untagged/tagged) still apply to ALL images regardless of this setting.
-    
+
     Common patterns:
     - ["v"]: Apply keep rule to semantic versions (v1.0.0, v2.1.3, etc.)
     - ["release-", "prod-"]: Apply to release and production builds
     - ["main", "develop"]: Apply to main branch builds
     - []: Apply keep rule to ALL images (empty list)
-    
+
     Constraints: Maximum 100 prefixes, each up to 255 characters.
     Set to empty list to apply rules to all images.
   EOT
@@ -252,41 +252,41 @@ variable "lifecycle_policy_template" {
   description = <<-EOT
     Predefined lifecycle policy template to use for common scenarios.
     Templates provide tested configurations and best practices for different environments.
-    
+
     Available templates:
-    
+
     - "development": Optimized for dev workflows with frequent builds
       * Keep 50 images
-      * Expire untagged after 7 days  
+      * Expire untagged after 7 days
       * No tagged expiry (developers may need old builds)
       * Tag prefixes: ["dev", "feature"]
-      
+
     - "production": Balanced retention for production stability
       * Keep 100 images
       * Expire untagged after 14 days
       * Expire tagged after 90 days
       * Tag prefixes: ["v", "release", "prod"]
-      
+
     - "cost_optimization": Aggressive cleanup to minimize storage costs
       * Keep 10 images
       * Expire untagged after 3 days
       * Expire tagged after 30 days
       * Tag prefixes: [] (applies to all images)
-      
+
     - "compliance": Long retention for audit and compliance
       * Keep 200 images
       * Expire untagged after 30 days
       * Expire tagged after 365 days (1 year)
       * Tag prefixes: ["v", "release", "audit"]
-    
+
     Set to null to use custom helper variables or manual lifecycle_policy.
-    
+
     Configuration precedence:
     1. Manual lifecycle_policy (highest - overrides template)
-    2. Template lifecycle_policy_template (overrides helper variables) 
+    2. Template lifecycle_policy_template (overrides helper variables)
     3. Helper variables (lowest precedence)
-    
-    Note: When using a template, all helper variables (lifecycle_keep_latest_n_images, 
+
+    Note: When using a template, all helper variables (lifecycle_keep_latest_n_images,
     lifecycle_expire_untagged_after_days, etc.) will be ignored to prevent conflicts.
   EOT
   type        = string
@@ -427,8 +427,8 @@ variable "registry_scan_filters" {
     These filters can be used by external tools or scripts to filter scan results by criteria such as vulnerability severity.
     Each filter should specify name and values.
     Example: [{ name = "PACKAGE_VULNERABILITY_SEVERITY", values = ["HIGH", "CRITICAL"] }]
-    
-    Note: These filters are not applied at the registry scanning configuration level, but are made available 
+
+    Note: These filters are not applied at the registry scanning configuration level, but are made available
     as outputs for use in querying and filtering scan results.
   EOT
   type = list(object({
@@ -493,5 +493,3 @@ variable "scan_repository_filters" {
   type        = list(string)
   default     = ["*"]
 }
-
-

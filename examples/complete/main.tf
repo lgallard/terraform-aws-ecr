@@ -203,10 +203,10 @@ module "ecr_enhanced_lifecycle" {
   # Tags for enhanced example
   tags = merge(
     {
-      Name        = "enhanced-lifecycle-repo"
-      Owner       = "DevOps team"
-      Environment = "development"
-      Project     = "example"
+      Name            = "enhanced-lifecycle-repo"
+      Owner           = "DevOps team"
+      Environment     = "development"
+      Project         = "example"
       LifecyclePolicy = "enhanced"
     },
     var.tags

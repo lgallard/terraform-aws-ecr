@@ -12,7 +12,7 @@ Apply the principle of least privilege by creating repository policies that gran
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -39,7 +39,7 @@ module "ecr" {
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -71,12 +71,12 @@ For comprehensive security assessment, enable enhanced scanning with AWS Inspect
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   # Enhanced scanning configuration
   enable_registry_scanning = true
   registry_scan_type      = "ENHANCED"
   enable_secret_scanning  = true
-  
+
   # Filter for high and critical vulnerabilities
   registry_scan_filters = [
     {
@@ -101,7 +101,7 @@ For basic vulnerability scanning without Inspector integration:
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   scan_on_push = true
 }
 ```
@@ -138,7 +138,7 @@ Enable KMS encryption for ECR repositories containing sensitive images:
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   encryption_type = "KMS"
   # Optionally specify your own KMS key:
   # kms_key = "arn:aws:kms:us-east-1:123456789012:key/your-key-id"
@@ -154,7 +154,7 @@ resource "aws_kms_key" "ecr_key" {
   description             = "KMS key for ECR repository encryption"
   deletion_window_in_days = 10
   enable_key_rotation     = true
-  
+
   policy = jsonencode({
     // Custom key policy ...
   })
@@ -163,7 +163,7 @@ resource "aws_kms_key" "ecr_key" {
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   encryption_type = "KMS"
   kms_key         = aws_kms_key.ecr_key.arn
 }
@@ -177,7 +177,7 @@ Enable image tag immutability to prevent accidental or malicious overwriting of 
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   image_tag_mutability = "IMMUTABLE"
 }
 ```
@@ -190,7 +190,7 @@ Enable protection for critical repositories to prevent accidental deletion:
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   prevent_destroy = true
 }
 ```
@@ -203,7 +203,7 @@ Implement lifecycle policies to limit exposure to older, potentially vulnerable 
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   lifecycle_policy = jsonencode({
     rules = [
       {
@@ -232,7 +232,7 @@ Configure pull-through cache to reduce external dependencies and improve securit
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   # Enable pull-through cache for trusted registries
   enable_pull_through_cache = true
   pull_through_cache_rules = [
@@ -273,7 +273,7 @@ For secure cross-account access:
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -302,11 +302,11 @@ Enable AWS CloudTrail and CloudWatch to monitor ECR repository access:
 module "ecr" {
   source = "lgallard/ecr/aws"
   name   = "secure-ecr-repo"
-  
+
   # Enable CloudWatch logging
   enable_logging     = true
   log_retention_days = 90
-  
+
   # Rest of configuration...
 }
 ```
