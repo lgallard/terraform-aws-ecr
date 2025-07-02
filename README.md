@@ -47,6 +47,9 @@ Check the [examples](examples/) directory for examples including:
 - **With ECS Integration** - ECR configured for use with ECS
 - **Multi-Region** - Repository configured for cross-region replication (manual and automatic approaches)
 - **Replication** - ECR repository with built-in cross-region replication support
+- **Advanced Tagging** - Comprehensive tagging strategies with templates, validation, and normalization
+- **Enhanced Security** - Advanced security features with scanning and compliance
+- **Lifecycle Policies** - Image lifecycle management with predefined templates
 
 ### Simple example
 This example creates an ECR registry using few parameters
@@ -270,6 +273,207 @@ terraform destroy
 ```
 
 This approach allows protecting repositories by default while providing a controlled way to remove them when needed.
+
+## Advanced Tagging Configuration
+
+The module provides comprehensive tagging strategies to support better resource management, cost allocation, and organizational compliance. These features enable consistent, validated, and normalized tagging across all ECR resources while maintaining full backward compatibility.
+
+### Key Features
+
+- **Default Tag Templates**: Predefined organizational tag standards for common scenarios
+- **Tag Validation**: Ensure required tags are present and follow naming conventions  
+- **Tag Normalization**: Consistent casing and format across all resources
+- **Cost Allocation**: Specialized tags for financial tracking and reporting
+- **Compliance**: Tags required for security and regulatory frameworks
+- **Backward Compatible**: All advanced features are opt-in
+
+### Default Tag Templates
+
+The module provides four predefined templates for common organizational needs:
+
+#### Basic Template
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Enable basic organizational tagging
+  enable_default_tags = true
+  default_tags_template = "basic"
+  default_tags_environment = "production"
+  default_tags_owner = "platform-team"
+  default_tags_project = "user-service"
+}
+```
+
+**Applied tags**: `CreatedBy`, `ManagedBy`, `Environment`, `Owner`, `Project`
+
+#### Cost Allocation Template
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Enable cost allocation tagging
+  enable_default_tags = true
+  default_tags_template = "cost_allocation"
+  default_tags_environment = "production"
+  default_tags_owner = "platform-team"
+  default_tags_project = "user-service"
+  default_tags_cost_center = "engineering-cc-001"
+}
+```
+
+**Applied tags**: All basic tags plus `CostCenter`, `BillingProject`, `ResourceType`, `Service`, `Billable`
+
+#### Compliance Template
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Enable compliance tagging
+  enable_default_tags = true
+  default_tags_template = "compliance"
+  default_tags_environment = "production"
+  default_tags_owner = "security-team"
+  default_tags_project = "payment-service"
+  default_tags_cost_center = "security-cc-002"
+}
+```
+
+**Applied tags**: All cost allocation tags plus `DataClass`, `Compliance`, `BackupRequired`, `MonitoringLevel`, `SecurityReview`
+
+#### SDLC Template
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Enable SDLC tagging
+  enable_default_tags = true
+  default_tags_template = "sdlc"
+  default_tags_environment = "development"
+  default_tags_owner = "dev-team"
+  default_tags_project = "mobile-app"
+}
+```
+
+**Applied tags**: Basic organizational tags plus `Application`, `Version`, `DeploymentStage`, `LifecycleStage`, `MaintenanceWindow`
+
+### Tag Validation and Compliance
+
+Ensure organizational compliance by validating that required tags are present:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Enable tag validation
+  enable_tag_validation = true
+  required_tags = [
+    "Environment",
+    "Owner", 
+    "Project",
+    "CostCenter"
+  ]
+  
+  # This will fail if any required tags are missing
+  default_tags_environment = "production"
+  default_tags_owner = "platform-team"
+  default_tags_project = "user-service"
+  default_tags_cost_center = "eng-001"
+}
+```
+
+### Tag Normalization
+
+Ensure consistent tag formatting across all resources:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Enable tag normalization
+  enable_tag_normalization = true
+  tag_key_case = "PascalCase"  # Options: PascalCase, camelCase, snake_case, kebab-case
+  normalize_tag_values = true
+  
+  tags = {
+    "cost-center" = "  engineering-001  "  # Will be normalized to "CostCenter" = "engineering-001"
+    "data_class"  = "internal"             # Will be normalized to "DataClass" = "internal"
+  }
+}
+```
+
+### Custom Default Tags
+
+Configure custom default tags without using templates:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Enable custom default tags
+  enable_default_tags = true
+  default_tags_template = null  # Use custom configuration
+  default_tags_environment = "staging"
+  default_tags_owner = "full-stack-team"
+  default_tags_project = "analytics-service" 
+  default_tags_cost_center = "data-cc-003"
+  
+  # Additional custom tags
+  tags = {
+    team_slack = "analytics-team"
+    oncall_rotation = "analytics-oncall"
+  }
+}
+```
+
+### Legacy Compatibility
+
+Disable advanced tagging features for backward compatibility:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  
+  name = "my-app"
+  
+  # Disable advanced tagging features
+  enable_default_tags = false
+  enable_tag_validation = false
+  enable_tag_normalization = false
+  
+  # Traditional manual tagging
+  tags = {
+    Environment = "production"
+    Owner = "legacy-team"
+    ManagedBy = "Terraform"
+  }
+}
+```
+
+### Tagging Best Practices
+
+1. **Start with Templates**: Use predefined templates that match your organizational needs
+2. **Enable Validation**: Enforce required tags for compliance and consistency
+3. **Normalize Consistently**: Choose a casing strategy and apply it across all resources
+4. **Plan for Cost Allocation**: Include cost center and billing project tags early
+5. **Consider Compliance**: Include data classification and security review tags for regulated environments
+6. **Monitor Tag Drift**: Use the validation and normalization features to maintain consistency
+
+For comprehensive examples demonstrating different tagging strategies, see [examples/advanced-tagging](examples/advanced-tagging/).
 
 ## Enhanced Lifecycle Policy Configuration
 
