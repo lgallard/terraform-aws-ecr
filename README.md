@@ -281,7 +281,7 @@ The module provides comprehensive tagging strategies to support better resource 
 ### Key Features
 
 - **Default Tag Templates**: Predefined organizational tag standards for common scenarios
-- **Tag Validation**: Ensure required tags are present and follow naming conventions  
+- **Tag Validation**: Ensure required tags are present and follow naming conventions
 - **Tag Normalization**: Consistent casing and format across all resources
 - **Cost Allocation**: Specialized tags for financial tracking and reporting
 - **Compliance**: Tags required for security and regulatory frameworks
@@ -295,9 +295,9 @@ The module provides four predefined templates for common organizational needs:
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Enable basic organizational tagging
   enable_default_tags = true
   default_tags_template = "basic"
@@ -313,9 +313,9 @@ module "ecr" {
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Enable cost allocation tagging
   enable_default_tags = true
   default_tags_template = "cost_allocation"
@@ -332,9 +332,9 @@ module "ecr" {
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Enable compliance tagging
   enable_default_tags = true
   default_tags_template = "compliance"
@@ -351,9 +351,9 @@ module "ecr" {
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Enable SDLC tagging
   enable_default_tags = true
   default_tags_template = "sdlc"
@@ -372,18 +372,18 @@ Ensure organizational compliance by validating that required tags are present:
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Enable tag validation
   enable_tag_validation = true
   required_tags = [
     "Environment",
-    "Owner", 
+    "Owner",
     "Project",
     "CostCenter"
   ]
-  
+
   # This will fail if any required tags are missing
   default_tags_environment = "production"
   default_tags_owner = "platform-team"
@@ -399,14 +399,14 @@ Ensure consistent tag formatting across all resources:
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Enable tag normalization
   enable_tag_normalization = true
   tag_key_case = "PascalCase"  # Options: PascalCase, camelCase, snake_case, kebab-case
   normalize_tag_values = true
-  
+
   tags = {
     "cost-center" = "  engineering-001  "  # Will be normalized to "CostCenter" = "engineering-001"
     "data_class"  = "internal"             # Will be normalized to "DataClass" = "internal"
@@ -421,17 +421,17 @@ Configure custom default tags without using templates:
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Enable custom default tags
   enable_default_tags = true
   default_tags_template = null  # Use custom configuration
   default_tags_environment = "staging"
   default_tags_owner = "full-stack-team"
-  default_tags_project = "analytics-service" 
+  default_tags_project = "analytics-service"
   default_tags_cost_center = "data-cc-003"
-  
+
   # Additional custom tags
   tags = {
     team_slack = "analytics-team"
@@ -447,14 +447,14 @@ Disable advanced tagging features for backward compatibility:
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "my-app"
-  
+
   # Disable advanced tagging features
   enable_default_tags = false
   enable_tag_validation = false
   enable_tag_normalization = false
-  
+
   # Traditional manual tagging
   tags = {
     Environment = "production"
@@ -1048,11 +1048,19 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_default_tags_cost_center"></a> [default\_tags\_cost\_center](#input\_default\_tags\_cost\_center) | Cost center tag value for financial tracking and allocation.<br/>Should specify the cost center, budget code, or billing department.<br/>Example: "engineering", "marketing", "cc-1234"<br/>Set to null to disable automatic cost center tagging. | `string` | `null` | no |
+| <a name="input_default_tags_environment"></a> [default\_tags\_environment](#input\_default\_tags\_environment) | Environment tag value to be automatically applied to all resources.<br/>Common values: production, staging, development, test<br/>Set to null to disable automatic environment tagging. | `string` | `null` | no |
+| <a name="input_default_tags_owner"></a> [default\_tags\_owner](#input\_default\_tags\_owner) | Owner tag value to be automatically applied to all resources.<br/>Should specify the team, department, or individual responsible for the resource.<br/>Example: "platform-team", "data-engineering", "john.doe@company.com"<br/>Set to null to disable automatic owner tagging. | `string` | `null` | no |
+| <a name="input_default_tags_project"></a> [default\_tags\_project](#input\_default\_tags\_project) | Project tag value to be automatically applied to all resources.<br/>Should specify the project or application name this resource belongs to.<br/>Example: "web-app", "data-pipeline", "user-service"<br/>Set to null to disable automatic project tagging. | `string` | `null` | no |
+| <a name="input_default_tags_template"></a> [default\_tags\_template](#input\_default\_tags\_template) | Predefined default tag template to use for organizational compliance.<br/><br/>Available templates:<br/>- "basic": Minimal set of organizational tags (CreatedBy, ManagedBy, Environment)<br/>- "cost\_allocation": Tags optimized for cost tracking and allocation<br/>- "compliance": Tags required for security and compliance frameworks<br/>- "sdlc": Tags for software development lifecycle management<br/>- null: Use custom default\_tags configuration<br/><br/>When using a template, it will override individual default\_tags\_* variables. | `string` | `null` | no |
+| <a name="input_enable_default_tags"></a> [enable\_default\_tags](#input\_enable\_default\_tags) | Whether to enable automatic default tags for all resources.<br/>When enabled, standard organizational tags will be automatically applied.<br/>Defaults to true for better resource management and compliance. | `bool` | `true` | no |
 | <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | Whether to enable CloudWatch logging for the repository.<br/>When enabled, ECR API actions and image push/pull events will be logged to CloudWatch.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_pull_through_cache"></a> [enable\_pull\_through\_cache](#input\_enable\_pull\_through\_cache) | Whether to create pull-through cache rules.<br/>Pull-through cache rules allow you to cache images from upstream registries.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_registry_scanning"></a> [enable\_registry\_scanning](#input\_enable\_registry\_scanning) | Whether to enable enhanced scanning for the ECR registry.<br/>Enhanced scanning uses Amazon Inspector to provide detailed vulnerability assessments.<br/>This is a registry-level configuration that affects all repositories in the account.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Whether to enable cross-region replication for the ECR registry.<br/>When enabled, images will be automatically replicated to the specified regions.<br/>Note: This is a registry-level configuration that affects all repositories in the account.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_secret_scanning"></a> [enable\_secret\_scanning](#input\_enable\_secret\_scanning) | Whether to enable secret scanning as part of enhanced scanning.<br/>This feature detects secrets like API keys, passwords, and tokens in container images.<br/>When enabled, automatically sets the registry scan type to ENHANCED, overriding registry\_scan\_type.<br/>Requires enable\_registry\_scanning to be true.<br/>Defaults to false. | `bool` | `false` | no |
+| <a name="input_enable_tag_normalization"></a> [enable\_tag\_normalization](#input\_enable\_tag\_normalization) | Whether to enable automatic tag normalization.<br/>When enabled, normalizes tag keys to consistent casing and handles special characters.<br/>Defaults to true for better tag consistency across resources. | `bool` | `true` | no |
+| <a name="input_enable_tag_validation"></a> [enable\_tag\_validation](#input\_enable\_tag\_validation) | Whether to enable tag validation to ensure compliance with organizational standards.<br/>When enabled, validates that required tags are present and follow naming conventions.<br/>Defaults to false to maintain backward compatibility. | `bool` | `false` | no |
 | <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | The encryption type for the repository. Valid values are "KMS" or "AES256". | `string` | `"AES256"` | no |
 | <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to delete the repository even if it contains images.<br/>Setting this to true will delete all images in the repository when the repository is deleted.<br/>Use with caution as this operation cannot be undone.<br/>Defaults to false for safety. | `bool` | `false` | no |
 | <a name="input_image_scanning_configuration"></a> [image\_scanning\_configuration](#input\_image\_scanning\_configuration) | Configuration block that defines image scanning configuration for the repository.<br/>Set to null to use the scan\_on\_push variable setting.<br/>Example: { scan\_on\_push = true } | <pre>object({<br/>    scan_on_push = bool<br/>  })</pre> | `null` | no |
@@ -1066,14 +1074,17 @@ No modules.
 | <a name="input_lifecycle_tag_prefixes_to_keep"></a> [lifecycle\_tag\_prefixes\_to\_keep](#input\_lifecycle\_tag\_prefixes\_to\_keep) | List of tag prefixes for images that should be managed by the keep-latest rule.<br/>When used with lifecycle\_keep\_latest\_n\_images, applies the keep rule ONLY to images with these tag prefixes.<br/>Images without these prefixes are not affected by the keep-latest rule.<br/>The expire rules (untagged/tagged) still apply to ALL images regardless of this setting.<br/><br/>Common patterns:<br/>- ["v"]: Apply keep rule to semantic versions (v1.0.0, v2.1.3, etc.)<br/>- ["release-", "prod-"]: Apply to release and production builds<br/>- ["main", "develop"]: Apply to main branch builds<br/>- []: Apply keep rule to ALL images (empty list)<br/><br/>Constraints: Maximum 100 prefixes, each up to 255 characters.<br/>Set to empty list to apply rules to all images. | `list(string)` | `[]` | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days to retain ECR logs in CloudWatch.<br/>Only applicable when enable\_logging is true.<br/>Defaults to 30 days. | `number` | `30` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the ECR repository. This name must be unique within the AWS account and region. | `string` | n/a | yes |
+| <a name="input_normalize_tag_values"></a> [normalize\_tag\_values](#input\_normalize\_tag\_values) | Whether to normalize tag values by trimming whitespace and handling special characters.<br/>Applies common normalizations like removing leading/trailing spaces.<br/>Defaults to true for cleaner tag values. | `bool` | `true` | no |
 | <a name="input_policy"></a> [policy](#input\_policy) | JSON string representing the repository policy.<br/>If null (default), no repository policy will be created.<br/>See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-policies.html | `string` | `null` | no |
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed.<br/>When set to true, the repository will have the lifecycle block with prevent\_destroy = true.<br/>When set to false, the repository can be destroyed.<br/>This provides a way to dynamically control protection against accidental deletion.<br/>Defaults to false to allow repository deletion. | `bool` | `false` | no |
 | <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create.<br/>Each rule should specify ecr\_repository\_prefix and upstream\_registry\_url.<br/>Example: [{ ecr\_repository\_prefix = "docker-hub", upstream\_registry\_url = "registry-1.docker.io" }] | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR scan findings.<br/>These filters can be used by external tools or scripts to filter scan results by criteria such as vulnerability severity.<br/>Each filter should specify name and values.<br/>Example: [{ name = "PACKAGE\_VULNERABILITY\_SEVERITY", values = ["HIGH", "CRITICAL"] }]<br/><br/>Note: These filters are not applied at the registry scanning configuration level, but are made available<br/>as outputs for use in querying and filtering scan results. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry.<br/>- BASIC: Basic scanning for OS vulnerabilities<br/>- ENHANCED: Enhanced scanning with Amazon Inspector integration<br/>Only applicable when enable\_registry\_scanning is true. | `string` | `"ENHANCED"` | no |
 | <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of AWS regions to replicate ECR images to.<br/>Only applicable when enable\_replication is true.<br/>Example: ["us-west-2", "eu-west-1"] | `list(string)` | `[]` | no |
+| <a name="input_required_tags"></a> [required\_tags](#input\_required\_tags) | List of tag keys that are required to be present.<br/>Validation will fail if any of these tags are missing from the final tag set.<br/>Example: ["Environment", "Owner", "Project"]<br/>Empty list disables required tag validation. | `list(string)` | `[]` | no |
 | <a name="input_scan_on_push"></a> [scan\_on\_push](#input\_scan\_on\_push) | Indicates whether images should be scanned for vulnerabilities after being pushed to the repository.<br/>- true: Images will be automatically scanned after each push<br/>- false: Images must be scanned manually<br/>Only used if image\_scanning\_configuration is null. | `bool` | `true` | no |
 | <a name="input_scan_repository_filters"></a> [scan\_repository\_filters](#input\_scan\_repository\_filters) | List of repository filters to apply for registry scanning.<br/>Each filter specifies which repositories should be scanned.<br/>Supports wildcard patterns using '*' character.<br/>If empty, defaults to scanning all repositories ("*").<br/>Example: ["my-app-*", "important-service"] | `list(string)` | <pre>[<br/>  "*"<br/>]</pre> | no |
+| <a name="input_tag_key_case"></a> [tag\_key\_case](#input\_tag\_key\_case) | Enforce consistent casing for tag keys.<br/>- "PascalCase": Capitalize first letter of each word (Environment, CostCenter)<br/>- "camelCase": First word lowercase, subsequent words capitalized (environment, costCenter)<br/>- "snake\_case": All lowercase with underscores (environment, cost\_center)<br/>- "kebab-case": All lowercase with hyphens (environment, cost-center)<br/>- null: No case enforcement (preserve original casing) | `string` | `"PascalCase"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to all resources created by this module.<br/>Tags are key-value pairs that help you manage, identify, organize, search for and filter resources.<br/>Example: { Environment = "Production", Owner = "Team" } | `map(string)` | `{}` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Timeout configuration for repository operations.<br/>Specify as an object with a 'delete' key containing a duration string (e.g. "20m").<br/>Example: { delete = "20m" } | <pre>object({<br/>    delete = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_timeouts_delete"></a> [timeouts\_delete](#input\_timeouts\_delete) | Deprecated: Use timeouts = { delete = "duration" } instead.<br/>How long to wait for a repository to be deleted.<br/>Specify as a duration string, e.g. "20m" for 20 minutes. | `string` | `null` | no |
@@ -1082,6 +1093,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_applied_tags"></a> [applied\_tags](#output\_applied\_tags) | The final set of tags applied to all resources after normalization and default tag application |
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | The ARN of the CloudWatch Log Group used for ECR logs (if logging is enabled) |
 | <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | The ARN of the KMS key used for repository encryption. |
 | <a name="output_lifecycle_policy"></a> [lifecycle\_policy](#output\_lifecycle\_policy) | The lifecycle policy JSON applied to the repository (if any) |
@@ -1099,4 +1111,6 @@ No modules.
 | <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
 | <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
 | <a name="output_security_status"></a> [security\_status](#output\_security\_status) | Comprehensive security status of the ECR configuration |
+| <a name="output_tag_compliance_status"></a> [tag\_compliance\_status](#output\_tag\_compliance\_status) | Tag compliance and validation status |
+| <a name="output_tagging_strategy"></a> [tagging\_strategy](#output\_tagging\_strategy) | Summary of the tagging strategy configuration |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
