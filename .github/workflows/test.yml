@@ -26,6 +26,19 @@ jobs:
           terraform_version: 1.3.0
           terraform_wrapper: false
 
+      - name: Cache Terraform providers
+        uses: actions/cache@v4
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Setup Terraform plugin cache
+        run: |
+          mkdir -p ~/.terraform.d/plugin-cache
+          echo 'plugin_cache_dir = "~/.terraform.d/plugin-cache"' > ~/.terraformrc
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -39,6 +52,15 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+
+      - name: Clean up test fixture caches
+        run: |
+          echo "🧹 Cleaning up Terraform cache files from test fixtures..."
+          find test/fixtures -name ".terraform" -type d -exec rm -rf {} + 2>/dev/null || true
+          find test/fixtures -name ".terraform.lock.hcl" -delete 2>/dev/null || true
+          echo "✅ Terraform cache cleanup completed"
+          echo "📂 Current test fixture structure:"
+          find test/fixtures -type f -name "*.tf" | head -10
 
       - name: Run go tests
         working-directory: ./test
