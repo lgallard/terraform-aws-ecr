@@ -496,14 +496,21 @@ locals {
   normalized_tag_keys = var.enable_tag_normalization && var.tag_key_case != null ? {
     for key in keys(local.final_tags_raw) :
     key => (
-      var.tag_key_case == "PascalCase" ? replace(title(replace(replace(key, "_", " "), "-", " ")), " ", "") :
+      var.tag_key_case == "PascalCase" ? (
+        # Handle both underscores and hyphens, filter empty words to prevent empty keys
+        length([for word in split(" ", replace(replace(key, "_", " "), "-", " ")) : word if word != ""]) > 0 ?
+        join("", [for word in split(" ", replace(replace(key, "_", " "), "-", " ")) : title(word) if word != ""]) :
+        key
+      ) :
       var.tag_key_case == "camelCase" ? (
         length(regexall("[_-]", key)) > 0 ? (
-          # Handle both underscores and hyphens by normalizing to spaces first
+          # Handle both underscores and hyphens by normalizing to spaces first, filter empty words
+          length([for word in split(" ", replace(replace(key, "_", " "), "-", " ")) : word if word != ""]) > 0 ?
           join("", [
-            for i, word in split(" ", replace(replace(key, "_", " "), "-", " ")) :
+            for i, word in [for w in split(" ", replace(replace(key, "_", " "), "-", " ")) : w if w != ""] :
             i == 0 ? lower(word) : title(word)
-          ])
+          ]) :
+          key
         ) : key
       ) :
       var.tag_key_case == "snake_case" ? lower(replace(key, "-", "_")) :
