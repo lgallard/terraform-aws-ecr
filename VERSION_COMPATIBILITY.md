@@ -48,9 +48,9 @@ terraform {
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "your-repo-name"
-  
+
   # In 0.9.x, prevent_destroy works with a different implementation
   prevent_destroy = true  # Repository protected from deletion
 }
@@ -67,9 +67,9 @@ When upgrading from versions prior to 0.8.x:
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "your-repo-name"
-  
+
   # New logging feature in 0.8.x
   enable_logging = true
   log_retention_days = 30  # Optional, defaults to 30
@@ -91,9 +91,9 @@ When upgrading from versions prior to 0.7.x:
 ```hcl
 module "ecr" {
   source = "lgallard/ecr/aws"
-  
+
   name = "your-repo-name"
-  
+
   # Explicitly set prevent_destroy
   prevent_destroy = true  # Or false, based on your needs
 }

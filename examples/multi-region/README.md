@@ -20,13 +20,13 @@ This example demonstrates two approaches for creating ECR repositories across mu
                                    │ Automatic Replication
                                    │ (Managed by AWS)
                                    ▼
-┌─────────────────────┐                   
-│  Secondary Region   │                   
-│  ┌───────────────┐  │                   
-│  │ ECR Repository│  │                   
-│  │   (Replica)   │  │                   
-│  └───────────────┘  │                   
-└─────────────────────┘                   
+┌─────────────────────┐
+│  Secondary Region   │
+│  ┌───────────────┐  │
+│  │ ECR Repository│  │
+│  │   (Replica)   │  │
+│  └───────────────┘  │
+└─────────────────────┘
 ```
 
 ### Manual Setup Approach (Alternative)
@@ -40,13 +40,13 @@ This example demonstrates two approaches for creating ECR repositories across mu
                                    │
                                    │ Manual Replication Config
                                    ▼
-┌─────────────────────┐                   
-│  Secondary Region   │                   
-│  ┌───────────────┐  │                   
-│  │ ECR Repository│  │                   
-│  │   (Manual)    │  │                   
-│  └───────────────┘  │                   
-└─────────────────────┘                   
+┌─────────────────────┐
+│  Secondary Region   │
+│  ┌───────────────┐  │
+│  │ ECR Repository│  │
+│  │   (Manual)    │  │
+│  └───────────────┘  │
+└─────────────────────┘
 ```
 
 ## Use Cases
@@ -59,7 +59,7 @@ This example demonstrates two approaches for creating ECR repositories across mu
 ## What This Example Creates
 
 1. An ECR repository in the primary region
-2. An ECR repository in the secondary region 
+2. An ECR repository in the secondary region
 3. ECR replication configuration to copy images automatically
 
 ## Prerequisites

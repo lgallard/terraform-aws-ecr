@@ -4,6 +4,10 @@
 !/.terraform-docs.yml
 .terraform.lock.hcl
 
+# Test fixture Terraform cache files (extra protection)
+test/fixtures/**/.terraform/
+test/fixtures/**/.terraform.lock.hcl
+
 # .tfstate files
 *.tfstate
 *.tfstate.*

@@ -2,8 +2,6 @@
 # Configuration Locals
 # ----------------------------------------------------------
 
-
-
 # ----------------------------------------------------------
 # ECR Repository
 # ----------------------------------------------------------
@@ -123,9 +121,9 @@ resource "aws_ecr_repository_policy" "policy" {
 
 # Lifecycle policy - controls image retention and cleanup
 resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
-  count      = var.lifecycle_policy == null ? 0 : 1
+  count      = local.final_lifecycle_policy != null && local.final_lifecycle_policy != "" ? 1 : 0
   repository = local.repository_name
-  policy     = var.lifecycle_policy
+  policy     = local.final_lifecycle_policy
 
   # Ensure policy is applied after repository is created
   depends_on = [
@@ -468,4 +466,124 @@ locals {
       }] : []
     )
   )
+
+  # ----------------------------------------------------------
+  # Lifecycle Policy Generation
+  # ----------------------------------------------------------
+
+  # Template configurations
+  lifecycle_templates = {
+    development = {
+      keep_latest_n        = 50
+      expire_untagged_days = 7
+      expire_tagged_days   = null
+      tag_prefixes         = ["dev", "feature"]
+    }
+    production = {
+      keep_latest_n        = 100
+      expire_untagged_days = 14
+      expire_tagged_days   = 90
+      tag_prefixes         = ["v", "release", "prod"]
+    }
+    cost_optimization = {
+      keep_latest_n        = 10
+      expire_untagged_days = 3
+      expire_tagged_days   = 30
+      tag_prefixes         = []
+    }
+    compliance = {
+      keep_latest_n        = 200
+      expire_untagged_days = 30
+      expire_tagged_days   = 365
+      tag_prefixes         = ["v", "release", "audit"]
+    }
+  }
+
+  # Determine effective lifecycle configuration
+  effective_lifecycle_config = (
+    var.lifecycle_policy_template != null ? local.lifecycle_templates[var.lifecycle_policy_template] : {
+      keep_latest_n        = var.lifecycle_keep_latest_n_images
+      expire_untagged_days = var.lifecycle_expire_untagged_after_days
+      expire_tagged_days   = var.lifecycle_expire_tagged_after_days
+      tag_prefixes         = var.lifecycle_tag_prefixes_to_keep
+    }
+  )
+
+  # Generate lifecycle policy rules
+  lifecycle_rules = [
+    for rule in [
+      # Rule 1: Expire untagged images
+      local.effective_lifecycle_config.expire_untagged_days != null ? {
+        rulePriority = 1
+        description  = "Expire untagged images after ${local.effective_lifecycle_config.expire_untagged_days} days"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = local.effective_lifecycle_config.expire_untagged_days
+        }
+        action = {
+          type = "expire"
+        }
+      } : null,
+
+      # Rule 2: Keep latest N images (with tag prefixes if specified)
+      local.effective_lifecycle_config.keep_latest_n != null ? {
+        rulePriority = 2
+        description  = length(local.effective_lifecycle_config.tag_prefixes) > 0 ? "Keep only ${local.effective_lifecycle_config.keep_latest_n} images with prefixes: ${join(", ", local.effective_lifecycle_config.tag_prefixes)}" : "Keep only ${local.effective_lifecycle_config.keep_latest_n} latest images"
+        selection = merge(
+          {
+            tagStatus   = length(local.effective_lifecycle_config.tag_prefixes) > 0 ? "tagged" : "any"
+            countType   = "imageCountMoreThan"
+            countNumber = local.effective_lifecycle_config.keep_latest_n
+          },
+          length(local.effective_lifecycle_config.tag_prefixes) > 0 ? {
+            tagPrefixList = local.effective_lifecycle_config.tag_prefixes
+          } : {}
+        )
+        action = {
+          type = "expire"
+        }
+      } : null,
+
+      # Rule 3: Expire tagged images after N days
+      local.effective_lifecycle_config.expire_tagged_days != null ? {
+        rulePriority = 3
+        description  = "Expire tagged images after ${local.effective_lifecycle_config.expire_tagged_days} days"
+        selection = {
+          tagStatus   = "any"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = local.effective_lifecycle_config.expire_tagged_days
+        }
+        action = {
+          type = "expire"
+        }
+      } : null
+    ] : rule if rule != null
+  ]
+
+  # Generate final lifecycle policy JSON
+  generated_lifecycle_policy = length(local.lifecycle_rules) > 0 ? jsonencode({
+    rules = local.lifecycle_rules
+  }) : null
+
+  # Final lifecycle policy (manual takes precedence over generated)
+  # Ensure we never pass an empty string or invalid JSON to AWS
+  final_lifecycle_policy = (
+    var.lifecycle_policy != null && var.lifecycle_policy != "" ? var.lifecycle_policy :
+    local.generated_lifecycle_policy
+  )
 }
+
+# ----------------------------------------------------------
+# Configuration Validation
+# ----------------------------------------------------------
+#
+# Note: Lifecycle policy configuration uses precedence-based selection:
+# 1. Manual lifecycle_policy (highest precedence)
+# 2. Template lifecycle_policy_template (medium precedence)
+# 3. Helper variables (lowest precedence)
+#
+# Multiple options can be specified - higher precedence options automatically
+# override lower precedence ones as documented in the README.

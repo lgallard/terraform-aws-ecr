@@ -47,7 +47,7 @@ module "ecr_with_replication" {
 # This approach manually creates repositories in each region
 # Create ECR repository in primary region
 module "ecr_primary" {
-  count = var.use_manual_setup ? 1 : 0
+  count  = var.use_manual_setup ? 1 : 0
   source = "../.."
   providers = {
     aws = aws.primary
@@ -55,8 +55,8 @@ module "ecr_primary" {
 
   name                 = "${var.repository_name}-manual"
   scan_on_push         = true
-  image_tag_mutability = "IMMUTABLE"  # Use immutable tags for consistency across regions
-  
+  image_tag_mutability = "IMMUTABLE" # Use immutable tags for consistency across regions
+
   # Example policy allowing replication
   policy = jsonencode({
     Version = "2012-10-17"
@@ -104,7 +104,7 @@ module "ecr_primary" {
 
 # Create ECR repository in secondary region (manual approach)
 module "ecr_secondary" {
-  count = var.use_manual_setup ? 1 : 0
+  count  = var.use_manual_setup ? 1 : 0
   source = "../.."
   providers = {
     aws = aws.secondary
@@ -112,8 +112,8 @@ module "ecr_secondary" {
 
   name                 = "${var.repository_name}-manual"
   scan_on_push         = true
-  image_tag_mutability = "IMMUTABLE"  # Match primary region configuration
-  
+  image_tag_mutability = "IMMUTABLE" # Match primary region configuration
+
   # Example policy - more restrictive since this is a replica
   policy = jsonencode({
     Version = "2012-10-17"
@@ -163,7 +163,7 @@ module "ecr_secondary" {
 resource "aws_ecr_replication_configuration" "manual_replication" {
   count    = var.use_manual_setup ? 1 : 0
   provider = aws.primary
-  
+
   replication_configuration {
     rule {
       destination {

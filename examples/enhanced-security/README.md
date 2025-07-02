@@ -91,7 +91,7 @@ aws ecr describe-registry \
 # Pull from cached Docker Hub image
 docker pull <account-id>.dkr.ecr.<region>.amazonaws.com/docker-hub/library/nginx:latest
 
-# Pull from cached Quay image  
+# Pull from cached Quay image
 docker pull <account-id>.dkr.ecr.<region>.amazonaws.com/quay/prometheus/prometheus:latest
 ```
 

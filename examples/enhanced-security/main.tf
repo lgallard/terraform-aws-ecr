@@ -4,17 +4,6 @@
 # - Pull-through cache configuration
 # - Secret scanning capabilities
 
-# Provider configuration
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-  required_version = ">= 1.0"
-}
-
 # Get current AWS account ID
 data "aws_caller_identity" "current" {}
 
@@ -30,9 +19,9 @@ module "ecr_enhanced_security" {
 
   # Enhanced scanning configuration
   enable_registry_scanning = true
-  registry_scan_type      = "ENHANCED"
-  enable_secret_scanning  = true
-  
+  registry_scan_type       = "ENHANCED"
+  enable_secret_scanning   = true
+
   # Enhanced scanning filters for high and critical vulnerabilities
   registry_scan_filters = [
     {

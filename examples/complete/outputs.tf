@@ -45,3 +45,19 @@ output "protected_repository_name" {
   description = "Name of the protected ECR repository"
   value       = module.ecr_protected.repository_name
 }
+
+# Enhanced lifecycle policy repository outputs
+output "enhanced_lifecycle_repository_url" {
+  description = "URL of the ECR repository with enhanced lifecycle policy"
+  value       = module.ecr_enhanced_lifecycle.repository_url
+}
+
+output "enhanced_lifecycle_repository_arn" {
+  description = "ARN of the ECR repository with enhanced lifecycle policy"
+  value       = module.ecr_enhanced_lifecycle.repository_arn
+}
+
+output "enhanced_lifecycle_policy" {
+  description = "Generated lifecycle policy JSON for the enhanced repository"
+  value       = module.ecr_enhanced_lifecycle.lifecycle_policy
+}

@@ -9,16 +9,16 @@ module "ecr" {
 
   # Enhanced scanning configuration
   enable_registry_scanning = var.enable_registry_scanning
-  registry_scan_type      = var.registry_scan_type
-  enable_secret_scanning  = var.enable_secret_scanning
-  scan_repository_filters = var.scan_repository_filters
-  
+  registry_scan_type       = var.registry_scan_type
+  enable_secret_scanning   = var.enable_secret_scanning
+  scan_repository_filters  = var.scan_repository_filters
+
   # Registry scan filters
   registry_scan_filters = var.registry_scan_filters
 
   # Pull-through cache configuration
   enable_pull_through_cache = var.enable_pull_through_cache
-  pull_through_cache_rules = var.pull_through_cache_rules
+  pull_through_cache_rules  = var.pull_through_cache_rules
 
   # Enable logging for testing
   enable_logging     = true

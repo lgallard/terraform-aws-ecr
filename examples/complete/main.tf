@@ -59,6 +59,8 @@ module "ecr" {
 
   # Only one lifecycle policy can be used per repository.
   # To apply multiple rules, combine them in one policy JSON.
+  # NOTE: For demonstration of enhanced lifecycle policy features,
+  # see examples/lifecycle-policies/ directory
   lifecycle_policy = jsonencode({
     rules = [
       {
@@ -174,6 +176,38 @@ module "ecr_protected" {
       Environment = "production"
       Project     = "example"
       Protected   = "true"
+    },
+    var.tags
+  )
+}
+
+# Example using enhanced lifecycle policy features instead of manual JSON
+module "ecr_enhanced_lifecycle" {
+  source = "../.."
+
+  name                 = "enhanced-lifecycle-repo"
+  image_tag_mutability = "IMMUTABLE"
+  force_delete         = true
+  encryption_type      = "KMS"
+
+  # Enhanced lifecycle policy using helper variables
+  lifecycle_keep_latest_n_images       = 50
+  lifecycle_expire_untagged_after_days = 7
+  lifecycle_expire_tagged_after_days   = 90
+  lifecycle_tag_prefixes_to_keep       = ["v", "release", "stable"]
+
+  image_scanning_configuration = {
+    scan_on_push = true
+  }
+
+  # Tags for enhanced example
+  tags = merge(
+    {
+      Name            = "enhanced-lifecycle-repo"
+      Owner           = "DevOps team"
+      Environment     = "development"
+      Project         = "example"
+      LifecyclePolicy = "enhanced"
     },
     var.tags
   )

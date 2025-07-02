@@ -51,7 +51,7 @@ func TestEcrBasicCreation(t *testing.T) {
 
 	// Verify the repository URL format
 	assert.True(t, strings.Contains(outputRepoURL, repoName))
-	
+
 	// Verify the ARN was created and contains the expected repository name
 	assert.True(t, strings.Contains(outputRepoARN, repoName))
 
@@ -68,15 +68,15 @@ func TestEcrBasicCreation(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(describeResult.Repositories))
 	assert.Equal(t, repoName, *describeResult.Repositories[0].RepositoryName)
-	
+
 	// Verify image tag mutability setting (should be IMMUTABLE according to our fixture)
 	assert.Equal(t, "IMMUTABLE", *describeResult.Repositories[0].ImageTagMutability)
-	
+
 	// Verify scan on push is enabled
 	describeImageScanResult, err := ecrClient.GetRepositoryPolicy(&ecr.GetRepositoryPolicyInput{
 		RepositoryName: aws.String(repoName),
 	})
-	
+
 	// The policy might not exist yet, so check if there was an error before asserting
 	if err == nil {
 		assert.NotNil(t, describeImageScanResult)

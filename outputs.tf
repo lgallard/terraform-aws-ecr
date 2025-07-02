@@ -19,6 +19,11 @@ output "registry_id" {
   value       = local.registry_id
 }
 
+output "lifecycle_policy" {
+  description = "The lifecycle policy JSON applied to the repository (if any)"
+  value       = local.final_lifecycle_policy
+}
+
 output "kms_key_arn" {
   value       = local.should_create_kms_key ? aws_kms_key.kms_key[0].arn : var.kms_key
   description = "The ARN of the KMS key used for repository encryption."
