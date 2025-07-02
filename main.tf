@@ -549,18 +549,13 @@ locals {
       # Rule 3: Expire tagged images after N days
       local.effective_lifecycle_config.expire_tagged_days != null ? {
         rulePriority = 3
-        description  = length(local.effective_lifecycle_config.tag_prefixes) > 0 ? "Expire tagged images with prefixes: ${join(", ", local.effective_lifecycle_config.tag_prefixes)} after ${local.effective_lifecycle_config.expire_tagged_days} days" : "Expire all tagged images after ${local.effective_lifecycle_config.expire_tagged_days} days"
-        selection = merge(
-          {
-            tagStatus   = length(local.effective_lifecycle_config.tag_prefixes) > 0 ? "tagged" : "any"
-            countType   = "sinceImagePushed"
-            countUnit   = "days"
-            countNumber = local.effective_lifecycle_config.expire_tagged_days
-          },
-          length(local.effective_lifecycle_config.tag_prefixes) > 0 ? {
-            tagPrefixList = local.effective_lifecycle_config.tag_prefixes
-          } : {}
-        )
+        description  = "Expire tagged images after ${local.effective_lifecycle_config.expire_tagged_days} days"
+        selection = {
+          tagStatus   = "any"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = local.effective_lifecycle_config.expire_tagged_days
+        }
         action = {
           type = "expire"
         }
