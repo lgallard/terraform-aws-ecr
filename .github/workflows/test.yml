@@ -63,17 +63,12 @@ jobs:
           echo "📂 Current test fixture structure:"
           find test/fixtures -type f -name "*.tf" | head -10
 
-      - name: Run go tests
+      - name: Run go tests and generate report
         working-directory: ./test
         run: |
-          go test -v -timeout 30m
-
-      - name: Generate test report
-        if: always()
-        working-directory: ./test
-        run: |
+          go test -v -timeout 30m 2>&1 | tee /tmp/test-output.log
           go install github.com/jstemmer/go-junit-report/v2@latest
-          go test -v 2>&1 | go-junit-report -set-exit-code > report.xml
+          cat /tmp/test-output.log | go-junit-report > report.xml
 
       - name: Upload test report
         if: always()
