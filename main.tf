@@ -437,47 +437,47 @@ locals {
       Project     = var.default_tags_project
     }
     cost_allocation = {
-      CreatedBy        = "Terraform"
-      ManagedBy        = "Terraform"
-      Environment      = var.default_tags_environment
-      Owner            = var.default_tags_owner
-      Project          = var.default_tags_project
-      CostCenter       = var.default_tags_cost_center
-      BillingProject   = var.default_tags_project
-      ResourceType     = "ECR"
-      Service          = "ECR"
-      Billable         = "true"
+      CreatedBy      = "Terraform"
+      ManagedBy      = "Terraform"
+      Environment    = var.default_tags_environment
+      Owner          = var.default_tags_owner
+      Project        = var.default_tags_project
+      CostCenter     = var.default_tags_cost_center
+      BillingProject = var.default_tags_project
+      ResourceType   = "ECR"
+      Service        = "ECR"
+      Billable       = "true"
     }
     compliance = {
-      CreatedBy        = "Terraform"
-      ManagedBy        = "Terraform"
-      Environment      = var.default_tags_environment
-      Owner            = var.default_tags_owner
-      Project          = var.default_tags_project
-      CostCenter       = var.default_tags_cost_center
-      DataClass        = "Internal"
-      Compliance       = "Required"
-      BackupRequired   = "true"
-      MonitoringLevel  = "Standard"
-      SecurityReview   = "Required"
+      CreatedBy       = "Terraform"
+      ManagedBy       = "Terraform"
+      Environment     = var.default_tags_environment
+      Owner           = var.default_tags_owner
+      Project         = var.default_tags_project
+      CostCenter      = var.default_tags_cost_center
+      DataClass       = "Internal"
+      Compliance      = "Required"
+      BackupRequired  = "true"
+      MonitoringLevel = "Standard"
+      SecurityReview  = "Required"
     }
     sdlc = {
-      CreatedBy        = "Terraform"
-      ManagedBy        = "Terraform"
-      Environment      = var.default_tags_environment
-      Owner            = var.default_tags_owner
-      Project          = var.default_tags_project
-      Application      = var.default_tags_project
-      Version          = "latest"
-      DeploymentStage  = var.default_tags_environment
-      LifecycleStage   = var.default_tags_environment
+      CreatedBy         = "Terraform"
+      ManagedBy         = "Terraform"
+      Environment       = var.default_tags_environment
+      Owner             = var.default_tags_owner
+      Project           = var.default_tags_project
+      Application       = var.default_tags_project
+      Version           = "latest"
+      DeploymentStage   = var.default_tags_environment
+      LifecycleStage    = var.default_tags_environment
       MaintenanceWindow = "weekend"
     }
   }
 
   # Compute default tags based on template or individual settings first
   computed_default_tags = var.enable_default_tags ? (
-    var.default_tags_template != null ? 
+    var.default_tags_template != null ?
     { for k, v in local.default_tag_templates[var.default_tags_template] : k => v if v != null } :
     { for k, v in {
       CreatedBy   = "Terraform"
@@ -496,20 +496,28 @@ locals {
   normalized_tag_keys = var.enable_tag_normalization && var.tag_key_case != null ? {
     for key in keys(local.final_tags_raw) :
     key => (
-      var.tag_key_case == "PascalCase" ? replace(title(replace(key, "_", " ")), " ", "") :
+      var.tag_key_case == "PascalCase" ? replace(title(replace(replace(key, "_", " "), "-", " ")), " ", "") :
       var.tag_key_case == "camelCase" ? (
-        length(regexall("_", key)) > 0 ?
-        join("", [
-          lower(split("_", key)[0]),
-          join("", [for word in slice(split("_", key), 1, length(split("_", key))) : title(word)])
-        ]) :
-        key
+        length(regexall("[_-]", key)) > 0 ? (
+          # Handle both underscores and hyphens
+          length(regexall("_", key)) > 0 ?
+          # Process underscores first if present
+          join("", [
+            lower(split("_", key)[0]),
+            join("", [for word in slice(split("_", key), 1, length(split("_", key))) : title(word)])
+          ]) :
+          # Process hyphens
+          join("", [
+            lower(split("-", key)[0]),
+            join("", [for word in slice(split("-", key), 1, length(split("-", key))) : title(word)])
+          ])
+        ) : key
       ) :
       var.tag_key_case == "snake_case" ? lower(replace(key, "-", "_")) :
       var.tag_key_case == "kebab-case" ? lower(replace(key, "_", "-")) :
       key
     )
-  } : {
+    } : {
     for key in keys(local.final_tags_raw) : key => key
   }
 
@@ -517,7 +525,7 @@ locals {
   final_tags_normalized = var.enable_tag_normalization ? {
     for original_key, value in local.final_tags_raw :
     local.normalized_tag_keys[original_key] => var.normalize_tag_values ? trimspace(tostring(value)) : tostring(value)
-  } : {
+    } : {
     for key, value in local.final_tags_raw : key => tostring(value)
   }
 
@@ -540,15 +548,14 @@ locals {
   ] : []
 
   # Validation error message
-  tag_validation_error = length(local.missing_required_tags) > 0 ? 
-    "Missing required tags: ${join(", ", local.missing_required_tags)}" : ""
+  tag_validation_error = length(local.missing_required_tags) > 0 ? "Missing required tags: ${join(", ", local.missing_required_tags)}" : ""
 }
 
 # Tag validation check using a local with validation
 locals {
   # This will cause plan to fail if validation fails
   tag_validation_check = var.enable_tag_validation ? (
-    length(local.missing_required_tags) == 0 ? true : 
+    length(local.missing_required_tags) == 0 ? true :
     tobool("Tag validation failed: ${local.tag_validation_error}")
   ) : true
 }

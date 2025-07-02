@@ -124,24 +124,25 @@ output "applied_tags" {
 output "tagging_strategy" {
   description = "Summary of the tagging strategy configuration"
   value = {
-    default_tags_enabled        = var.enable_default_tags
-    default_tags_template       = var.default_tags_template
-    tag_validation_enabled      = var.enable_tag_validation
-    tag_normalization_enabled   = var.enable_tag_normalization
-    tag_key_case                = var.tag_key_case
-    required_tags              = var.required_tags
-    computed_default_tags      = local.computed_default_tags
+    default_tags_enabled      = var.enable_default_tags
+    default_tags_template     = var.default_tags_template
+    tag_validation_enabled    = var.enable_tag_validation
+    tag_normalization_enabled = var.enable_tag_normalization
+    tag_key_case              = var.tag_key_case
+    required_tags             = var.required_tags
+    computed_default_tags     = local.computed_default_tags
   }
 }
 
 output "tag_compliance_status" {
   description = "Tag compliance and validation status"
   value = {
-    validation_enabled         = var.enable_tag_validation
-    required_tags_present      = var.enable_tag_validation ? length(local.missing_required_tags) == 0 : null
-    missing_required_tags      = var.enable_tag_validation ? local.missing_required_tags : []
-    total_tags_applied         = length(local.final_tags)
-    normalization_enabled      = var.enable_tag_normalization
-    tag_key_case               = var.tag_key_case
+    validation_enabled    = var.enable_tag_validation
+    validation_passed     = var.enable_tag_validation ? local.tag_validation_check : null
+    required_tags_present = var.enable_tag_validation ? length(local.missing_required_tags) == 0 : null
+    missing_required_tags = var.enable_tag_validation ? local.missing_required_tags : []
+    total_tags_applied    = length(local.final_tags)
+    normalization_enabled = var.enable_tag_normalization
+    tag_key_case          = var.tag_key_case
   }
 }
