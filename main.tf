@@ -499,17 +499,10 @@ locals {
       var.tag_key_case == "PascalCase" ? replace(title(replace(replace(key, "_", " "), "-", " ")), " ", "") :
       var.tag_key_case == "camelCase" ? (
         length(regexall("[_-]", key)) > 0 ? (
-          # Handle both underscores and hyphens
-          length(regexall("_", key)) > 0 ?
-          # Process underscores first if present
+          # Handle both underscores and hyphens by normalizing to spaces first
           join("", [
-            lower(split("_", key)[0]),
-            join("", [for word in slice(split("_", key), 1, length(split("_", key))) : title(word)])
-          ]) :
-          # Process hyphens
-          join("", [
-            lower(split("-", key)[0]),
-            join("", [for word in slice(split("-", key), 1, length(split("-", key))) : title(word)])
+            for i, word in split(" ", replace(replace(key, "_", " "), "-", " ")) :
+            i == 0 ? lower(word) : title(word)
           ])
         ) : key
       ) :
