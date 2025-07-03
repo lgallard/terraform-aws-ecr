@@ -50,9 +50,9 @@ variable "notification_emails" {
   description = "List of email addresses for SNS notifications"
   type        = list(string)
   default     = []
-  
+
   validation {
-    condition = length(var.notification_emails) > 0
+    condition     = length(var.notification_emails) > 0
     error_message = "At least one notification email must be provided for this example."
   }
 }

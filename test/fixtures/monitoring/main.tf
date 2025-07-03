@@ -20,14 +20,14 @@ module "ecr_monitoring" {
   scan_on_push         = true
 
   # Enable monitoring
-  enable_monitoring                    = true
-  monitoring_threshold_storage         = 5
-  monitoring_threshold_api_calls       = 500
+  enable_monitoring                      = true
+  monitoring_threshold_storage           = 5
+  monitoring_threshold_api_calls         = 500
   monitoring_threshold_security_findings = 3
 
   # Enable enhanced scanning for security monitoring
   enable_registry_scanning = true
-  registry_scan_type      = "ENHANCED"
+  registry_scan_type       = "ENHANCED"
 
   # Create SNS topic for testing
   create_sns_topic      = true

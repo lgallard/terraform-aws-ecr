@@ -184,6 +184,96 @@ module "ecr" {
 }
 ```
 
+## Monitoring and Alerting
+
+### `enable_monitoring` - CloudWatch Monitoring
+
+Enable comprehensive CloudWatch monitoring with metric alarms for ECR repository metrics:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "monitored-application"
+
+  # Enable monitoring
+  enable_monitoring = true
+  
+  # Configure thresholds
+  monitoring_threshold_storage         = 10    # Alert when storage exceeds 10 GB
+  monitoring_threshold_api_calls       = 1000  # Alert when API calls exceed 1000/minute
+  monitoring_threshold_security_findings = 5   # Alert when security findings exceed 5
+  
+  # Create SNS topic for notifications
+  create_sns_topic      = true
+  sns_topic_name        = "ecr-alerts"
+  sns_topic_subscribers = ["admin@company.com", "devops@company.com"]
+}
+```
+
+### Monitoring with Existing SNS Topic
+
+Use an existing SNS topic for notifications:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "production-app"
+
+  enable_monitoring = true
+  
+  # Use existing SNS topic
+  create_sns_topic = false
+  sns_topic_name   = "existing-alerts-topic"
+  
+  # Custom thresholds for production
+  monitoring_threshold_storage         = 50    # Higher threshold for production
+  monitoring_threshold_api_calls       = 2000  # Higher API threshold
+  monitoring_threshold_security_findings = 0   # Zero tolerance for vulnerabilities
+}
+```
+
+### Enhanced Monitoring with Security Scanning
+
+Combine monitoring with enhanced security scanning for comprehensive coverage:
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "secure-monitored-app"
+
+  # Enable monitoring
+  enable_monitoring                    = true
+  monitoring_threshold_storage         = 25
+  monitoring_threshold_api_calls       = 1500
+  monitoring_threshold_security_findings = 3
+
+  # SNS notifications
+  create_sns_topic      = true
+  sns_topic_subscribers = ["security@company.com", "devops@company.com"]
+
+  # Enable enhanced scanning for security monitoring
+  enable_registry_scanning = true
+  registry_scan_type      = "ENHANCED"
+  enable_secret_scanning  = true
+
+  # Enable logging for audit trail
+  enable_logging     = true
+  log_retention_days = 90
+}
+```
+
+### CloudWatch Alarms Created
+
+When monitoring is enabled, the following CloudWatch alarms are automatically created:
+
+| Alarm | Metric | Threshold | Description |
+|-------|--------|-----------|-------------|
+| Storage Usage | `RepositorySizeInBytes` | Configurable (GB) | Monitors repository storage consumption |
+| API Calls | `ApiCallCount` | Configurable (calls/min) | Monitors API operation volume |
+| Image Push | `ImagePushCount` | 10 pushes/5min | Monitors push frequency |
+| Image Pull | `ImagePullCount` | 100 pulls/5min | Monitors pull frequency |
+| Security Findings | `HighSeverityVulnerabilityCount` | Configurable | Monitors vulnerability count (requires enhanced scanning) |
+
 ## Policies and Lifecycle Management
 
 ### `policy` - Repository Policy

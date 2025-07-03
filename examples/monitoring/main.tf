@@ -30,13 +30,13 @@ module "ecr_with_monitoring" {
 
   # Enable enhanced scanning for security monitoring
   enable_registry_scanning = true
-  registry_scan_type      = "ENHANCED"
-  enable_secret_scanning  = true
+  registry_scan_type       = "ENHANCED"
+  enable_secret_scanning   = true
 
   # Enable monitoring configuration
-  enable_monitoring                    = true
-  monitoring_threshold_storage         = var.storage_threshold_gb
-  monitoring_threshold_api_calls       = var.api_calls_threshold
+  enable_monitoring                      = true
+  monitoring_threshold_storage           = var.storage_threshold_gb
+  monitoring_threshold_api_calls         = var.api_calls_threshold
   monitoring_threshold_security_findings = var.security_findings_threshold
 
   # SNS topic configuration
@@ -114,7 +114,7 @@ resource "aws_cloudwatch_metric_alarm" "repository_inactivity" {
   evaluation_periods  = "2"
   metric_name         = "ImagePushCount"
   namespace           = "AWS/ECR"
-  period              = "86400"  # 24 hours
+  period              = "86400" # 24 hours
   statistic           = "Sum"
   threshold           = 1
   alarm_description   = "This metric monitors ECR repository inactivity"
