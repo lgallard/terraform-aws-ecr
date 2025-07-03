@@ -146,3 +146,52 @@ output "tag_compliance_status" {
     tag_key_case          = var.tag_key_case
   }
 }
+
+# ----------------------------------------------------------
+# Monitoring Outputs
+# ----------------------------------------------------------
+
+output "monitoring_status" {
+  description = "Status of CloudWatch monitoring configuration"
+  value = {
+    enabled                     = var.enable_monitoring
+    storage_threshold_gb        = var.enable_monitoring ? var.monitoring_threshold_storage : null
+    api_calls_threshold         = var.enable_monitoring ? var.monitoring_threshold_api_calls : null
+    security_findings_threshold = var.enable_monitoring ? var.monitoring_threshold_security_findings : null
+    sns_topic_created           = var.enable_monitoring && var.create_sns_topic
+    sns_topic_name              = var.enable_monitoring && var.create_sns_topic ? aws_sns_topic.ecr_monitoring[0].name : null
+    sns_subscribers_count       = var.enable_monitoring && var.create_sns_topic ? length(var.sns_topic_subscribers) : 0
+    security_monitoring_enabled = var.enable_monitoring && var.enable_registry_scanning
+  }
+}
+
+output "sns_topic_arn" {
+  description = "ARN of the SNS topic used for ECR monitoring alerts (if created)"
+  value       = var.enable_monitoring && var.create_sns_topic ? aws_sns_topic.ecr_monitoring[0].arn : null
+}
+
+output "cloudwatch_alarms" {
+  description = "List of CloudWatch alarms created for ECR monitoring"
+  value = var.enable_monitoring ? {
+    storage_usage_alarm = {
+      name = aws_cloudwatch_metric_alarm.repository_storage_usage[0].alarm_name
+      arn  = aws_cloudwatch_metric_alarm.repository_storage_usage[0].arn
+    }
+    api_calls_alarm = {
+      name = aws_cloudwatch_metric_alarm.api_call_volume[0].alarm_name
+      arn  = aws_cloudwatch_metric_alarm.api_call_volume[0].arn
+    }
+    image_push_alarm = {
+      name = aws_cloudwatch_metric_alarm.image_push_count[0].alarm_name
+      arn  = aws_cloudwatch_metric_alarm.image_push_count[0].arn
+    }
+    image_pull_alarm = {
+      name = aws_cloudwatch_metric_alarm.image_pull_count[0].alarm_name
+      arn  = aws_cloudwatch_metric_alarm.image_pull_count[0].arn
+    }
+    security_findings_alarm = var.enable_registry_scanning ? {
+      name = aws_cloudwatch_metric_alarm.security_findings[0].alarm_name
+      arn  = aws_cloudwatch_metric_alarm.security_findings[0].arn
+    } : null
+  } : {}
+}

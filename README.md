@@ -116,6 +116,86 @@ The module outputs logging-related ARNs:
 - `cloudwatch_log_group_arn` - The ARN of the CloudWatch Log Group
 - `logging_role_arn` - The ARN of the IAM role used for logging
 
+### CloudWatch Monitoring and Alerting
+
+The module provides comprehensive CloudWatch monitoring with metric alarms and SNS notifications for proactive repository management. When enabled:
+
+- Creates CloudWatch metric alarms for key ECR metrics
+- Monitors storage usage, API calls, and security findings
+- Sends notifications via SNS for alarm state changes
+- Provides visibility into repository usage and costs
+
+#### Basic Monitoring Setup
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name              = "monitored-app"
+  enable_monitoring = true
+
+  # Configure monitoring thresholds
+  monitoring_threshold_storage         = 10    # GB
+  monitoring_threshold_api_calls       = 1000  # calls per minute
+  monitoring_threshold_security_findings = 5   # findings count
+
+  # Create SNS topic for notifications
+  create_sns_topic      = true
+  sns_topic_name        = "ecr-alerts"
+  sns_topic_subscribers = ["admin@company.com", "devops@company.com"]
+}
+```
+
+#### Monitoring Features
+
+**CloudWatch Alarms Created:**
+- **Storage Usage**: Monitors repository size in GB
+- **API Call Volume**: Monitors API operations per minute
+- **Image Push Count**: Monitors push frequency (10 pushes per 5 minutes)
+- **Image Pull Count**: Monitors pull frequency (100 pulls per 5 minutes)
+- **Security Findings**: Monitors vulnerability count (requires enhanced scanning)
+
+**SNS Integration:**
+- Automatic SNS topic creation with configurable name
+- Email subscriptions for immediate notifications
+- Alarm and OK state notifications
+- Support for existing SNS topics
+
+#### Advanced Monitoring Configuration
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name = "production-app"
+
+  # Enable monitoring with custom thresholds
+  enable_monitoring                    = true
+  monitoring_threshold_storage         = 50    # 50 GB threshold
+  monitoring_threshold_api_calls       = 2000  # 2000 calls/minute
+  monitoring_threshold_security_findings = 0   # Zero tolerance for vulnerabilities
+
+  # Use existing SNS topic
+  create_sns_topic = false
+  sns_topic_name   = "existing-alerts-topic"
+
+  # Enable enhanced scanning for security monitoring
+  enable_registry_scanning = true
+  registry_scan_type      = "ENHANCED"
+  enable_secret_scanning  = true
+}
+```
+
+**Monitoring Outputs:**
+- `monitoring_status` - Complete monitoring configuration status
+- `sns_topic_arn` - ARN of the SNS topic (if created)
+- `cloudwatch_alarms` - Details of all created CloudWatch alarms
+
+**Cost Considerations:**
+- CloudWatch alarms: $0.10 per alarm per month
+- SNS notifications: First 1,000 emails free, then $0.75 per 1,000
+- No additional charges for metrics collection
+
 ### Cross-Region Replication
 
 The module now supports automatic cross-region replication for disaster recovery and multi-region deployments. When enabled, images are automatically replicated to specified regions whenever they are pushed to the primary repository.

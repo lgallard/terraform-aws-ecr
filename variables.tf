@@ -639,3 +639,103 @@ variable "scan_repository_filters" {
   type        = list(string)
   default     = ["*"]
 }
+
+# ----------------------------------------------------------
+# Monitoring Configuration
+# ----------------------------------------------------------
+
+variable "enable_monitoring" {
+  description = <<-EOT
+    Whether to enable CloudWatch monitoring and alerting for the ECR repository.
+    When enabled, creates metric alarms for storage usage, API calls, and security findings.
+    Defaults to false to maintain backward compatibility.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "monitoring_threshold_storage" {
+  description = <<-EOT
+    Storage usage threshold in GB to trigger CloudWatch alarm.
+    When repository storage exceeds this threshold, an alarm will be triggered.
+    Only applicable when enable_monitoring is true.
+    Defaults to 10 GB.
+  EOT
+  type        = number
+  default     = 10
+  validation {
+    condition     = var.monitoring_threshold_storage > 0
+    error_message = "Storage threshold must be greater than 0 GB."
+  }
+}
+
+variable "monitoring_threshold_api_calls" {
+  description = <<-EOT
+    API call volume threshold per minute to trigger CloudWatch alarm.
+    When API calls exceed this threshold, an alarm will be triggered.
+    Only applicable when enable_monitoring is true.
+    Defaults to 1000 calls per minute.
+  EOT
+  type        = number
+  default     = 1000
+  validation {
+    condition     = var.monitoring_threshold_api_calls > 0
+    error_message = "API call threshold must be greater than 0."
+  }
+}
+
+variable "monitoring_threshold_security_findings" {
+  description = <<-EOT
+    Security findings threshold to trigger CloudWatch alarm.
+    When security findings exceed this threshold, an alarm will be triggered.
+    Only applicable when enable_monitoring is true.
+    Defaults to 10 findings.
+  EOT
+  type        = number
+  default     = 10
+  validation {
+    condition     = var.monitoring_threshold_security_findings >= 0
+    error_message = "Security findings threshold must be greater than or equal to 0."
+  }
+}
+
+variable "create_sns_topic" {
+  description = <<-EOT
+    Whether to create an SNS topic for CloudWatch alarm notifications.
+    When enabled, creates a new SNS topic for sending alerts.
+    Only applicable when enable_monitoring is true.
+    Defaults to false.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "sns_topic_name" {
+  description = <<-EOT
+    Name of the SNS topic to create or use for alarm notifications.
+    If create_sns_topic is true, this will be the name of the created topic.
+    If create_sns_topic is false, this should be the name of an existing topic.
+    Only applicable when enable_monitoring is true.
+    Defaults to null.
+  EOT
+  type        = string
+  default     = null
+}
+
+variable "sns_topic_subscribers" {
+  description = <<-EOT
+    List of email addresses to subscribe to the SNS topic for alarm notifications.
+    Each email address will receive notifications when alarms are triggered.
+    Only applicable when enable_monitoring and create_sns_topic are true.
+    Example: ["admin@company.com", "devops@company.com"]
+  EOT
+  type        = list(string)
+  default     = []
+  validation {
+    condition = alltrue([
+      for email in var.sns_topic_subscribers :
+      can(regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", email))
+    ])
+    error_message = "All SNS topic subscribers must be valid email addresses."
+  }
+}
