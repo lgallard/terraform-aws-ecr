@@ -339,6 +339,152 @@ variable "tags" {
 }
 
 # ----------------------------------------------------------
+# Advanced Tagging Configuration
+# ----------------------------------------------------------
+
+variable "enable_default_tags" {
+  description = <<-EOT
+    Whether to enable automatic default tags for all resources.
+    When enabled, standard organizational tags will be automatically applied.
+    Defaults to true for better resource management and compliance.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "default_tags_template" {
+  description = <<-EOT
+    Predefined default tag template to use for organizational compliance.
+    
+    Available templates:
+    - "basic": Minimal set of organizational tags (CreatedBy, ManagedBy, Environment)
+    - "cost_allocation": Tags optimized for cost tracking and allocation
+    - "compliance": Tags required for security and compliance frameworks
+    - "sdlc": Tags for software development lifecycle management
+    - null: Use custom default_tags configuration
+    
+    When using a template, it will override individual default_tags_* variables.
+  EOT
+  type        = string
+  default     = null
+  validation {
+    condition = var.default_tags_template == null ? true : contains(
+      ["basic", "cost_allocation", "compliance", "sdlc"],
+      var.default_tags_template
+    )
+    error_message = "default_tags_template must be one of: basic, cost_allocation, compliance, sdlc."
+  }
+}
+
+variable "default_tags_environment" {
+  description = <<-EOT
+    Environment tag value to be automatically applied to all resources.
+    Common values: production, staging, development, test
+    Set to null to disable automatic environment tagging.
+  EOT
+  type        = string
+  default     = null
+}
+
+variable "default_tags_owner" {
+  description = <<-EOT
+    Owner tag value to be automatically applied to all resources.
+    Should specify the team, department, or individual responsible for the resource.
+    Example: "platform-team", "data-engineering", "john.doe@company.com"
+    Set to null to disable automatic owner tagging.
+  EOT
+  type        = string
+  default     = null
+}
+
+variable "default_tags_project" {
+  description = <<-EOT
+    Project tag value to be automatically applied to all resources.
+    Should specify the project or application name this resource belongs to.
+    Example: "web-app", "data-pipeline", "user-service"
+    Set to null to disable automatic project tagging.
+  EOT
+  type        = string
+  default     = null
+}
+
+variable "default_tags_cost_center" {
+  description = <<-EOT
+    Cost center tag value for financial tracking and allocation.
+    Should specify the cost center, budget code, or billing department.
+    Example: "engineering", "marketing", "cc-1234"
+    Set to null to disable automatic cost center tagging.
+  EOT
+  type        = string
+  default     = null
+}
+
+variable "enable_tag_validation" {
+  description = <<-EOT
+    Whether to enable tag validation to ensure compliance with organizational standards.
+    When enabled, validates that required tags are present and follow naming conventions.
+    Defaults to false to maintain backward compatibility.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "required_tags" {
+  description = <<-EOT
+    List of tag keys that are required to be present.
+    Validation will fail if any of these tags are missing from the final tag set.
+    Example: ["Environment", "Owner", "Project"]
+    Empty list disables required tag validation.
+  EOT
+  type        = list(string)
+  default     = []
+  validation {
+    condition     = length(var.required_tags) <= 50
+    error_message = "Maximum of 50 required tags allowed."
+  }
+}
+
+variable "tag_key_case" {
+  description = <<-EOT
+    Enforce consistent casing for tag keys.
+    - "PascalCase": Capitalize first letter of each word (Environment, CostCenter)
+    - "camelCase": First word lowercase, subsequent words capitalized (environment, costCenter)  
+    - "snake_case": All lowercase with underscores (environment, cost_center)
+    - "kebab-case": All lowercase with hyphens (environment, cost-center)
+    - null: No case enforcement (preserve original casing)
+  EOT
+  type        = string
+  default     = "PascalCase"
+  validation {
+    condition = var.tag_key_case == null ? true : contains(
+      ["PascalCase", "camelCase", "snake_case", "kebab-case"],
+      var.tag_key_case
+    )
+    error_message = "tag_key_case must be one of: PascalCase, camelCase, snake_case, kebab-case."
+  }
+}
+
+variable "enable_tag_normalization" {
+  description = <<-EOT
+    Whether to enable automatic tag normalization.
+    When enabled, normalizes tag keys to consistent casing and handles special characters.
+    Defaults to true for better tag consistency across resources.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "normalize_tag_values" {
+  description = <<-EOT
+    Whether to normalize tag values by trimming whitespace and handling special characters.
+    Applies common normalizations like removing leading/trailing spaces.
+    Defaults to true for cleaner tag values.
+  EOT
+  type        = bool
+  default     = true
+}
+
+# ----------------------------------------------------------
 # Logging Configuration
 # ----------------------------------------------------------
 
