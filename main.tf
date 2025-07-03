@@ -498,18 +498,16 @@ locals {
     for key in keys(local.final_tags_raw) :
     key => [
       for word in split(" ",
-        lower(
-          # Add a space before each uppercase letter that is preceded by a lowercase letter or a digit,
-          # and before an uppercase letter that is followed by a lowercase letter.
-          # This handles camelCase ("myKey" -> "my Key") and acronyms in PascalCase ("APIKey" -> "API Key").
+        # Add a space before each uppercase letter that is preceded by a lowercase letter or a digit,
+        # and before an uppercase letter that is followed by a lowercase letter.
+        # This handles camelCase ("myKey" -> "my Key") and acronyms in PascalCase ("APIKey" -> "API Key").
+        replace(
           replace(
-            replace(
-              # First, normalize all common separators to spaces.
-              replace(replace(key, "_", " "), "-", " "),
-              "([A-Z]+)([A-Z][a-z])", "$1 $2"
-            ),
-            "([a-z0-9])([A-Z])", "$1 $2"
-          )
+            # First, normalize all common separators to spaces.
+            replace(replace(key, "_", " "), "-", " "),
+            "([A-Z]+)([A-Z][a-z])", "$1 $2"
+          ),
+          "([a-z0-9])([A-Z])", "$1 $2"
         )
       ) : word if word != ""
     ]
@@ -519,10 +517,10 @@ locals {
   normalized_tag_keys = var.enable_tag_normalization && var.tag_key_case != null ? {
     for key, word_list in local.words :
     key => (
-      var.tag_key_case == "PascalCase" ? join("", [for word in word_list : title(word)]) :
-      var.tag_key_case == "camelCase" ? join("", [for i, word in word_list : i == 0 ? word : title(word)]) :
-      var.tag_key_case == "snake_case" ? join("_", word_list) :
-      var.tag_key_case == "kebab-case" ? join("-", word_list) :
+      var.tag_key_case == "PascalCase" ? join("", [for word in word_list : title(lower(word))]) :
+      var.tag_key_case == "camelCase" ? join("", [for i, word in word_list : i == 0 ? lower(word) : title(lower(word))]) :
+      var.tag_key_case == "snake_case" ? join("_", [for word in word_list : lower(word)]) :
+      var.tag_key_case == "kebab-case" ? join("-", [for word in word_list : lower(word)]) :
       key
     )
     } : {
