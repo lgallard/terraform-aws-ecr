@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.13.0...0.14.0) (2025-07-03)
+
+
+### Features
+
+* Add advanced tagging strategies with templates, validation, and normalization ([#78](https://github.com/lgallard/terraform-aws-ecr/issues/78)) ([5d838b3](https://github.com/lgallard/terraform-aws-ecr/commit/5d838b317f024b7206dd077c0958cf54e4eba1d2))
+
 ## [0.13.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.12.0...0.13.0) (2025-07-02)
 
 
