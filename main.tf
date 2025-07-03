@@ -492,10 +492,14 @@ locals {
   # Raw tags before normalization
   final_tags_raw = merge(local.computed_default_tags, var.tags)
 
+  # A set of all tag keys that need normalization logic applied,
+  # combining input tags and required tags to ensure all are processed.
+  all_tag_keys_to_normalize = toset(concat(keys(local.final_tags_raw), var.required_tags))
+
   # Helper local to split a string into words based on delimiters and case.
   # Handles "kebab-case", "snake_case", "PascalCase", "camelCase", and "spaced strings".
   words = {
-    for key in keys(local.final_tags_raw) :
+    for key in local.all_tag_keys_to_normalize :
     key => [
       for word in split(" ",
         # Add a space before each uppercase letter that is preceded by a lowercase letter or a digit,
@@ -551,7 +555,7 @@ locals {
   # It maps each original required tag to its potentially normalized version.
   normalized_required_tags_map = var.enable_tag_validation && var.enable_tag_normalization && var.tag_key_case != null ? {
     for required_tag in var.required_tags :
-    required_tag => local.normalized_tag_keys[required_tag] if can(local.normalized_tag_keys[required_tag])
+    required_tag => local.normalized_tag_keys[required_tag]
     } : {
     # When normalization is disabled, the map maps each required tag to itself.
     for tag in var.required_tags : tag => tag
