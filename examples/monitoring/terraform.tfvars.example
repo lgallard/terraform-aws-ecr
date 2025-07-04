@@ -1,0 +1,9 @@
+aws_region                     = "us-east-1"
+repository_name                = "my-monitored-app"
+environment                    = "production"
+project_name                   = "my-project"
+owner                          = "platform-team"
+storage_threshold_gb           = 10
+api_calls_threshold            = 1000
+security_findings_threshold    = 5
+notification_emails            = ["admin@company.com", "devops@company.com"]

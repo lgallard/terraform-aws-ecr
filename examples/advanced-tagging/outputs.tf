@@ -68,34 +68,34 @@ output "tagging_examples_summary" {
   description = "Summary of all tagging examples and their strategies"
   value = {
     cost_allocation = {
-      template_used = "cost_allocation"
-      validation_enabled = true
+      template_used         = "cost_allocation"
+      validation_enabled    = true
       normalization_enabled = true
-      key_case = "PascalCase"
+      key_case              = "PascalCase"
     }
     compliance = {
-      template_used = "compliance"
-      validation_enabled = true
+      template_used         = "compliance"
+      validation_enabled    = true
       normalization_enabled = true
-      key_case = "PascalCase"
+      key_case              = "PascalCase"
     }
     sdlc = {
-      template_used = "sdlc"
-      validation_enabled = true
+      template_used         = "sdlc"
+      validation_enabled    = true
       normalization_enabled = true
-      key_case = "camelCase"
+      key_case              = "camelCase"
     }
     custom_defaults = {
-      template_used = null
-      validation_enabled = true
+      template_used         = null
+      validation_enabled    = true
       normalization_enabled = true
-      key_case = "snake_case"
+      key_case              = "snake_case"
     }
     legacy_compatible = {
-      template_used = null
-      validation_enabled = false
+      template_used         = null
+      validation_enabled    = false
       normalization_enabled = false
-      key_case = null
+      key_case              = null
     }
   }
 }
