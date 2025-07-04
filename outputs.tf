@@ -211,6 +211,12 @@ output "pull_request_rules" {
         enabled = rule.enabled
       }
     ]
+    policies = [
+      for policy in local.pull_request_rule_policies : {
+        name = policy.name
+        type = policy.type
+      }
+    ]
     notification_topic_arn = try(aws_sns_topic.pull_request_rules[0].arn, null)
     event_rules = [
       for rule in aws_cloudwatch_event_rule.pull_request_rules : {
@@ -227,6 +233,7 @@ output "pull_request_rules" {
     } : {
     enabled                = false
     rules                  = []
+    policies               = []
     notification_topic_arn = null
     event_rules            = []
     webhook_functions      = []
