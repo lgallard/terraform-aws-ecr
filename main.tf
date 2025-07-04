@@ -937,3 +937,353 @@ resource "aws_cloudwatch_metric_alarm" "security_findings" {
     aws_ecr_registry_scanning_configuration.scanning
   ]
 }
+
+# ----------------------------------------------------------
+# Pull Request Rules Implementation
+# ----------------------------------------------------------
+
+# Local values for pull request rules
+locals {
+  # Only create resources if pull request rules are enabled
+  pull_request_rules_enabled = var.enable_pull_request_rules && length(var.pull_request_rules) > 0
+  
+  # Filter enabled rules
+  enabled_pull_request_rules = [
+    for rule in var.pull_request_rules : rule if rule.enabled
+  ]
+  
+  # Generate repository policies for pull request rules
+  pull_request_rule_policies = local.pull_request_rules_enabled ? [
+    for rule in local.enabled_pull_request_rules : {
+      name = rule.name
+      type = rule.type
+      policy_json = jsonencode({
+        Version = "2012-10-17"
+        Statement = concat(
+          # Base permissions for all rule types
+          [
+            {
+              Sid    = "AllowBasicRepositoryAccess"
+              Effect = "Allow"
+              Principal = {
+                AWS = length(rule.conditions.allowed_principals) > 0 ? rule.conditions.allowed_principals : ["*"]
+              }
+              Action = [
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:DescribeRepositories",
+                "ecr:DescribeImages",
+                "ecr:DescribeImageScanFindings"
+              ]
+              Condition = length(rule.conditions.tag_patterns) > 0 ? {
+                StringLike = {
+                  "ecr:ResourceTag/*" = rule.conditions.tag_patterns
+                }
+              } : {}
+            }
+          ],
+          # Additional permissions based on rule type
+          rule.type == "approval" ? [
+            {
+              Sid    = "RestrictPushWithoutApproval"
+              Effect = "Deny"
+              Principal = "*"
+              Action = [
+                "ecr:PutImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload"
+              ]
+              Condition = {
+                StringNotEquals = {
+                  "ecr:ResourceTag/ApprovalStatus" = "approved"
+                }
+              }
+            }
+          ] : [],
+          rule.type == "security_scan" ? [
+            {
+              Sid    = "RequireSecurityScanCompletion"
+              Effect = "Deny"
+              Principal = "*"
+              Action = [
+                "ecr:BatchGetImage",
+                "ecr:GetDownloadUrlForLayer"
+              ]
+              Condition = {
+                StringNotEquals = {
+                  "ecr:ResourceTag/ScanStatus" = "completed"
+                }
+              }
+            }
+          ] : [],
+          rule.type == "ci_integration" ? [
+            {
+              Sid    = "RequireCIValidation"
+              Effect = "Deny"
+              Principal = "*"
+              Action = [
+                "ecr:BatchGetImage",
+                "ecr:GetDownloadUrlForLayer"
+              ]
+              Condition = {
+                StringNotEquals = {
+                  "ecr:ResourceTag/CIStatus" = "passed"
+                }
+              }
+            }
+          ] : []
+        )
+      })
+    }
+  ] : []
+  
+  # Generate CloudWatch Event Rules for pull request rules
+  pull_request_rule_events = local.pull_request_rules_enabled ? [
+    for rule in local.enabled_pull_request_rules : {
+      name = rule.name
+      type = rule.type
+      event_pattern = jsonencode({
+        source      = ["aws.ecr"]
+        detail-type = ["ECR Image Action"]
+        detail = {
+          action-type = ["PUSH"]
+          repository-name = [local.repository_name]
+        }
+      })
+      notification_topic_arn = rule.actions.notification_topic_arn
+      webhook_url = rule.actions.webhook_url
+    } if rule.actions.notification_topic_arn != null || rule.actions.webhook_url != null
+  ] : []
+}
+
+# SNS Topic for pull request rule notifications (if not provided)
+resource "aws_sns_topic" "pull_request_rules" {
+  count = local.pull_request_rules_enabled && length([
+    for rule in local.enabled_pull_request_rules : rule 
+    if rule.actions.notification_topic_arn == null && rule.actions.webhook_url == null
+  ]) > 0 ? 1 : 0
+  
+  name = "${var.name}-ecr-pull-request-rules"
+  
+  tags = merge(
+    local.final_tags,
+    {
+      Name = "${var.name}-ecr-pull-request-rules"
+      Type = "PullRequestRules"
+    }
+  )
+}
+
+# CloudWatch Event Rule for pull request rules
+resource "aws_cloudwatch_event_rule" "pull_request_rules" {
+  count = length(local.pull_request_rule_events)
+  
+  name        = "${var.name}-ecr-pr-rule-${local.pull_request_rule_events[count.index].name}"
+  description = "Pull request rule event for ${local.pull_request_rule_events[count.index].name}"
+  
+  event_pattern = local.pull_request_rule_events[count.index].event_pattern
+  
+  tags = merge(
+    local.final_tags,
+    {
+      Name = "${var.name}-ecr-pr-rule-${local.pull_request_rule_events[count.index].name}"
+      Type = "PullRequestRule"
+      RuleType = local.pull_request_rule_events[count.index].type
+    }
+  )
+}
+
+# CloudWatch Event Target for SNS notifications
+resource "aws_cloudwatch_event_target" "pull_request_rules_sns" {
+  count = length([
+    for i, event in local.pull_request_rule_events : i
+    if event.notification_topic_arn != null
+  ])
+  
+  rule      = aws_cloudwatch_event_rule.pull_request_rules[count.index].name
+  target_id = "SendToSNS"
+  arn       = local.pull_request_rule_events[count.index].notification_topic_arn
+  
+  input_transformer {
+    input_paths = {
+      repository = "$.detail.repository-name"
+      tag        = "$.detail.image-tag"
+      action     = "$.detail.action-type"
+      time       = "$.time"
+    }
+    input_template = jsonencode({
+      repository = "<repository>"
+      tag        = "<tag>"
+      action     = "<action>"
+      time       = "<time>"
+      message    = "ECR pull request rule triggered for repository <repository>, tag <tag>"
+    })
+  }
+}
+
+# CloudWatch Event Target for webhook notifications
+resource "aws_cloudwatch_event_target" "pull_request_rules_webhook" {
+  count = length([
+    for i, event in local.pull_request_rule_events : i
+    if event.webhook_url != null
+  ])
+  
+  rule      = aws_cloudwatch_event_rule.pull_request_rules[count.index].name
+  target_id = "SendToWebhook"
+  arn       = aws_lambda_function.pull_request_rules_webhook[count.index].arn
+  
+  input_transformer {
+    input_paths = {
+      repository = "$.detail.repository-name"
+      tag        = "$.detail.image-tag"
+      action     = "$.detail.action-type"
+      time       = "$.time"
+    }
+    input_template = jsonencode({
+      repository = "<repository>"
+      tag        = "<tag>"
+      action     = "<action>"
+      time       = "<time>"
+      webhook_url = local.pull_request_rule_events[count.index].webhook_url
+    })
+  }
+}
+
+# Lambda function for webhook notifications
+resource "aws_lambda_function" "pull_request_rules_webhook" {
+  count = length([
+    for i, event in local.pull_request_rule_events : i
+    if event.webhook_url != null
+  ])
+  
+  filename         = data.archive_file.pull_request_rules_webhook[count.index].output_path
+  function_name    = "${var.name}-ecr-pr-webhook-${count.index}"
+  role            = aws_iam_role.pull_request_rules_webhook[count.index].arn
+  handler         = "index.handler"
+  runtime         = "python3.9"
+  timeout         = 30
+  
+  environment {
+    variables = {
+      WEBHOOK_URL = local.pull_request_rule_events[count.index].webhook_url
+    }
+  }
+  
+  tags = merge(
+    local.final_tags,
+    {
+      Name = "${var.name}-ecr-pr-webhook-${count.index}"
+      Type = "PullRequestRuleWebhook"
+    }
+  )
+}
+
+# Lambda function code for webhook notifications
+data "archive_file" "pull_request_rules_webhook" {
+  count = length([
+    for i, event in local.pull_request_rule_events : i
+    if event.webhook_url != null
+  ])
+  
+  type        = "zip"
+  output_path = "/tmp/pull_request_rules_webhook_${count.index}.zip"
+  
+  source {
+    content = <<-EOF
+import json
+import urllib3
+import os
+
+def handler(event, context):
+    webhook_url = os.environ['WEBHOOK_URL']
+    
+    # Extract event details
+    detail = event.get('detail', {})
+    repository = detail.get('repository-name', '')
+    tag = detail.get('image-tag', '')
+    action = detail.get('action-type', '')
+    
+    # Create webhook payload
+    payload = {
+        'repository': repository,
+        'tag': tag,
+        'action': action,
+        'time': event.get('time', ''),
+        'message': f'ECR pull request rule triggered for repository {repository}, tag {tag}'
+    }
+    
+    # Send webhook
+    http = urllib3.PoolManager()
+    response = http.request(
+        'POST',
+        webhook_url,
+        body=json.dumps(payload),
+        headers={'Content-Type': 'application/json'}
+    )
+    
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Webhook sent successfully')
+    }
+EOF
+    filename = "index.py"
+  }
+}
+
+# IAM role for Lambda webhook function
+resource "aws_iam_role" "pull_request_rules_webhook" {
+  count = length([
+    for i, event in local.pull_request_rule_events : i
+    if event.webhook_url != null
+  ])
+  
+  name = "${var.name}-ecr-pr-webhook-role-${count.index}"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+  
+  tags = merge(
+    local.final_tags,
+    {
+      Name = "${var.name}-ecr-pr-webhook-role-${count.index}"
+      Type = "PullRequestRuleWebhookRole"
+    }
+  )
+}
+
+# IAM policy attachment for Lambda webhook function
+resource "aws_iam_role_policy_attachment" "pull_request_rules_webhook" {
+  count = length([
+    for i, event in local.pull_request_rule_events : i
+    if event.webhook_url != null
+  ])
+  
+  role       = aws_iam_role.pull_request_rules_webhook[count.index].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+# Lambda permission for CloudWatch Events
+resource "aws_lambda_permission" "pull_request_rules_webhook" {
+  count = length([
+    for i, event in local.pull_request_rule_events : i
+    if event.webhook_url != null
+  ])
+  
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.pull_request_rules_webhook[count.index].function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.pull_request_rules[count.index].arn
+}

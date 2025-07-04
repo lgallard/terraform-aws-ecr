@@ -195,3 +195,40 @@ output "cloudwatch_alarms" {
     } : null
   } : {}
 }
+
+# ----------------------------------------------------------
+# Pull Request Rules Outputs
+# ----------------------------------------------------------
+
+output "pull_request_rules" {
+  description = "Information about pull request rules configuration"
+  value = var.enable_pull_request_rules ? {
+    enabled = true
+    rules = [
+      for i, rule in local.enabled_pull_request_rules : {
+        name    = rule.name
+        type    = rule.type
+        enabled = rule.enabled
+      }
+    ]
+    notification_topic_arn = try(aws_sns_topic.pull_request_rules[0].arn, null)
+    event_rules = [
+      for rule in aws_cloudwatch_event_rule.pull_request_rules : {
+        name = rule.name
+        arn  = rule.arn
+      }
+    ]
+    webhook_functions = [
+      for func in aws_lambda_function.pull_request_rules_webhook : {
+        name = func.function_name
+        arn  = func.arn
+      }
+    ]
+  } : {
+    enabled               = false
+    rules                = []
+    notification_topic_arn = null
+    event_rules          = []
+    webhook_functions    = []
+  }
+}
