@@ -1470,6 +1470,7 @@ No modules.
 | <a name="output_replication_status"></a> [replication\_status](#output\_replication\_status) | Status of ECR replication configuration |
 | <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
 | <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
+| <a name="output_repository_policy_exists"></a> [repository\_policy\_exists](#output\_repository\_policy\_exists) | Whether a repository policy exists for this ECR repository |
 | <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
 | <a name="output_security_status"></a> [security\_status](#output\_security\_status) | Comprehensive security status of the ECR configuration |
 | <a name="output_sns_topic_arn"></a> [sns\_topic\_arn](#output\_sns\_topic\_arn) | ARN of the SNS topic used for ECR monitoring alerts (if created) |

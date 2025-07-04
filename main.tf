@@ -88,6 +88,178 @@ locals {
   repository_name = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].name : aws_ecr_repository.repo[0].name
   repository_url  = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].repository_url : aws_ecr_repository.repo[0].repository_url
   registry_id     = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].registry_id : aws_ecr_repository.repo[0].registry_id
+
+  # ----------------------------------------------------------
+  # Repository Policy Management
+  # ----------------------------------------------------------
+
+  # Merge multiple pull request rule policies into a single policy
+  merged_pull_request_policy = local.pull_request_rules_enabled && length(local.enabled_pull_request_rules) > 0 ? jsonencode({
+    Version = "2012-10-17"
+    Statement = flatten([
+      for rule in local.enabled_pull_request_rules : jsondecode(
+        jsonencode({
+          Version = "2012-10-17"
+          Statement = concat(
+            # Allow read operations for all authenticated users
+            [{
+              Sid    = "AllowRead${replace(title(rule.name), "-", "")}"
+              Effect = "Allow"
+              Principal = {
+                AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+              }
+              Action = [
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:DescribeRepositories",
+                "ecr:DescribeImages",
+                "ecr:DescribeImageScanFindings",
+                "ecr:GetRepositoryPolicy",
+                "ecr:ListImages"
+              ]
+            }],
+            # Conditional write operations based on rule type and configuration
+            rule.type == "approval" && rule.actions.block_on_failure ? [
+              {
+                Sid    = "AllowPushWithApproval${replace(title(rule.name), "-", "")}"
+                Effect = "Allow"
+                Principal = {
+                  AWS = rule.conditions.allowed_principals != null ? rule.conditions.allowed_principals : [
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                  ]
+                }
+                Action = [
+                  "ecr:PutImage",
+                  "ecr:InitiateLayerUpload",
+                  "ecr:UploadLayerPart",
+                  "ecr:CompleteLayerUpload",
+                  "ecr:TagResource"
+                ]
+                Condition = merge(
+                  # Tag pattern conditions
+                  length(rule.conditions.tag_patterns) > 0 ? {
+                    StringLike = {
+                      "ecr:ImageTag" = rule.conditions.tag_patterns
+                    }
+                  } : {},
+                  # Approval status condition for approval rules
+                  rule.type == "approval" ? {
+                    StringEquals = {
+                      "ecr:ResourceTag/ApprovalStatus" = "approved"
+                    }
+                  } : {},
+                  # Security scan completion condition
+                  rule.conditions.require_scan_completion ? {
+                    StringEquals = {
+                      "ecr:ResourceTag/ScanStatus" = "completed"
+                    }
+                  } : {}
+                )
+              }
+            ] : [],
+            # Security scan enforcement for security_scan type rules
+            rule.type == "security_scan" && rule.actions.block_on_failure ? [
+              {
+                Sid    = "AllowPushWithSecurityScan${replace(title(rule.name), "-", "")}"
+                Effect = "Allow"
+                Principal = {
+                  AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                }
+                Action = [
+                  "ecr:PutImage",
+                  "ecr:InitiateLayerUpload",
+                  "ecr:UploadLayerPart",
+                  "ecr:CompleteLayerUpload"
+                ]
+                Condition = merge(
+                  # Tag pattern conditions
+                  length(rule.conditions.tag_patterns) > 0 ? {
+                    StringLike = {
+                      "ecr:ImageTag" = rule.conditions.tag_patterns
+                    }
+                  } : {},
+                  # Security scan conditions
+                  {
+                    StringEquals = {
+                      "ecr:ResourceTag/ScanStatus" = "completed"
+                    }
+                  },
+                  # Severity threshold condition
+                  rule.conditions.severity_threshold != null ? {
+                    StringLike = {
+                      "ecr:ResourceTag/MaxSeverity" = (
+                        rule.conditions.severity_threshold == "LOW" ? ["LOW", "MEDIUM", "HIGH", "CRITICAL"] :
+                        rule.conditions.severity_threshold == "MEDIUM" ? ["MEDIUM", "HIGH", "CRITICAL"] :
+                        rule.conditions.severity_threshold == "HIGH" ? ["HIGH", "CRITICAL"] :
+                        ["CRITICAL"]
+                      )
+                    }
+                  } : {}
+                )
+              }
+            ] : [],
+            # CI integration rules - typically non-blocking but can be configured
+            rule.type == "ci_integration" && rule.actions.block_on_failure ? [
+              {
+                Sid    = "AllowPushWithCIValidation${replace(title(rule.name), "-", "")}"
+                Effect = "Allow"
+                Principal = {
+                  AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                }
+                Action = [
+                  "ecr:PutImage",
+                  "ecr:InitiateLayerUpload",
+                  "ecr:UploadLayerPart",
+                  "ecr:CompleteLayerUpload"
+                ]
+                Condition = merge(
+                  # Tag pattern conditions
+                  length(rule.conditions.tag_patterns) > 0 ? {
+                    StringLike = {
+                      "ecr:ImageTag" = rule.conditions.tag_patterns
+                    }
+                  } : {},
+                  # CI validation status
+                  {
+                    StringEquals = {
+                      "ecr:ResourceTag/CIStatus" = "validated"
+                    }
+                  }
+                )
+              }
+            ] : [],
+            # Default allow for non-blocking rules or when no specific conditions apply
+            !rule.actions.block_on_failure ? [
+              {
+                Sid    = "AllowPushNonBlocking${replace(title(rule.name), "-", "")}"
+                Effect = "Allow"
+                Principal = {
+                  AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                }
+                Action = [
+                  "ecr:PutImage",
+                  "ecr:InitiateLayerUpload",
+                  "ecr:UploadLayerPart",
+                  "ecr:CompleteLayerUpload"
+                ]
+              }
+            ] : []
+          )
+        })
+      ).Statement
+    ])
+  }) : null
+
+  # Final repository policy with proper precedence:
+  # 1. Manual policy (var.policy) takes highest precedence
+  # 2. Merged pull request rules policy takes second precedence
+  # 3. No policy (null) if neither is provided
+  final_repository_policy = (
+    var.policy != null ? var.policy :
+    local.merged_pull_request_policy != null ? local.merged_pull_request_policy :
+    null
+  )
 }
 
 # ----------------------------------------------------------
@@ -96,9 +268,9 @@ locals {
 
 # Repository policy - controls access to the repository
 resource "aws_ecr_repository_policy" "policy" {
-  count      = var.policy == null && !local.pull_request_rules_enabled ? 0 : 1
+  count      = local.final_repository_policy != null ? 1 : 0
   repository = local.repository_name
-  policy     = local.pull_request_rules_enabled && length(local.pull_request_rule_policies) > 0 ? local.pull_request_rule_policies[0].policy : var.policy
+  policy     = local.final_repository_policy
 
   # Ensure policy is applied after repository is created
   depends_on = [
@@ -954,162 +1126,8 @@ locals {
     for rule in var.pull_request_rules : rule if rule.enabled
   ]
 
-  # Generate ECR repository policies for pull request rule enforcement
-  pull_request_rule_policies = local.pull_request_rules_enabled ? [
-    for rule in local.enabled_pull_request_rules : {
-      name = rule.name
-      type = rule.type
-      policy = jsonencode({
-        Version = "2012-10-17"
-        Statement = concat(
-          # Allow read operations for all authenticated users
-          [{
-            Sid    = "AllowRead${replace(title(rule.name), "-", "")}"
-            Effect = "Allow"
-            Principal = {
-              AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-            }
-            Action = [
-              "ecr:GetDownloadUrlForLayer",
-              "ecr:BatchGetImage",
-              "ecr:BatchCheckLayerAvailability",
-              "ecr:DescribeRepositories",
-              "ecr:DescribeImages",
-              "ecr:DescribeImageScanFindings",
-              "ecr:GetRepositoryPolicy",
-              "ecr:ListImages"
-            ]
-          }],
-          # Conditional write operations based on rule type and configuration
-          rule.type == "approval" && rule.actions.block_on_failure ? [
-            {
-              Sid    = "AllowPushWithApproval${replace(title(rule.name), "-", "")}"
-              Effect = "Allow"
-              Principal = {
-                AWS = rule.conditions.allowed_principals != null ? rule.conditions.allowed_principals : [
-                  "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-                ]
-              }
-              Action = [
-                "ecr:PutImage",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload",
-                "ecr:TagResource"
-              ]
-              Condition = merge(
-                # Tag pattern conditions
-                length(rule.conditions.tag_patterns) > 0 ? {
-                  StringLike = {
-                    "ecr:ImageTag" = rule.conditions.tag_patterns
-                  }
-                } : {},
-                # Approval status condition for approval rules
-                rule.type == "approval" ? {
-                  StringEquals = {
-                    "ecr:ResourceTag/ApprovalStatus" = "approved"
-                  }
-                } : {},
-                # Security scan completion condition
-                rule.conditions.require_scan_completion ? {
-                  StringEquals = {
-                    "ecr:ResourceTag/ScanStatus" = "completed"
-                  }
-                } : {}
-              )
-            }
-          ] : [],
-          # Security scan enforcement for security_scan type rules
-          rule.type == "security_scan" && rule.actions.block_on_failure ? [
-            {
-              Sid    = "AllowPushWithSecurityScan${replace(title(rule.name), "-", "")}"
-              Effect = "Allow"
-              Principal = {
-                AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-              }
-              Action = [
-                "ecr:PutImage",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload"
-              ]
-              Condition = merge(
-                # Tag pattern conditions
-                length(rule.conditions.tag_patterns) > 0 ? {
-                  StringLike = {
-                    "ecr:ImageTag" = rule.conditions.tag_patterns
-                  }
-                } : {},
-                # Security scan conditions
-                {
-                  StringEquals = {
-                    "ecr:ResourceTag/ScanStatus" = "completed"
-                  }
-                },
-                # Severity threshold condition
-                rule.conditions.severity_threshold != null ? {
-                  StringLike = {
-                    "ecr:ResourceTag/MaxSeverity" = (
-                      rule.conditions.severity_threshold == "LOW" ? ["LOW", "MEDIUM", "HIGH", "CRITICAL"] :
-                      rule.conditions.severity_threshold == "MEDIUM" ? ["MEDIUM", "HIGH", "CRITICAL"] :
-                      rule.conditions.severity_threshold == "HIGH" ? ["HIGH", "CRITICAL"] :
-                      ["CRITICAL"]
-                    )
-                  }
-                } : {}
-              )
-            }
-          ] : [],
-          # CI integration rules - typically non-blocking but can be configured
-          rule.type == "ci_integration" && rule.actions.block_on_failure ? [
-            {
-              Sid    = "AllowPushWithCIValidation${replace(title(rule.name), "-", "")}"
-              Effect = "Allow"
-              Principal = {
-                AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-              }
-              Action = [
-                "ecr:PutImage",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload"
-              ]
-              Condition = merge(
-                # Tag pattern conditions
-                length(rule.conditions.tag_patterns) > 0 ? {
-                  StringLike = {
-                    "ecr:ImageTag" = rule.conditions.tag_patterns
-                  }
-                } : {},
-                # CI validation status
-                {
-                  StringEquals = {
-                    "ecr:ResourceTag/CIStatus" = "validated"
-                  }
-                }
-              )
-            }
-          ] : [],
-          # Default allow for non-blocking rules or when no specific conditions apply
-          !rule.actions.block_on_failure ? [
-            {
-              Sid    = "AllowPushNonBlocking${replace(title(rule.name), "-", "")}"
-              Effect = "Allow"
-              Principal = {
-                AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-              }
-              Action = [
-                "ecr:PutImage",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload"
-              ]
-            }
-          ] : []
-        )
-      })
-    }
-  ] : []
+  # Note: ECR repository policies are now handled in the repository output references section
+  # This maintains backward compatibility while fixing the null policy and multiple rule issues
 
   # Generate CloudWatch Event Rules for pull request rules
   pull_request_rule_events = local.pull_request_rules_enabled ? [
