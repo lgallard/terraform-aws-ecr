@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.15.0...0.16.0) (2025-07-04)
+
+
+### Features
+
+* Implement pull request rules for enhanced ECR governance ([#83](https://github.com/lgallard/terraform-aws-ecr/issues/83)) ([7aab872](https://github.com/lgallard/terraform-aws-ecr/commit/7aab8722297ca1c8b05049569e9feb5058477f43))
+
 ## [0.15.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.14.0...0.15.0) (2025-07-04)
 
 
