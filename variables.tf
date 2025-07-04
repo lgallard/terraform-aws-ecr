@@ -739,3 +739,92 @@ variable "sns_topic_subscribers" {
     error_message = "All SNS topic subscribers must be valid email addresses."
   }
 }
+
+# ----------------------------------------------------------
+# Pull Request Rules Configuration
+# ----------------------------------------------------------
+
+variable "enable_pull_request_rules" {
+  description = <<-EOT
+    Whether to enable pull request rules for enhanced governance and quality control.
+    Pull request rules provide approval workflows and validation requirements for container images,
+    similar to pull request approval processes for code repositories.
+    When enabled, additional governance controls will be applied to the ECR repository.
+    Defaults to false.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "pull_request_rules" {
+  description = <<-EOT
+    List of pull request rule configurations for enhanced governance.
+    Each rule defines governance controls for container image changes.
+    
+    Rule structure:
+    - name: Unique identifier for the rule
+    - type: Type of rule (approval, security_scan, ci_integration)
+    - enabled: Whether the rule is active
+    - conditions: Conditions that trigger the rule
+    - actions: Actions to take when rule conditions are met
+    
+    Example:
+    [
+      {
+        name = "require-security-approval"
+        type = "approval"
+        enabled = true
+        conditions = {
+          tag_patterns = ["prod-*", "release-*"]
+          severity_threshold = "HIGH"
+        }
+        actions = {
+          require_approval_count = 2
+          notification_topic_arn = "arn:aws:sns:region:account:topic"
+        }
+      }
+    ]
+  EOT
+  type = list(object({
+    name    = string
+    type    = string
+    enabled = bool
+    conditions = optional(object({
+      tag_patterns            = optional(list(string), [])
+      severity_threshold      = optional(string, "MEDIUM")
+      require_scan_completion = optional(bool, true)
+      allowed_principals      = optional(list(string), [])
+    }), {})
+    actions = optional(object({
+      require_approval_count  = optional(number, 1)
+      notification_topic_arn  = optional(string)
+      webhook_url            = optional(string)
+      block_on_failure       = optional(bool, true)
+      approval_timeout_hours = optional(number, 24)
+    }), {})
+  }))
+  default = []
+  
+  validation {
+    condition = alltrue([
+      for rule in var.pull_request_rules : contains(["approval", "security_scan", "ci_integration"], rule.type)
+    ])
+    error_message = "Pull request rule type must be one of: approval, security_scan, ci_integration."
+  }
+  
+  validation {
+    condition = alltrue([
+      for rule in var.pull_request_rules : 
+      rule.conditions.severity_threshold == null || contains(["LOW", "MEDIUM", "HIGH", "CRITICAL"], rule.conditions.severity_threshold)
+    ])
+    error_message = "Severity threshold must be one of: LOW, MEDIUM, HIGH, CRITICAL."
+  }
+  
+  validation {
+    condition = alltrue([
+      for rule in var.pull_request_rules : 
+      rule.actions.require_approval_count == null || (rule.actions.require_approval_count >= 1 && rule.actions.require_approval_count <= 10)
+    ])
+    error_message = "Approval count must be between 1 and 10."
+  }
+}

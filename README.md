@@ -50,6 +50,7 @@ Check the [examples](examples/) directory for examples including:
 - **Advanced Tagging** - Comprehensive tagging strategies with templates, validation, and normalization
 - **Enhanced Security** - Advanced security features with scanning and compliance
 - **Lifecycle Policies** - Image lifecycle management with predefined templates
+- **Pull Request Rules** - Governance and approval workflows for container images
 
 ### Simple example
 This example creates an ECR registry using few parameters
@@ -914,6 +915,255 @@ For more complex migration scenarios, see the [migration examples](examples/life
 
 See the [lifecycle policies example](examples/lifecycle-policies/) for comprehensive usage examples and the [troubleshooting guide](docs/troubleshooting.md) for common issues.
 
+## Pull Request Rules Configuration
+
+The module provides pull request rules functionality to implement governance and approval workflows for container images, similar to pull request approval processes for code repositories. This feature enables organizations to enforce quality control, security validation, and compliance requirements before images are deployed to production.
+
+### Overview
+
+Pull request rules provide:
+- **Approval workflows**: Require manual approval for production images
+- **Security validation**: Automatic checks for vulnerabilities and compliance
+- **CI/CD integration**: Webhook notifications for external systems
+- **Governance controls**: Policy-based restrictions on image usage
+- **Audit trails**: Complete tracking of image approval workflows
+
+### Basic Configuration
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+  name   = "production-app"
+
+  # Enable pull request rules
+  enable_pull_request_rules = true
+
+  # Configure approval requirements
+  pull_request_rules = [
+    {
+      name    = "production-approval"
+      type    = "approval"
+      enabled = true
+      conditions = {
+        tag_patterns       = ["prod-*", "release-*"]
+        severity_threshold = "HIGH"
+      }
+      actions = {
+        require_approval_count = 2
+        notification_topic_arn = "arn:aws:sns:region:account:topic"
+      }
+    }
+  ]
+}
+```
+
+### Rule Types
+
+#### 1. Approval Rules (`type = "approval"`)
+Require manual approval before images can be used in production:
+
+```hcl
+{
+  name    = "security-approval"
+  type    = "approval"
+  enabled = true
+  conditions = {
+    tag_patterns            = ["prod-*", "release-*"]
+    severity_threshold      = "HIGH"
+    require_scan_completion = true
+    allowed_principals      = ["arn:aws:iam::account:role/SecurityTeam"]
+  }
+  actions = {
+    require_approval_count  = 2
+    notification_topic_arn  = "arn:aws:sns:region:account:topic"
+    block_on_failure       = true
+    approval_timeout_hours = 24
+  }
+}
+```
+
+#### 2. Security Scan Rules (`type = "security_scan"`)
+Automatically validate images against security criteria:
+
+```hcl
+{
+  name    = "vulnerability-check"
+  type    = "security_scan"
+  enabled = true
+  conditions = {
+    severity_threshold      = "MEDIUM"
+    require_scan_completion = true
+  }
+  actions = {
+    notification_topic_arn = "arn:aws:sns:region:account:topic"
+    block_on_failure       = true
+  }
+}
+```
+
+#### 3. CI Integration Rules (`type = "ci_integration"`)
+Integrate with CI/CD systems through webhooks:
+
+```hcl
+{
+  name    = "ci-validation"
+  type    = "ci_integration"
+  enabled = true
+  conditions = {
+    tag_patterns = ["feature-*", "dev-*"]
+  }
+  actions = {
+    webhook_url      = "https://ci.company.com/webhook/ecr"
+    block_on_failure = false
+  }
+}
+```
+
+### Configuration Options
+
+#### Conditions
+- `tag_patterns`: List of tag patterns that trigger the rule
+- `severity_threshold`: Minimum vulnerability severity (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`)
+- `require_scan_completion`: Whether to require completed security scans
+- `allowed_principals`: List of IAM principals allowed to interact with approved images
+
+#### Actions
+- `require_approval_count`: Number of approvals required (1-10)
+- `notification_topic_arn`: SNS topic for notifications
+- `webhook_url`: Webhook URL for external integrations
+- `block_on_failure`: Whether to block operations on rule failure
+- `approval_timeout_hours`: Hours to wait for approval (1-168)
+
+### Approval Workflow
+
+1. **Image Push**: Developer pushes image to ECR repository
+2. **Rule Evaluation**: Pull request rules evaluate the image against configured criteria
+3. **Notification**: If approval is required, notifications are sent to configured channels
+4. **Security Scan**: Automatic vulnerability scanning is performed
+5. **Manual Review**: Security team reviews scan results and compliance
+6. **Approval**: If acceptable, image is tagged with approval status
+7. **Deployment**: Approved images can be deployed to production
+
+### Example: Complete Governance Setup
+
+```hcl
+module "ecr_governance" {
+  source = "lgallard/ecr/aws"
+  name   = "critical-application"
+
+  enable_pull_request_rules = true
+  pull_request_rules = [
+    # Production approval workflow
+    {
+      name    = "production-security-approval"
+      type    = "approval"
+      enabled = true
+      conditions = {
+        tag_patterns            = ["prod-*", "release-*"]
+        severity_threshold      = "HIGH"
+        require_scan_completion = true
+        allowed_principals = [
+          "arn:aws:iam::123456789012:role/SecurityTeam",
+          "arn:aws:iam::123456789012:role/ReleaseManagers"
+        ]
+      }
+      actions = {
+        require_approval_count  = 3
+        notification_topic_arn  = aws_sns_topic.security_alerts.arn
+        block_on_failure       = true
+        approval_timeout_hours = 48
+      }
+    },
+    # Automatic security validation
+    {
+      name    = "security-scan-gate"
+      type    = "security_scan"
+      enabled = true
+      conditions = {
+        tag_patterns            = ["*"]
+        severity_threshold      = "MEDIUM"
+        require_scan_completion = true
+      }
+      actions = {
+        notification_topic_arn = aws_sns_topic.security_alerts.arn
+        block_on_failure       = true
+      }
+    },
+    # CI/CD integration
+    {
+      name    = "ci-pipeline-integration"
+      type    = "ci_integration"
+      enabled = true
+      conditions = {
+        tag_patterns = ["feature-*", "dev-*", "staging-*"]
+      }
+      actions = {
+        webhook_url      = "https://ci.company.com/webhook/ecr-validation"
+        block_on_failure = false
+      }
+    }
+  ]
+
+  # Enhanced security scanning
+  enable_registry_scanning = true
+  registry_scan_type      = "ENHANCED"
+  enable_secret_scanning  = true
+}
+```
+
+### Approval Commands
+
+After implementing pull request rules, use these commands to manage approvals:
+
+```bash
+# Check image scan results
+aws ecr describe-image-scan-findings \
+  --repository-name production-app \
+  --image-id imageTag=prod-v1.0.0
+
+# Approve image for production use
+aws ecr put-image \
+  --repository-name production-app \
+  --image-tag prod-v1.0.0 \
+  --tag-list Key=ApprovalStatus,Value=approved
+
+# List images with approval status
+aws ecr describe-images \
+  --repository-name production-app \
+  --query 'imageDetails[*].[imageTags[0],imageTagMutability,imageScanFindingsSummary.findings]'
+```
+
+### Best Practices
+
+1. **Layered Approach**: Use multiple rule types for comprehensive governance
+2. **Graduated Enforcement**: Strict rules for production, flexible for development
+3. **Clear Workflows**: Document approval processes and responsibilities
+4. **Monitoring**: Set up CloudWatch alarms for rule violations
+5. **Regular Reviews**: Periodically review and update rule configurations
+6. **Testing**: Test rule configurations in non-production environments first
+
+### Integration with CI/CD
+
+Pull request rules integrate seamlessly with CI/CD pipelines:
+
+```yaml
+# GitHub Actions example
+- name: Check ECR approval status
+  run: |
+    STATUS=$(aws ecr describe-images \
+      --repository-name $REPO_NAME \
+      --image-ids imageTag=$IMAGE_TAG \
+      --query 'imageDetails[0].imageTags' \
+      --output text | grep -o 'ApprovalStatus.*approved' || echo "not-approved")
+    
+    if [[ "$STATUS" != *"approved"* ]]; then
+      echo "Image not approved for deployment"
+      exit 1
+    fi
+```
+
+See the [pull request rules example](examples/pull-request-rules/) for a complete implementation guide.
+
 ## Security Best Practices
 
 Here are key security best practices for your ECR repositories:
@@ -1136,6 +1386,7 @@ No modules.
 | <a name="input_enable_default_tags"></a> [enable\_default\_tags](#input\_enable\_default\_tags) | Whether to enable automatic default tags for all resources.<br/>When enabled, standard organizational tags will be automatically applied.<br/>Defaults to true for better resource management and compliance. | `bool` | `true` | no |
 | <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | Whether to enable CloudWatch logging for the repository.<br/>When enabled, ECR API actions and image push/pull events will be logged to CloudWatch.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_pull_through_cache"></a> [enable\_pull\_through\_cache](#input\_enable\_pull\_through\_cache) | Whether to create pull-through cache rules.<br/>Pull-through cache rules allow you to cache images from upstream registries.<br/>Defaults to false. | `bool` | `false` | no |
+| <a name="input_enable_pull_request_rules"></a> [enable\_pull\_request\_rules](#input\_enable\_pull\_request\_rules) | Whether to enable pull request rules for enhanced governance and quality control.<br/>Pull request rules provide approval workflows and validation requirements for container images,<br/>similar to pull request approval processes for code repositories.<br/>When enabled, additional governance controls will be applied to the ECR repository.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_registry_scanning"></a> [enable\_registry\_scanning](#input\_enable\_registry\_scanning) | Whether to enable enhanced scanning for the ECR registry.<br/>Enhanced scanning uses Amazon Inspector to provide detailed vulnerability assessments.<br/>This is a registry-level configuration that affects all repositories in the account.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Whether to enable cross-region replication for the ECR registry.<br/>When enabled, images will be automatically replicated to the specified regions.<br/>Note: This is a registry-level configuration that affects all repositories in the account.<br/>Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_secret_scanning"></a> [enable\_secret\_scanning](#input\_enable\_secret\_scanning) | Whether to enable secret scanning as part of enhanced scanning.<br/>This feature detects secrets like API keys, passwords, and tokens in container images.<br/>When enabled, automatically sets the registry scan type to ENHANCED, overriding registry\_scan\_type.<br/>Requires enable\_registry\_scanning to be true.<br/>Defaults to false. | `bool` | `false` | no |
@@ -1158,6 +1409,7 @@ No modules.
 | <a name="input_policy"></a> [policy](#input\_policy) | JSON string representing the repository policy.<br/>If null (default), no repository policy will be created.<br/>See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-policies.html | `string` | `null` | no |
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed.<br/>When set to true, the repository will have the lifecycle block with prevent\_destroy = true.<br/>When set to false, the repository can be destroyed.<br/>This provides a way to dynamically control protection against accidental deletion.<br/>Defaults to false to allow repository deletion. | `bool` | `false` | no |
 | <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create.<br/>Each rule should specify ecr\_repository\_prefix and upstream\_registry\_url.<br/>Example: [{ ecr\_repository\_prefix = "docker-hub", upstream\_registry\_url = "registry-1.docker.io" }] | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_pull_request_rules"></a> [pull\_request\_rules](#input\_pull\_request\_rules) | List of pull request rule configurations for enhanced governance.<br/>Each rule defines governance controls for container image changes.<br/><br/>Rule structure:<br/>- name: Unique identifier for the rule<br/>- type: Type of rule (approval, security\_scan, ci\_integration)<br/>- enabled: Whether the rule is active<br/>- conditions: Conditions that trigger the rule<br/>- actions: Actions to take when rule conditions are met | <pre>list(object({<br/>    name    = string<br/>    type    = string<br/>    enabled = bool<br/>    conditions = optional(object({<br/>      tag_patterns            = optional(list(string), [])<br/>      severity_threshold      = optional(string, "MEDIUM")<br/>      require_scan_completion = optional(bool, true)<br/>      allowed_principals      = optional(list(string), [])<br/>    }), {})<br/>    actions = optional(object({<br/>      require_approval_count  = optional(number, 1)<br/>      notification_topic_arn  = optional(string)<br/>      webhook_url            = optional(string)<br/>      block_on_failure       = optional(bool, true)<br/>      approval_timeout_hours = optional(number, 24)<br/>    }), {})<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR scan findings.<br/>These filters can be used by external tools or scripts to filter scan results by criteria such as vulnerability severity.<br/>Each filter should specify name and values.<br/>Example: [{ name = "PACKAGE\_VULNERABILITY\_SEVERITY", values = ["HIGH", "CRITICAL"] }]<br/><br/>Note: These filters are not applied at the registry scanning configuration level, but are made available<br/>as outputs for use in querying and filtering scan results. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry.<br/>- BASIC: Basic scanning for OS vulnerabilities<br/>- ENHANCED: Enhanced scanning with Amazon Inspector integration<br/>Only applicable when enable\_registry\_scanning is true. | `string` | `"ENHANCED"` | no |
 | <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of AWS regions to replicate ECR images to.<br/>Only applicable when enable\_replication is true.<br/>Example: ["us-west-2", "eu-west-1"] | `list(string)` | `[]` | no |
@@ -1180,6 +1432,7 @@ No modules.
 | <a name="output_logging_role_arn"></a> [logging\_role\_arn](#output\_logging\_role\_arn) | The ARN of the IAM role used for ECR logging (if logging is enabled) |
 | <a name="output_pull_through_cache_role_arn"></a> [pull\_through\_cache\_role\_arn](#output\_pull\_through\_cache\_role\_arn) | The ARN of the IAM role used for pull-through cache operations (if enabled) |
 | <a name="output_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#output\_pull\_through\_cache\_rules) | List of pull-through cache rules (if enabled) |
+| <a name="output_pull_request_rules"></a> [pull\_request\_rules](#output\_pull\_request\_rules) | Information about pull request rules configuration |
 | <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | ID of the ECR registry |
 | <a name="output_registry_scan_filters"></a> [registry\_scan\_filters](#output\_registry\_scan\_filters) | The configured scan filters for filtering scan results (e.g., by vulnerability severity) |
 | <a name="output_registry_scanning_configuration_arn"></a> [registry\_scanning\_configuration\_arn](#output\_registry\_scanning\_configuration\_arn) | The ARN of the ECR registry scanning configuration (if enhanced scanning is enabled) |

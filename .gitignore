@@ -41,3 +41,6 @@ terraform.rc
 
 # Cursor rules
 .cursor/rules/*
+
+# Downloaded files
+*.zip
