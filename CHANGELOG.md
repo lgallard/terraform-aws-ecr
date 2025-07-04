@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.16.0...0.16.1) (2025-07-04)
+
+
+### Bug Fixes
+
+* Refactor ECR module to enhance pull request rules and monitoring capa… ([#86](https://github.com/lgallard/terraform-aws-ecr/issues/86)) ([231c753](https://github.com/lgallard/terraform-aws-ecr/commit/231c753b7b9f848fd153f2fbdb41a4be591725a3))
+
 ## [0.16.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.15.0...0.16.0) (2025-07-04)
 
 
