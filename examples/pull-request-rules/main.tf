@@ -75,19 +75,19 @@ module "ecr_with_pr_rules" {
 
   # Enhanced security configuration
   enable_registry_scanning = true
-  registry_scan_type      = "ENHANCED"
-  enable_secret_scanning  = true
+  registry_scan_type       = "ENHANCED"
+  enable_secret_scanning   = true
 
   # Lifecycle policy for compliance
   lifecycle_policy_template = "compliance"
 
   # Monitoring and logging
-  enable_monitoring      = true
-  enable_logging        = true
-  log_retention_days    = 90
+  enable_monitoring  = true
+  enable_logging     = true
+  log_retention_days = 90
 
   tags = {
-    Environment         = var.environment
+    Environment        = var.environment
     Project            = "ECR-PR-Rules-Example"
     SecurityLevel      = "High"
     ComplianceRequired = "true"

@@ -355,14 +355,14 @@ variable "enable_default_tags" {
 variable "default_tags_template" {
   description = <<-EOT
     Predefined default tag template to use for organizational compliance.
-    
+
     Available templates:
     - "basic": Minimal set of organizational tags (CreatedBy, ManagedBy, Environment)
     - "cost_allocation": Tags optimized for cost tracking and allocation
     - "compliance": Tags required for security and compliance frameworks
     - "sdlc": Tags for software development lifecycle management
     - null: Use custom default_tags configuration
-    
+
     When using a template, it will override individual default_tags_* variables.
   EOT
   type        = string
@@ -448,7 +448,7 @@ variable "tag_key_case" {
   description = <<-EOT
     Enforce consistent casing for tag keys.
     - "PascalCase": Capitalize first letter of each word (Environment, CostCenter)
-    - "camelCase": First word lowercase, subsequent words capitalized (environment, costCenter)  
+    - "camelCase": First word lowercase, subsequent words capitalized (environment, costCenter)
     - "snake_case": All lowercase with underscores (environment, cost_center)
     - "kebab-case": All lowercase with hyphens (environment, cost-center)
     - null: No case enforcement (preserve original casing)
@@ -760,14 +760,14 @@ variable "pull_request_rules" {
   description = <<-EOT
     List of pull request rule configurations for enhanced governance.
     Each rule defines governance controls for container image changes.
-    
+
     Rule structure:
     - name: Unique identifier for the rule
     - type: Type of rule (approval, security_scan, ci_integration)
     - enabled: Whether the rule is active
     - conditions: Conditions that trigger the rule
     - actions: Actions to take when rule conditions are met
-    
+
     Example:
     [
       {
@@ -796,33 +796,33 @@ variable "pull_request_rules" {
       allowed_principals      = optional(list(string), [])
     }), {})
     actions = optional(object({
-      require_approval_count  = optional(number, 1)
-      notification_topic_arn  = optional(string)
+      require_approval_count = optional(number, 1)
+      notification_topic_arn = optional(string)
       webhook_url            = optional(string)
       block_on_failure       = optional(bool, true)
       approval_timeout_hours = optional(number, 24)
     }), {})
   }))
   default = []
-  
+
   validation {
     condition = alltrue([
       for rule in var.pull_request_rules : contains(["approval", "security_scan", "ci_integration"], rule.type)
     ])
     error_message = "Pull request rule type must be one of: approval, security_scan, ci_integration."
   }
-  
+
   validation {
     condition = alltrue([
-      for rule in var.pull_request_rules : 
+      for rule in var.pull_request_rules :
       rule.conditions.severity_threshold == null || contains(["LOW", "MEDIUM", "HIGH", "CRITICAL"], rule.conditions.severity_threshold)
     ])
     error_message = "Severity threshold must be one of: LOW, MEDIUM, HIGH, CRITICAL."
   }
-  
+
   validation {
     condition = alltrue([
-      for rule in var.pull_request_rules : 
+      for rule in var.pull_request_rules :
       rule.actions.require_approval_count == null || (rule.actions.require_approval_count >= 1 && rule.actions.require_approval_count <= 10)
     ])
     error_message = "Approval count must be between 1 and 10."

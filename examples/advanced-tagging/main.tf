@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 1.0"
+}
+
 # Advanced Tagging Strategies Example
 # This example demonstrates the new advanced tagging features including:
 # - Default tag templates for different organizational needs
@@ -17,13 +21,13 @@ module "ecr_cost_allocation" {
   # Advanced tagging configuration
   enable_default_tags      = true
   default_tags_template    = "cost_allocation"
-  default_tags_environment = "production"
-  default_tags_owner       = "platform-team"
-  default_tags_project     = "user-service"
-  default_tags_cost_center = "engineering-cc-001"
+  default_tags_environment = var.environment
+  default_tags_owner       = var.owner_team
+  default_tags_project     = var.project_name
+  default_tags_cost_center = var.cost_center
 
   # Enable tag validation for compliance
-  enable_tag_validation = true
+  enable_tag_validation = var.enable_strict_validation
   required_tags         = ["Environment", "Owner", "Project", "CostCenter"]
 
   # Tag normalization for consistency
@@ -86,7 +90,7 @@ module "ecr_compliance" {
   }
 }
 
-# SDLC-focused example  
+# SDLC-focused example
 module "ecr_sdlc" {
   source = "../.."
 

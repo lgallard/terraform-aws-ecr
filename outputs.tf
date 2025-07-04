@@ -224,11 +224,11 @@ output "pull_request_rules" {
         arn  = func.arn
       }
     ]
-  } : {
-    enabled               = false
-    rules                = []
+    } : {
+    enabled                = false
+    rules                  = []
     notification_topic_arn = null
-    event_rules          = []
-    webhook_functions    = []
+    event_rules            = []
+    webhook_functions      = []
   }
 }

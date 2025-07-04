@@ -93,7 +93,7 @@ The example includes a comprehensive tagging strategy for:
    ```bash
    # Get repository details
    aws ecr describe-repositories --repository-names simple-ecr-repo
-   
+
    # Test image push (requires Docker)
    aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
    ```
@@ -134,7 +134,7 @@ terraform destroy
 After trying this simple example, you might want to explore:
 
 - **Complete Example**: See `../complete/` for advanced features like policies and lifecycle management
-- **Lifecycle Policies**: Check `../lifecycle-policies/` for image retention strategies  
+- **Lifecycle Policies**: Check `../lifecycle-policies/` for image retention strategies
 - **Advanced Tagging**: Explore `../advanced-tagging/` for organizational tagging patterns
 - **Security Features**: Review `../enhanced-security/` for additional security controls
 

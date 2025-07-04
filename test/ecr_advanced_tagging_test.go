@@ -148,7 +148,7 @@ func TestEcrTagValidation(t *testing.T) {
 
 	// Note: This test would require a separate fixture that has validation
 	// enabled but missing required tags. For now, we test the success case.
-	
+
 	// In a real implementation, you would create a separate fixture
 	// that intentionally fails validation and test that terraform plan fails
 	t.Skip("Tag validation failure test requires separate fixture")
