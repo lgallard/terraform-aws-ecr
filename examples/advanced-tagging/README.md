@@ -10,7 +10,7 @@ The module provides several predefined tag templates for common organizational n
 
 - **`cost_allocation`**: Optimized for cost tracking and financial reporting
 - **`compliance`**: Includes tags required for security and compliance frameworks
-- **`sdlc`**: Tags for software development lifecycle management  
+- **`sdlc`**: Tags for software development lifecycle management
 - **`basic`**: Minimal set of organizational tags
 
 ### 2. Tag Validation
@@ -39,9 +39,9 @@ normalize_tag_values = true
 ```hcl
 module "ecr_cost_allocation" {
   source = "../.."
-  
+
   name = "cost-allocation-repo"
-  
+
   # Use cost allocation template
   enable_default_tags = true
   default_tags_template = "cost_allocation"
@@ -59,9 +59,9 @@ module "ecr_cost_allocation" {
 ```hcl
 module "ecr_compliance" {
   source = "../.."
-  
+
   name = "compliance-repo"
-  
+
   # Use compliance template with strict validation
   enable_default_tags = true
   default_tags_template = "compliance"
@@ -80,9 +80,9 @@ module "ecr_compliance" {
 ```hcl
 module "ecr_sdlc" {
   source = "../.."
-  
+
   name = "sdlc-repo"
-  
+
   # Use SDLC template with camelCase normalization
   enable_default_tags = true
   default_tags_template = "sdlc"
@@ -97,9 +97,9 @@ module "ecr_sdlc" {
 ```hcl
 module "ecr_custom_defaults" {
   source = "../.."
-  
+
   name = "custom-defaults-repo"
-  
+
   # Custom default tags without template
   enable_default_tags = true
   default_tags_template = null
@@ -116,9 +116,9 @@ module "ecr_custom_defaults" {
 ```hcl
 module "ecr_legacy_compatible" {
   source = "../.."
-  
+
   name = "legacy-repo"
-  
+
   # Disable advanced tagging for legacy compatibility
   enable_default_tags = false
   enable_tag_validation = false
@@ -188,7 +188,7 @@ terraform output cost_allocation_applied_tags
 The examples demonstrate different levels of tag validation:
 
 - **Strict validation**: Compliance example requires all organizational tags
-- **Basic validation**: Custom defaults example requires only essential tags  
+- **Basic validation**: Custom defaults example requires only essential tags
 - **No validation**: Legacy example for backward compatibility
 
 ## Tag Normalization Examples

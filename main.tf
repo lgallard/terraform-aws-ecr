@@ -88,6 +88,186 @@ locals {
   repository_name = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].name : aws_ecr_repository.repo[0].name
   repository_url  = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].repository_url : aws_ecr_repository.repo[0].repository_url
   registry_id     = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].registry_id : aws_ecr_repository.repo[0].registry_id
+
+  # ----------------------------------------------------------
+  # Pull Request Rules Configuration (moved here to fix dependency order)
+  # ----------------------------------------------------------
+
+  # Only create resources if pull request rules are enabled
+  pull_request_rules_enabled = var.enable_pull_request_rules && length(var.pull_request_rules) > 0
+
+  # Filter enabled rules
+  enabled_pull_request_rules = [
+    for rule in var.pull_request_rules : rule if rule.enabled
+  ]
+
+  # ----------------------------------------------------------
+  # Repository Policy Management
+  # ----------------------------------------------------------
+
+  # Helper function to build IAM policy conditions properly
+  # This avoids the merge() issue by building conditions as a list and then converting to map
+  build_policy_conditions = {
+    for rule in local.enabled_pull_request_rules : rule.name => {
+      # Tag pattern conditions
+      tag_conditions = try(length(rule.conditions.tag_patterns), 0) > 0 ? {
+        StringLike = {
+          "ecr:ImageTag" = rule.conditions.tag_patterns
+        }
+      } : {}
+
+      # Approval status condition for approval rules
+      approval_conditions = rule.type == "approval" ? {
+        StringEquals = {
+          "ecr:ResourceTag/ApprovalStatus" = "approved"
+        }
+      } : {}
+
+      # Security scan completion condition
+      scan_completion_conditions = try(rule.conditions.require_scan_completion, false) ? {
+        StringEquals = {
+          "ecr:ResourceTag/ScanStatus" = "completed"
+        }
+      } : {}
+
+      # Severity threshold condition
+      severity_conditions = try(rule.conditions.severity_threshold, null) != null ? {
+        StringLike = {
+          "ecr:ResourceTag/MaxSeverity" = (
+            rule.conditions.severity_threshold == "LOW" ? ["LOW", "MEDIUM", "HIGH", "CRITICAL"] :
+            rule.conditions.severity_threshold == "MEDIUM" ? ["MEDIUM", "HIGH", "CRITICAL"] :
+            rule.conditions.severity_threshold == "HIGH" ? ["HIGH", "CRITICAL"] :
+            ["CRITICAL"]
+          )
+        }
+      } : {}
+
+      # CI validation status
+      ci_conditions = rule.type == "ci_integration" ? {
+        StringEquals = {
+          "ecr:ResourceTag/CIStatus" = "passed"
+        }
+      } : {}
+    }
+  }
+
+  # Merge multiple pull request rule policies into a single policy
+  merged_pull_request_policy = local.pull_request_rules_enabled && length(local.enabled_pull_request_rules) > 0 ? jsonencode({
+    Version = "2012-10-17"
+    Statement = flatten([
+      for rule in local.enabled_pull_request_rules : concat(
+        # Allow read operations for all authenticated users
+        [{
+          Sid    = "AllowRead${replace(title(rule.name), "-", "")}"
+          Effect = "Allow"
+          Principal = {
+            AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          }
+          Action = [
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:BatchGetImage",
+            "ecr:BatchCheckLayerAvailability",
+            "ecr:DescribeRepositories",
+            "ecr:DescribeImages",
+            "ecr:DescribeImageScanFindings",
+            "ecr:GetRepositoryPolicy",
+            "ecr:ListImages"
+          ]
+        }],
+        # Conditional write operations based on rule type and configuration
+        rule.type == "approval" && try(rule.actions.block_on_failure, true) ? [
+          {
+            Sid    = "AllowPushWithApproval${replace(title(rule.name), "-", "")}"
+            Effect = "Allow"
+            Principal = {
+              AWS = try(length(rule.conditions.allowed_principals), 0) > 0 ? rule.conditions.allowed_principals : [
+                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+              ]
+            }
+            Action = [
+              "ecr:PutImage",
+              "ecr:InitiateLayerUpload",
+              "ecr:UploadLayerPart",
+              "ecr:CompleteLayerUpload",
+              "ecr:TagResource"
+            ]
+            Condition = merge(
+              local.build_policy_conditions[rule.name].tag_conditions,
+              local.build_policy_conditions[rule.name].approval_conditions,
+              local.build_policy_conditions[rule.name].scan_completion_conditions
+            )
+          }
+        ] : [],
+        # Security scan enforcement for security_scan type rules
+        rule.type == "security_scan" && try(rule.actions.block_on_failure, true) ? [
+          {
+            Sid    = "AllowPushWithSecurityScan${replace(title(rule.name), "-", "")}"
+            Effect = "Allow"
+            Principal = {
+              AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            }
+            Action = [
+              "ecr:PutImage",
+              "ecr:InitiateLayerUpload",
+              "ecr:UploadLayerPart",
+              "ecr:CompleteLayerUpload"
+            ]
+            Condition = merge(
+              local.build_policy_conditions[rule.name].tag_conditions,
+              local.build_policy_conditions[rule.name].scan_completion_conditions,
+              local.build_policy_conditions[rule.name].severity_conditions
+            )
+          }
+        ] : [],
+        # CI integration rules - typically non-blocking but can be configured
+        rule.type == "ci_integration" && try(rule.actions.block_on_failure, false) ? [
+          {
+            Sid    = "AllowPushWithCIValidation${replace(title(rule.name), "-", "")}"
+            Effect = "Allow"
+            Principal = {
+              AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            }
+            Action = [
+              "ecr:PutImage",
+              "ecr:InitiateLayerUpload",
+              "ecr:UploadLayerPart",
+              "ecr:CompleteLayerUpload"
+            ]
+            Condition = merge(
+              local.build_policy_conditions[rule.name].tag_conditions,
+              local.build_policy_conditions[rule.name].ci_conditions
+            )
+          }
+        ] : [],
+        # Default allow for non-blocking rules or when no specific conditions apply
+        !try(rule.actions.block_on_failure, true) ? [
+          {
+            Sid    = "AllowPushNonBlocking${replace(title(rule.name), "-", "")}"
+            Effect = "Allow"
+            Principal = {
+              AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            }
+            Action = [
+              "ecr:PutImage",
+              "ecr:InitiateLayerUpload",
+              "ecr:UploadLayerPart",
+              "ecr:CompleteLayerUpload"
+            ]
+          }
+        ] : []
+      )
+    ])
+  }) : null
+
+  # Final repository policy with proper precedence:
+  # 1. Manual policy (var.policy) takes highest precedence
+  # 2. Merged pull request rules policy takes second precedence
+  # 3. No policy (null) if neither is provided
+  final_repository_policy = (
+    var.policy != null ? var.policy :
+    local.merged_pull_request_policy != null ? local.merged_pull_request_policy :
+    null
+  )
 }
 
 # ----------------------------------------------------------
@@ -96,9 +276,9 @@ locals {
 
 # Repository policy - controls access to the repository
 resource "aws_ecr_repository_policy" "policy" {
-  count      = var.policy == null ? 0 : 1
+  count      = local.final_repository_policy != null ? 1 : 0
   repository = local.repository_name
-  policy     = var.policy
+  policy     = local.final_repository_policy
 
   # Ensure policy is applied after repository is created
   depends_on = [
@@ -119,6 +299,8 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
     aws_ecr_repository.repo_protected
   ]
 }
+
+
 
 # ----------------------------------------------------------
 # AWS Identity and KMS Resources
@@ -942,109 +1124,11 @@ resource "aws_cloudwatch_metric_alarm" "security_findings" {
 # Pull Request Rules Implementation
 # ----------------------------------------------------------
 
-# Local values for pull request rules
+# Local values for pull request rules (additional event handling)
 locals {
-  # Only create resources if pull request rules are enabled
-  pull_request_rules_enabled = var.enable_pull_request_rules && length(var.pull_request_rules) > 0
-  
-  # Filter enabled rules
-  enabled_pull_request_rules = [
-    for rule in var.pull_request_rules : rule if rule.enabled
-  ]
-  
-  # Generate repository policies for pull request rules
-  pull_request_rule_policies = local.pull_request_rules_enabled ? [
-    for rule in local.enabled_pull_request_rules : {
-      name = rule.name
-      type = rule.type
-      policy_json = jsonencode({
-        Version = "2012-10-17"
-        Statement = concat(
-          # Base permissions for all rule types
-          [
-            merge(
-              {
-                Sid    = "AllowBasicRepositoryAccess"
-                Effect = "Allow"
-                Principal = {
-                  AWS = rule.conditions != null && length(try(rule.conditions.allowed_principals, [])) > 0 ? rule.conditions.allowed_principals : ["*"]
-                }
-                Action = [
-                  "ecr:GetDownloadUrlForLayer",
-                  "ecr:BatchGetImage",
-                  "ecr:BatchCheckLayerAvailability",
-                  "ecr:DescribeRepositories",
-                  "ecr:DescribeImages",
-                  "ecr:DescribeImageScanFindings"
-                ]
-              },
-              rule.conditions != null && length(try(rule.conditions.tag_patterns, [])) > 0 ? {
-                Condition = {
-                  StringLike = {
-                    "ecr:ResourceTag/*" = rule.conditions.tag_patterns
-                  }
-                }
-              } : {}
-            )
-          ],
-            }
-          ],
-          # Additional permissions based on rule type
-          rule.type == "approval" ? [
-            {
-              Sid    = "RestrictPushWithoutApproval"
-              Effect = "Deny"
-              Principal = "*"
-              Action = [
-                "ecr:PutImage",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload"
-              ]
-              Condition = {
-                StringNotEquals = {
-                  "ecr:ResourceTag/ApprovalStatus" = "approved"
-                }
-              }
-            }
-          ] : [],
-          rule.type == "security_scan" ? [
-            {
-              Sid    = "RequireSecurityScanCompletion"
-              Effect = "Deny"
-              Principal = "*"
-              Action = [
-                "ecr:BatchGetImage",
-                "ecr:GetDownloadUrlForLayer"
-              ]
-              Condition = {
-                StringNotEquals = {
-                  "ecr:ResourceTag/ScanStatus" = "completed"
-                }
-              }
-            }
-          ] : [],
-          rule.type == "ci_integration" ? [
-            {
-              Sid    = "RequireCIValidation"
-              Effect = "Deny"
-              Principal = "*"
-              Action = [
-                "ecr:BatchGetImage",
-                "ecr:GetDownloadUrlForLayer"
-              ]
-              Condition = {
-                StringNotEquals = {
-                  "ecr:ResourceTag/CIStatus" = "passed"
-                }
-              }
-            }
-          ] : []
-        )
-      })
-    }
-  ] : []
-  
+  # Note: Core pull request rules locals are now defined in the repository output references section
+  # This maintains backward compatibility while fixing the null policy and multiple rule issues
+
   # Generate CloudWatch Event Rules for pull request rules
   pull_request_rule_events = local.pull_request_rules_enabled ? [
     for rule in local.enabled_pull_request_rules : {
@@ -1054,19 +1138,19 @@ locals {
         source      = ["aws.ecr"]
         detail-type = ["ECR Image Action"]
         detail = {
-          action-type = ["PUSH"]
+          action-type     = ["PUSH"]
           repository-name = [local.repository_name]
         }
       })
-      notification_topic_arn = rule.actions.notification_topic_arn
-      webhook_url = rule.actions.webhook_url
-    } if rule.actions.notification_topic_arn != null || rule.actions.webhook_url != null
+      notification_topic_arn = try(rule.actions.notification_topic_arn, null)
+      webhook_url            = try(rule.actions.webhook_url, null)
+    } if try(rule.actions.notification_topic_arn, null) != null || try(rule.actions.webhook_url, null) != null
   ] : []
 
   # Filtered events for SNS notifications with original indices
   pull_request_rule_events_sns = local.pull_request_rules_enabled ? [
     for i, event in local.pull_request_rule_events : {
-      event = event
+      event          = event
       original_index = i
     }
     if event.notification_topic_arn != null
@@ -1075,7 +1159,7 @@ locals {
   # Filtered events for webhook notifications with original indices
   pull_request_rule_events_webhook = local.pull_request_rules_enabled ? [
     for i, event in local.pull_request_rule_events : {
-      event = event
+      event          = event
       original_index = i
     }
     if event.webhook_url != null
@@ -1085,12 +1169,12 @@ locals {
 # SNS Topic for pull request rule notifications (if not provided)
 resource "aws_sns_topic" "pull_request_rules" {
   count = local.pull_request_rules_enabled && length([
-    for rule in local.enabled_pull_request_rules : rule 
-    if rule.actions.notification_topic_arn == null && rule.actions.webhook_url == null
+    for rule in local.enabled_pull_request_rules : rule
+    if try(rule.actions.notification_topic_arn, null) == null && try(rule.actions.webhook_url, null) == null
   ]) > 0 ? 1 : 0
-  
+
   name = "${var.name}-ecr-pull-request-rules"
-  
+
   tags = merge(
     local.final_tags,
     {
@@ -1103,17 +1187,17 @@ resource "aws_sns_topic" "pull_request_rules" {
 # CloudWatch Event Rule for pull request rules
 resource "aws_cloudwatch_event_rule" "pull_request_rules" {
   count = length(local.pull_request_rule_events)
-  
+
   name        = "${var.name}-ecr-pr-rule-${local.pull_request_rule_events[count.index].name}"
   description = "Pull request rule event for ${local.pull_request_rule_events[count.index].name}"
-  
+
   event_pattern = local.pull_request_rule_events[count.index].event_pattern
-  
+
   tags = merge(
     local.final_tags,
     {
-      Name = "${var.name}-ecr-pr-rule-${local.pull_request_rule_events[count.index].name}"
-      Type = "PullRequestRule"
+      Name     = "${var.name}-ecr-pr-rule-${local.pull_request_rule_events[count.index].name}"
+      Type     = "PullRequestRule"
       RuleType = local.pull_request_rule_events[count.index].type
     }
   )
@@ -1122,11 +1206,11 @@ resource "aws_cloudwatch_event_rule" "pull_request_rules" {
 # CloudWatch Event Target for SNS notifications
 resource "aws_cloudwatch_event_target" "pull_request_rules_sns" {
   count = length(local.pull_request_rule_events_sns)
-  
+
   rule      = aws_cloudwatch_event_rule.pull_request_rules[local.pull_request_rule_events_sns[count.index].original_index].name
   target_id = "SendToSNS"
   arn       = local.pull_request_rule_events_sns[count.index].event.notification_topic_arn
-  
+
   input_transformer {
     input_paths = {
       repository = "$.detail.repository-name"
@@ -1147,11 +1231,11 @@ resource "aws_cloudwatch_event_target" "pull_request_rules_sns" {
 # CloudWatch Event Target for webhook notifications
 resource "aws_cloudwatch_event_target" "pull_request_rules_webhook" {
   count = length(local.pull_request_rule_events_webhook)
-  
+
   rule      = aws_cloudwatch_event_rule.pull_request_rules[local.pull_request_rule_events_webhook[count.index].original_index].name
   target_id = "SendToWebhook"
   arn       = aws_lambda_function.pull_request_rules_webhook[count.index].arn
-  
+
   input_transformer {
     input_paths = {
       repository = "$.detail.repository-name"
@@ -1160,10 +1244,10 @@ resource "aws_cloudwatch_event_target" "pull_request_rules_webhook" {
       time       = "$.time"
     }
     input_template = jsonencode({
-      repository = "<repository>"
-      tag        = "<tag>"
-      action     = "<action>"
-      time       = "<time>"
+      repository  = "<repository>"
+      tag         = "<tag>"
+      action      = "<action>"
+      time        = "<time>"
       webhook_url = local.pull_request_rule_events_webhook[count.index].event.webhook_url
     })
   }
@@ -1172,20 +1256,20 @@ resource "aws_cloudwatch_event_target" "pull_request_rules_webhook" {
 # Lambda function for webhook notifications
 resource "aws_lambda_function" "pull_request_rules_webhook" {
   count = length(local.pull_request_rule_events_webhook)
-  
-  filename         = data.archive_file.pull_request_rules_webhook[count.index].output_path
-  function_name    = "${var.name}-ecr-pr-webhook-${local.pull_request_rule_events_webhook[count.index].event.name}"
-  role            = aws_iam_role.pull_request_rules_webhook[count.index].arn
-  handler         = "index.handler"
-  runtime         = "python3.9"
-  timeout         = 30
-  
+
+  filename      = data.archive_file.pull_request_rules_webhook[count.index].output_path
+  function_name = "${var.name}-ecr-pr-webhook-${local.pull_request_rule_events_webhook[count.index].event.name}"
+  role          = aws_iam_role.pull_request_rules_webhook[count.index].arn
+  handler       = "index.handler"
+  runtime       = "python3.9"
+  timeout       = 30
+
   environment {
     variables = {
       WEBHOOK_URL = local.pull_request_rule_events_webhook[count.index].event.webhook_url
     }
   }
-  
+
   tags = merge(
     local.final_tags,
     {
@@ -1198,25 +1282,25 @@ resource "aws_lambda_function" "pull_request_rules_webhook" {
 # Lambda function code for webhook notifications
 data "archive_file" "pull_request_rules_webhook" {
   count = length(local.pull_request_rule_events_webhook)
-  
+
   type        = "zip"
   output_path = "/tmp/pull_request_rules_webhook_${local.pull_request_rule_events_webhook[count.index].event.name}.zip"
-  
+
   source {
-    content = <<-EOF
+    content  = <<-EOF
 import json
 import urllib3
 import os
 
 def handler(event, context):
     webhook_url = os.environ['WEBHOOK_URL']
-    
+
     # Extract event details
     detail = event.get('detail', {})
     repository = detail.get('repository-name', '')
     tag = detail.get('image-tag', '')
     action = detail.get('action-type', '')
-    
+
     # Create webhook payload
     payload = {
         'repository': repository,
@@ -1225,7 +1309,7 @@ def handler(event, context):
         'time': event.get('time', ''),
         'message': f'ECR pull request rule triggered for repository {repository}, tag {tag}'
     }
-    
+
     # Send webhook
     http = urllib3.PoolManager()
     response = http.request(
@@ -1234,7 +1318,7 @@ def handler(event, context):
         body=json.dumps(payload),
         headers={'Content-Type': 'application/json'}
     )
-    
+
     return {
         'statusCode': 200,
         'body': json.dumps('Webhook sent successfully')
@@ -1247,9 +1331,9 @@ EOF
 # IAM role for Lambda webhook function
 resource "aws_iam_role" "pull_request_rules_webhook" {
   count = length(local.pull_request_rule_events_webhook)
-  
+
   name = "${var.name}-ecr-pr-webhook-role-${local.pull_request_rule_events_webhook[count.index].event.name}"
-  
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -1262,7 +1346,7 @@ resource "aws_iam_role" "pull_request_rules_webhook" {
       }
     ]
   })
-  
+
   tags = merge(
     local.final_tags,
     {
@@ -1275,7 +1359,7 @@ resource "aws_iam_role" "pull_request_rules_webhook" {
 # IAM policy attachment for Lambda webhook function
 resource "aws_iam_role_policy_attachment" "pull_request_rules_webhook" {
   count = length(local.pull_request_rule_events_webhook)
-  
+
   role       = aws_iam_role.pull_request_rules_webhook[count.index].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
@@ -1283,7 +1367,7 @@ resource "aws_iam_role_policy_attachment" "pull_request_rules_webhook" {
 # Lambda permission for CloudWatch Events
 resource "aws_lambda_permission" "pull_request_rules_webhook" {
   count = length(local.pull_request_rule_events_webhook)
-  
+
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.pull_request_rules_webhook[count.index].function_name

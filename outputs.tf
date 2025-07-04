@@ -19,6 +19,11 @@ output "registry_id" {
   value       = local.registry_id
 }
 
+output "repository_policy_exists" {
+  description = "Whether a repository policy exists for this ECR repository"
+  value       = local.final_repository_policy != null
+}
+
 output "lifecycle_policy" {
   description = "The lifecycle policy JSON applied to the repository (if any)"
   value       = local.final_lifecycle_policy
@@ -211,6 +216,10 @@ output "pull_request_rules" {
         enabled = rule.enabled
       }
     ]
+    policies = {
+      merged_policy_applied = local.merged_pull_request_policy != null
+      final_policy_source   = var.policy != null ? "manual" : (local.merged_pull_request_policy != null ? "pull_request_rules" : "none")
+    }
     notification_topic_arn = try(aws_sns_topic.pull_request_rules[0].arn, null)
     event_rules = [
       for rule in aws_cloudwatch_event_rule.pull_request_rules : {
@@ -224,11 +233,15 @@ output "pull_request_rules" {
         arn  = func.arn
       }
     ]
-  } : {
-    enabled               = false
-    rules                = []
+    } : {
+    enabled = false
+    rules   = []
+    policies = {
+      merged_policy_applied = false
+      final_policy_source   = "none"
+    }
     notification_topic_arn = null
-    event_rules          = []
-    webhook_functions    = []
+    event_rules            = []
+    webhook_functions      = []
   }
 }

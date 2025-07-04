@@ -326,12 +326,12 @@ module "ecr" {
 
   # Enable comprehensive monitoring
   enable_monitoring = true
-  
+
   # Security-focused thresholds
   monitoring_threshold_storage         = 10   # Monitor storage growth
   monitoring_threshold_api_calls       = 500  # Detect unusual API activity
   monitoring_threshold_security_findings = 0  # Zero tolerance for vulnerabilities
-  
+
   # Immediate security alerts
   create_sns_topic      = true
   sns_topic_name        = "security-alerts"
@@ -344,7 +344,7 @@ module "ecr" {
   enable_registry_scanning = true
   registry_scan_type      = "ENHANCED"
   enable_secret_scanning  = true
-  
+
   # Audit logging
   enable_logging     = true
   log_retention_days = 365  # Extended retention for compliance
@@ -384,13 +384,13 @@ module "ecr" {
   image_tag_mutability = "IMMUTABLE"
   scan_on_push         = true
   encryption_type      = "KMS"
-  
+
   # Comprehensive monitoring
   enable_monitoring                    = true
   monitoring_threshold_security_findings = 0
   create_sns_topic                     = true
   sns_topic_subscribers               = ["security@company.com"]
-  
+
   # Enhanced scanning with zero tolerance
   enable_registry_scanning = true
   enable_secret_scanning  = true
@@ -400,10 +400,10 @@ module "ecr" {
       values = ["CRITICAL", "HIGH"]
     }
   ]
-  
+
   # Strict lifecycle policy for security
   lifecycle_policy_template = "compliance"
-  
+
   # Extended audit logging
   enable_logging     = true
   log_retention_days = 2555  # 7 years for compliance

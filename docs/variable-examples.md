@@ -197,12 +197,12 @@ module "ecr" {
 
   # Enable monitoring
   enable_monitoring = true
-  
+
   # Configure thresholds
   monitoring_threshold_storage         = 10    # Alert when storage exceeds 10 GB
   monitoring_threshold_api_calls       = 1000  # Alert when API calls exceed 1000/minute
   monitoring_threshold_security_findings = 5   # Alert when security findings exceed 5
-  
+
   # Create SNS topic for notifications
   create_sns_topic      = true
   sns_topic_name        = "ecr-alerts"
@@ -220,11 +220,11 @@ module "ecr" {
   name   = "production-app"
 
   enable_monitoring = true
-  
+
   # Use existing SNS topic
   create_sns_topic = false
   sns_topic_name   = "existing-alerts-topic"
-  
+
   # Custom thresholds for production
   monitoring_threshold_storage         = 50    # Higher threshold for production
   monitoring_threshold_api_calls       = 2000  # Higher API threshold

@@ -37,12 +37,12 @@ module "ecr_with_pr_rules" {
 
   repository_name = "my-application"
   environment     = "production"
-  
+
   notification_emails = [
     "security-team@company.com",
     "devops-team@company.com"
   ]
-  
+
   ci_webhook_url = "https://ci.company.com/webhook/ecr"
 }
 ```

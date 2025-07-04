@@ -172,7 +172,7 @@ Deploy specific repositories:
 # Deploy only the basic repository
 terraform apply -target=module.ecr
 
-# Deploy only the protected repository  
+# Deploy only the protected repository
 terraform apply -target=module.ecr_protected
 
 # Deploy only the enhanced lifecycle repository
@@ -205,7 +205,7 @@ The example provides comprehensive outputs for monitoring and integration:
 
 ### Basic Repository Outputs
 - `repository_url`: ECR repository URL for Docker operations
-- `repository_arn`: ARN for IAM policy references  
+- `repository_arn`: ARN for IAM policy references
 - `repository_name`: Repository name for CLI operations
 - `registry_id`: AWS account's registry ID
 
@@ -220,7 +220,7 @@ The example provides comprehensive outputs for monitoring and integration:
 
 ### Enhanced Lifecycle Outputs
 - `enhanced_lifecycle_repository_url`: Enhanced repository URL
-- `enhanced_lifecycle_repository_arn`: Enhanced repository ARN  
+- `enhanced_lifecycle_repository_arn`: Enhanced repository ARN
 - `enhanced_lifecycle_policy`: Generated lifecycle policy JSON
 
 ## Testing
@@ -254,7 +254,7 @@ terraform apply -var='tags={"CostCenter":"Engineering","Project":"MyApp"}'
 # Production deployment
 terraform apply -var='environment=production' -var='retention_days=365'
 
-# Development deployment  
+# Development deployment
 terraform apply -var='environment=development' -var='retention_days=30'
 ```
 
