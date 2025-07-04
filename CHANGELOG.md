@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.14.0...0.15.0) (2025-07-04)
+
+
+### Features
+
+* Add CloudWatch monitoring and alerting for ECR repositories ([#80](https://github.com/lgallard/terraform-aws-ecr/issues/80)) ([a123105](https://github.com/lgallard/terraform-aws-ecr/commit/a123105d93a23e8543ee53fd0f24f01e75828e93))
+
 ## [0.14.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.13.0...0.14.0) (2025-07-03)
 
 
