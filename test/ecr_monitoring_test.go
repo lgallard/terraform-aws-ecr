@@ -119,24 +119,24 @@ func TestEcrMonitoring(t *testing.T) {
 
 	// Test CloudWatch alarms exist
 	cloudWatchClient := cloudwatch.New(sess)
-	
+
 	// Get storage usage alarm
 	storageAlarmName := fmt.Sprintf("%s-ecr-storage-usage", repoName)
 	describeAlarmsInput := &cloudwatch.DescribeAlarmsInput{
 		AlarmNames: []*string{aws.String(storageAlarmName)},
 	}
-	
+
 	describeAlarmsOutput, err := cloudWatchClient.DescribeAlarms(describeAlarmsInput)
 	require.NoError(t, err)
 	require.Len(t, describeAlarmsOutput.MetricAlarms, 1)
-	
+
 	storageAlarm := describeAlarmsOutput.MetricAlarms[0]
 	assert.Equal(t, storageAlarmName, *storageAlarm.AlarmName)
 	assert.Equal(t, "AWS/ECR", *storageAlarm.Namespace)
 	assert.Equal(t, "RepositorySizeInBytes", *storageAlarm.MetricName)
 	assert.Equal(t, "GreaterThanThreshold", *storageAlarm.ComparisonOperator)
 	assert.Equal(t, float64(5*1024*1024*1024), *storageAlarm.Threshold) // 5GB in bytes
-	
+
 	// Check alarm dimensions
 	require.Len(t, storageAlarm.Dimensions, 1)
 	assert.Equal(t, "RepositoryName", *storageAlarm.Dimensions[0].Name)
@@ -147,11 +147,11 @@ func TestEcrMonitoring(t *testing.T) {
 	describeAlarmsInput = &cloudwatch.DescribeAlarmsInput{
 		AlarmNames: []*string{aws.String(apiCallsAlarmName)},
 	}
-	
+
 	describeAlarmsOutput, err = cloudWatchClient.DescribeAlarms(describeAlarmsInput)
 	require.NoError(t, err)
 	require.Len(t, describeAlarmsOutput.MetricAlarms, 1)
-	
+
 	apiCallsAlarm := describeAlarmsOutput.MetricAlarms[0]
 	assert.Equal(t, apiCallsAlarmName, *apiCallsAlarm.AlarmName)
 	assert.Equal(t, "AWS/ECR", *apiCallsAlarm.Namespace)
@@ -163,11 +163,11 @@ func TestEcrMonitoring(t *testing.T) {
 	describeAlarmsInput = &cloudwatch.DescribeAlarmsInput{
 		AlarmNames: []*string{aws.String(securityAlarmName)},
 	}
-	
+
 	describeAlarmsOutput, err = cloudWatchClient.DescribeAlarms(describeAlarmsInput)
 	require.NoError(t, err)
 	require.Len(t, describeAlarmsOutput.MetricAlarms, 1)
-	
+
 	securityAlarm := describeAlarmsOutput.MetricAlarms[0]
 	assert.Equal(t, securityAlarmName, *securityAlarm.AlarmName)
 	assert.Equal(t, "AWS/ECR", *securityAlarm.Namespace)
@@ -176,8 +176,25 @@ func TestEcrMonitoring(t *testing.T) {
 
 	// Verify all alarms have SNS topic configured as action
 	for _, alarm := range []*cloudwatch.MetricAlarm{storageAlarm, apiCallsAlarm, securityAlarm} {
-		assert.Contains(t, alarm.AlarmActions, &outputSNSTopicArn)
-		assert.Contains(t, alarm.OKActions, &outputSNSTopicArn)
+		// Check AlarmActions contains the SNS topic ARN
+		alarmActionFound := false
+		for _, action := range alarm.AlarmActions {
+			if *action == outputSNSTopicArn {
+				alarmActionFound = true
+				break
+			}
+		}
+		assert.True(t, alarmActionFound, "AlarmActions should contain SNS topic ARN")
+
+		// Check OKActions contains the SNS topic ARN
+		okActionFound := false
+		for _, action := range alarm.OKActions {
+			if *action == outputSNSTopicArn {
+				okActionFound = true
+				break
+			}
+		}
+		assert.True(t, okActionFound, "OKActions should contain SNS topic ARN")
 	}
 }
 
@@ -233,7 +250,7 @@ func TestEcrMonitoringDisabled(t *testing.T) {
 
 	// Test CloudWatch alarms do not exist
 	cloudWatchClient := cloudwatch.New(sess)
-	
+
 	// Check that no alarms exist for this repository
 	alarmNames := []string{
 		fmt.Sprintf("%s-ecr-storage-usage", repoName),
@@ -245,7 +262,7 @@ func TestEcrMonitoringDisabled(t *testing.T) {
 		describeAlarmsInput := &cloudwatch.DescribeAlarmsInput{
 			AlarmNames: []*string{aws.String(alarmName)},
 		}
-		
+
 		describeAlarmsOutput, err := cloudWatchClient.DescribeAlarms(describeAlarmsInput)
 		require.NoError(t, err)
 		assert.Len(t, describeAlarmsOutput.MetricAlarms, 0, "Alarm %s should not exist", alarmName)
