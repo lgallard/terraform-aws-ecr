@@ -143,6 +143,17 @@ locals {
     var.custom_policy_statements
   )
 
+  # Group conditions by test type for each statement to handle multiple conditions with same test
+  grouped_conditions = [
+    for stmt in local.all_policy_statements : {
+      for test_type in distinct([for condition in try(stmt.conditions, []) : condition.test]) :
+      test_type => [
+        for condition in try(stmt.conditions, []) :
+        condition if condition.test == test_type
+      ]
+    }
+  ]
+
   # Generate policy document
   generated_policy = {
     Version = "2012-10-17"
@@ -156,9 +167,10 @@ locals {
         Action   = stmt.actions
         Resource = try(stmt.resources, ["*"])
         Condition = length(try(stmt.conditions, [])) > 0 ? {
-          for condition in stmt.conditions :
-          condition.test => {
-            (condition.variable) = condition.values
+          for test_type, conditions in local.grouped_conditions[index(local.all_policy_statements, stmt)] :
+          test_type => {
+            for condition in conditions :
+            condition.variable => condition.values
           }
         } : null
       }
