@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.3](https://github.com/lgallard/terraform-aws-ecr/compare/0.16.2...0.16.3) (2025-07-06)
+
+
+### Bug Fixes
+
+* Add pull-request-title-pattern to control release title formatting ([#91](https://github.com/lgallard/terraform-aws-ecr/issues/91)) ([b99b9cf](https://github.com/lgallard/terraform-aws-ecr/commit/b99b9cfc1bc2c7c5fcac82dc933be44dcc66e5ff))
+
 ## [0.16.2](https://github.com/lgallard/terraform-aws-ecr/compare/0.16.1...0.16.2) (2025-07-06)
 
 
