@@ -325,6 +325,184 @@ variable "kms_key" {
 }
 
 # ----------------------------------------------------------
+# Enhanced KMS Configuration
+# ----------------------------------------------------------
+
+variable "kms_deletion_window_in_days" {
+  description = <<-EOT
+    Number of days to wait before actually deleting the KMS key (7-30 days).
+    Only applicable when a new KMS key is created by this module.
+    Defaults to 7 days for faster cleanup in development environments.
+  EOT
+  type        = number
+  default     = 7
+  validation {
+    condition     = var.kms_deletion_window_in_days >= 7 && var.kms_deletion_window_in_days <= 30
+    error_message = "KMS deletion window must be between 7 and 30 days."
+  }
+}
+
+variable "kms_enable_key_rotation" {
+  description = <<-EOT
+    Whether to enable automatic key rotation for the KMS key.
+    Only applicable when a new KMS key is created by this module.
+    Defaults to true for enhanced security.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "kms_key_rotation_period" {
+  description = <<-EOT
+    Number of days between automatic key rotations (90-2555 days).
+    Only applicable when a new KMS key is created and key rotation is enabled.
+    If not specified, AWS uses the default rotation period.
+  EOT
+  type        = number
+  default     = null
+  validation {
+    condition = var.kms_key_rotation_period == null ? true : (
+      var.kms_key_rotation_period >= 90 && var.kms_key_rotation_period <= 2555
+    )
+    error_message = "KMS key rotation period must be between 90 and 2555 days if specified."
+  }
+}
+
+variable "kms_multi_region" {
+  description = <<-EOT
+    Whether to create a multi-region KMS key.
+    Multi-region keys can be used in multiple AWS regions without cross-region calls.
+    Only applicable when a new KMS key is created by this module.
+    Defaults to false.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "kms_additional_principals" {
+  description = <<-EOT
+    List of additional IAM principals (ARNs) to grant access to the KMS key.
+    These principals will be granted encrypt/decrypt permissions.
+    Only applicable when a new KMS key is created by this module.
+    Example: ["arn:aws:iam::123456789012:role/CrossAccountRole"]
+  EOT
+  type        = list(string)
+  default     = []
+  validation {
+    condition = alltrue([
+      for arn in var.kms_additional_principals :
+      can(regex("^arn:aws:iam::[0-9]{12}:(root|user/.+|role/.+)$", arn))
+    ])
+    error_message = "All additional principals must be valid IAM ARNs."
+  }
+}
+
+variable "kms_key_administrators" {
+  description = <<-EOT
+    List of IAM principals (ARNs) who can administer the KMS key.
+    These principals will have full administrative access to the key.
+    Only applicable when a new KMS key is created by this module.
+    Example: ["arn:aws:iam::123456789012:role/KMSAdminRole"]
+  EOT
+  type        = list(string)
+  default     = []
+}
+
+variable "kms_key_users" {
+  description = <<-EOT
+    List of IAM principals (ARNs) who can use the KMS key for cryptographic operations.
+    These principals will be granted encrypt/decrypt permissions.
+    Only applicable when a new KMS key is created by this module.
+    Example: ["arn:aws:iam::123456789012:role/ECRAccessRole"]
+  EOT
+  type        = list(string)
+  default     = []
+}
+
+variable "kms_custom_policy_statements" {
+  description = <<-EOT
+    List of custom policy statements to add to the KMS key policy.
+    These statements will be added to the generated policy.
+    Only applicable when a new KMS key is created by this module.
+
+    Example:
+    [
+      {
+        sid    = "AllowCloudTrailEncryption"
+        effect = "Allow"
+        principals = {
+          type        = "Service"
+          identifiers = ["cloudtrail.amazonaws.com"]
+        }
+        actions = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ]
+        resources = ["*"]
+      }
+    ]
+  EOT
+  type = list(object({
+    sid    = optional(string)
+    effect = string
+    principals = optional(object({
+      type        = string
+      identifiers = list(string)
+    }))
+    actions   = list(string)
+    resources = optional(list(string), ["*"])
+    conditions = optional(list(object({
+      test     = string
+      variable = string
+      values   = list(string)
+    })), [])
+  }))
+  default = []
+}
+
+variable "kms_custom_policy" {
+  description = <<-EOT
+    Complete custom policy JSON for the KMS key.
+    If specified, this will override all other policy settings.
+    Only applicable when a new KMS key is created by this module.
+    Use with caution as this bypasses all built-in security policies.
+  EOT
+  type        = string
+  default     = null
+}
+
+variable "kms_alias_name" {
+  description = <<-EOT
+    Custom alias name for the KMS key (without 'alias/' prefix).
+    If not provided, uses 'ecr/{repository_name}'.
+    Only applicable when a new KMS key is created by this module.
+    Example: "production/ecr/my-app"
+  EOT
+  type        = string
+  default     = null
+  validation {
+    condition = var.kms_alias_name == null ? true : (
+      can(regex("^[a-zA-Z0-9:/_-]+$", var.kms_alias_name)) && !startswith(var.kms_alias_name, "alias/")
+    )
+    error_message = "KMS alias name must contain only alphanumeric characters, colons, underscores, and hyphens, and must not start with 'alias/'."
+  }
+}
+
+variable "kms_tags" {
+  description = <<-EOT
+    Additional tags specific to KMS resources.
+    These tags will be applied to the KMS key and alias in addition to the general tags.
+    Only applicable when a new KMS key is created by this module.
+    Example: { KeyType = "ECR-Encryption", Rotation = "Enabled" }
+  EOT
+  type        = map(string)
+  default     = {}
+}
+
+# ----------------------------------------------------------
 # Tagging
 # ----------------------------------------------------------
 

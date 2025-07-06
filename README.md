@@ -51,6 +51,7 @@ Check the [examples](examples/) directory for examples including:
 - **Enhanced Security** - Advanced security features with scanning and compliance
 - **Lifecycle Policies** - Image lifecycle management with predefined templates
 - **Pull Request Rules** - Governance and approval workflows for container images
+- **Enhanced KMS** - Advanced KMS key configuration with custom policies and access control
 
 ### Simple example
 This example creates an ECR registry using few parameters
@@ -1203,6 +1204,8 @@ Here are key security best practices for your ECR repositories:
    encryption_type = "KMS"
    ```
 
+   For advanced KMS configuration options, see the [Enhanced KMS Configuration](#enhanced-kms-configuration) section below.
+
 7. **Configure Lifecycle Policies**: Automatically clean up old or unused images.
 
 For a comprehensive guide with detailed examples, see [docs/security-best-practices.md](docs/security-best-practices.md).
@@ -1220,6 +1223,172 @@ Common issues and solutions when working with ECR repositories:
 | Lifecycle policy not working | Check rule syntax and priorities |
 
 For detailed troubleshooting steps, see [docs/troubleshooting.md](docs/troubleshooting.md).
+
+## Enhanced KMS Configuration
+
+This module includes a dedicated KMS submodule that provides enhanced encryption configuration options for ECR repositories. The KMS submodule offers fine-grained control over key policies, rotation settings, and access management.
+
+### Basic KMS Configuration
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name            = "my-encrypted-repo"
+  encryption_type = "KMS"
+
+  # Enhanced KMS options
+  kms_deletion_window_in_days = 14
+  kms_enable_key_rotation     = true
+  kms_key_rotation_period     = 90
+
+  tags = {
+    Environment = "production"
+  }
+}
+```
+
+### Advanced KMS Configuration
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name            = "production-app"
+  encryption_type = "KMS"
+
+  # Advanced KMS configuration
+  kms_deletion_window_in_days = 30
+  kms_enable_key_rotation     = true
+  kms_key_rotation_period     = 180
+  kms_multi_region           = true
+
+  # Access control
+  kms_key_administrators = [
+    "arn:aws:iam::123456789012:role/KMSAdminRole"
+  ]
+
+  kms_key_users = [
+    "arn:aws:iam::123456789012:role/ECRAccessRole",
+    "arn:aws:iam::123456789012:role/CI-CD-Role"
+  ]
+
+  # Custom alias
+  kms_alias_name = "production/ecr/my-app"
+
+  # KMS-specific tags
+  kms_tags = {
+    KeyType      = "ECR-Encryption"
+    Rotation     = "180-days"
+    MultiRegion  = "true"
+  }
+}
+```
+
+### Custom KMS Policy
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name            = "custom-policy-repo"
+  encryption_type = "KMS"
+
+  # Custom policy statements
+  kms_custom_policy_statements = [
+    {
+      sid    = "AllowCrossAccountAccess"
+      effect = "Allow"
+      principals = {
+        type        = "AWS"
+        identifiers = ["arn:aws:iam::TRUSTED-ACCOUNT:root"]
+      }
+      actions = [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ]
+      conditions = [
+        {
+          test     = "StringEquals"
+          variable = "kms:ViaService"
+          values   = ["ecr.us-east-1.amazonaws.com"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### KMS Configuration Options
+
+| Feature | Variable | Description |
+|---------|----------|-------------|
+| **Key Management** | `kms_deletion_window_in_days` | Days before key deletion (7-30) |
+| | `kms_enable_key_rotation` | Enable automatic rotation |
+| | `kms_key_rotation_period` | Rotation period in days (90-2555) |
+| | `kms_multi_region` | Create multi-region key |
+| **Access Control** | `kms_key_administrators` | Principals with full key access |
+| | `kms_key_users` | Principals with encrypt/decrypt access |
+| | `kms_additional_principals` | Additional principals with basic access |
+| **Policy Customization** | `kms_custom_policy_statements` | Additional policy statements |
+| | `kms_custom_policy` | Complete custom policy JSON |
+| **Naming & Tagging** | `kms_alias_name` | Custom alias name |
+| | `kms_tags` | KMS-specific tags |
+
+### Benefits of Enhanced KMS Configuration
+
+1. **Granular Access Control**: Define specific roles for key administration and usage
+2. **Flexible Rotation**: Configure custom rotation periods for compliance requirements
+3. **Multi-Region Support**: Create keys that work across multiple AWS regions
+4. **Custom Policies**: Add specific policy statements or use completely custom policies
+5. **Enhanced Monitoring**: KMS-specific tags for better cost tracking and compliance
+6. **Cross-Account Access**: Secure sharing of encrypted repositories across AWS accounts
+
+### Example: Production Setup
+
+```hcl
+module "production_ecr" {
+  source = "lgallard/ecr/aws"
+
+  name = "production-microservice"
+
+  # Production-grade KMS encryption
+  encryption_type = "KMS"
+  kms_deletion_window_in_days = 30  # Longer window for recovery
+  kms_enable_key_rotation     = true
+  kms_key_rotation_period     = 90   # Quarterly rotation
+  kms_multi_region           = true  # Multi-region deployment
+
+  # Role-based access control
+  kms_key_administrators = [
+    "arn:aws:iam::123456789012:role/ProductionKMSAdmins"
+  ]
+
+  kms_key_users = [
+    "arn:aws:iam::123456789012:role/ProductionECRAccess",
+    "arn:aws:iam::123456789012:role/GitHubActions-Production"
+  ]
+
+  # Production tagging strategy
+  tags = {
+    Environment = "production"
+    Application = "microservice"
+    Owner       = "platform-team"
+    CostCenter  = "engineering"
+  }
+
+  kms_tags = {
+    EncryptionType = "ECR-Production"
+    ComplianceLevel = "SOC2"
+    BackupRequired = "true"
+  }
+}
+```
+
+For complete examples and advanced use cases, see the [enhanced-kms example](examples/enhanced-kms/).
 
 ## Variable Usage Examples
 
@@ -1354,7 +1523,9 @@ For more details on tests, see the [test directory README](test/README.md).
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_kms"></a> [kms](#module\_kms) | ./modules/kms | n/a |
 
 ## Resources
 
@@ -1382,8 +1553,6 @@ No modules.
 | [aws_iam_role_policy.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.pull_through_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_kms_alias.kms_key_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
-| [aws_kms_key.kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_lambda_function.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_permission.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_sns_topic.ecr_monitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
@@ -1417,7 +1586,18 @@ No modules.
 | <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to delete the repository even if it contains images.<br/>Setting this to true will delete all images in the repository when the repository is deleted.<br/>Use with caution as this operation cannot be undone.<br/>Defaults to false for safety. | `bool` | `false` | no |
 | <a name="input_image_scanning_configuration"></a> [image\_scanning\_configuration](#input\_image\_scanning\_configuration) | Configuration block that defines image scanning configuration for the repository.<br/>Set to null to use the scan\_on\_push variable setting.<br/>Example: { scan\_on\_push = true } | <pre>object({<br/>    scan_on_push = bool<br/>  })</pre> | `null` | no |
 | <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository.<br/>- MUTABLE: Image tags can be overwritten<br/>- IMMUTABLE: Image tags cannot be overwritten (recommended for production)<br/>Defaults to MUTABLE to maintain backwards compatibility. | `string` | `"MUTABLE"` | no |
+| <a name="input_kms_additional_principals"></a> [kms\_additional\_principals](#input\_kms\_additional\_principals) | List of additional IAM principals (ARNs) to grant access to the KMS key.<br/>These principals will be granted encrypt/decrypt permissions.<br/>Only applicable when a new KMS key is created by this module.<br/>Example: ["arn:aws:iam::123456789012:role/CrossAccountRole"] | `list(string)` | `[]` | no |
+| <a name="input_kms_alias_name"></a> [kms\_alias\_name](#input\_kms\_alias\_name) | Custom alias name for the KMS key (without 'alias/' prefix).<br/>If not provided, uses 'ecr/{repository\_name}'.<br/>Only applicable when a new KMS key is created by this module.<br/>Example: "production/ecr/my-app" | `string` | `null` | no |
+| <a name="input_kms_custom_policy"></a> [kms\_custom\_policy](#input\_kms\_custom\_policy) | Complete custom policy JSON for the KMS key.<br/>If specified, this will override all other policy settings.<br/>Only applicable when a new KMS key is created by this module.<br/>Use with caution as this bypasses all built-in security policies. | `string` | `null` | no |
+| <a name="input_kms_custom_policy_statements"></a> [kms\_custom\_policy\_statements](#input\_kms\_custom\_policy\_statements) | List of custom policy statements to add to the KMS key policy.<br/>These statements will be added to the generated policy.<br/>Only applicable when a new KMS key is created by this module.<br/><br/>Example:<br/>[<br/>  {<br/>    sid    = "AllowCloudTrailEncryption"<br/>    effect = "Allow"<br/>    principals = {<br/>      type        = "Service"<br/>      identifiers = ["cloudtrail.amazonaws.com"]<br/>    }<br/>    actions = [<br/>      "kms:Encrypt",<br/>      "kms:Decrypt",<br/>      "kms:ReEncrypt*",<br/>      "kms:GenerateDataKey*",<br/>      "kms:DescribeKey"<br/>    ]<br/>    resources = ["*"]<br/>  }<br/>] | <pre>list(object({<br/>    sid    = optional(string)<br/>    effect = string<br/>    principals = optional(object({<br/>      type        = string<br/>      identifiers = list(string)<br/>    }))<br/>    actions   = list(string)<br/>    resources = optional(list(string), ["*"])<br/>    conditions = optional(list(object({<br/>      test     = string<br/>      variable = string<br/>      values   = list(string)<br/>    })), [])<br/>  }))</pre> | `[]` | no |
+| <a name="input_kms_deletion_window_in_days"></a> [kms\_deletion\_window\_in\_days](#input\_kms\_deletion\_window\_in\_days) | Number of days to wait before actually deleting the KMS key (7-30 days).<br/>Only applicable when a new KMS key is created by this module.<br/>Defaults to 7 days for faster cleanup in development environments. | `number` | `7` | no |
+| <a name="input_kms_enable_key_rotation"></a> [kms\_enable\_key\_rotation](#input\_kms\_enable\_key\_rotation) | Whether to enable automatic key rotation for the KMS key.<br/>Only applicable when a new KMS key is created by this module.<br/>Defaults to true for enhanced security. | `bool` | `true` | no |
 | <a name="input_kms_key"></a> [kms\_key](#input\_kms\_key) | The ARN of an existing KMS key to use for repository encryption.<br/>Only applicable when encryption\_type is set to 'KMS'.<br/>If not specified when using KMS encryption, a new KMS key will be created. | `string` | `null` | no |
+| <a name="input_kms_key_administrators"></a> [kms\_key\_administrators](#input\_kms\_key\_administrators) | List of IAM principals (ARNs) who can administer the KMS key.<br/>These principals will have full administrative access to the key.<br/>Only applicable when a new KMS key is created by this module.<br/>Example: ["arn:aws:iam::123456789012:role/KMSAdminRole"] | `list(string)` | `[]` | no |
+| <a name="input_kms_key_rotation_period"></a> [kms\_key\_rotation\_period](#input\_kms\_key\_rotation\_period) | Number of days between automatic key rotations (90-2555 days).<br/>Only applicable when a new KMS key is created and key rotation is enabled.<br/>If not specified, AWS uses the default rotation period. | `number` | `null` | no |
+| <a name="input_kms_key_users"></a> [kms\_key\_users](#input\_kms\_key\_users) | List of IAM principals (ARNs) who can use the KMS key for cryptographic operations.<br/>These principals will be granted encrypt/decrypt permissions.<br/>Only applicable when a new KMS key is created by this module.<br/>Example: ["arn:aws:iam::123456789012:role/ECRAccessRole"] | `list(string)` | `[]` | no |
+| <a name="input_kms_multi_region"></a> [kms\_multi\_region](#input\_kms\_multi\_region) | Whether to create a multi-region KMS key.<br/>Multi-region keys can be used in multiple AWS regions without cross-region calls.<br/>Only applicable when a new KMS key is created by this module.<br/>Defaults to false. | `bool` | `false` | no |
+| <a name="input_kms_tags"></a> [kms\_tags](#input\_kms\_tags) | Additional tags specific to KMS resources.<br/>These tags will be applied to the KMS key and alias in addition to the general tags.<br/>Only applicable when a new KMS key is created by this module.<br/>Example: { KeyType = "ECR-Encryption", Rotation = "Enabled" } | `map(string)` | `{}` | no |
 | <a name="input_lifecycle_expire_tagged_after_days"></a> [lifecycle\_expire\_tagged\_after\_days](#input\_lifecycle\_expire\_tagged\_after\_days) | Number of days after which tagged images should be expired.<br/>If specified, creates a lifecycle policy rule to delete tagged images older than N days.<br/>This rule applies to ALL tagged images regardless of lifecycle\_tag\_prefixes\_to\_keep.<br/>Use with caution as this may delete images you want to keep long-term.<br/>Range: 1-3650 days (up to 10 years). Set to null to disable this rule.<br/><br/>Examples:<br/>- 90: Delete tagged images after 90 days (production default)<br/>- 30: Delete tagged images after 30 days (cost optimization)<br/>- 365: Delete tagged images after 1 year (compliance) | `number` | `null` | no |
 | <a name="input_lifecycle_expire_untagged_after_days"></a> [lifecycle\_expire\_untagged\_after\_days](#input\_lifecycle\_expire\_untagged\_after\_days) | Number of days after which untagged images should be expired.<br/>If specified, creates a lifecycle policy rule to delete untagged images older than N days.<br/>This rule applies to ALL untagged images regardless of lifecycle\_tag\_prefixes\_to\_keep.<br/>Range: 1-3650 days (up to 10 years). Set to null to disable this rule.<br/><br/>Examples:<br/>- 7: Delete untagged images after 7 days (development default)<br/>- 14: Delete untagged images after 14 days (production default)<br/>- 1: Delete untagged images daily (aggressive cleanup) | `number` | `null` | no |
 | <a name="input_lifecycle_keep_latest_n_images"></a> [lifecycle\_keep\_latest\_n\_images](#input\_lifecycle\_keep\_latest\_n\_images) | Number of latest images to keep in the repository.<br/>If specified, creates a lifecycle policy rule to keep only the N most recent images.<br/>When used with lifecycle\_tag\_prefixes\_to\_keep, only applies to images with those tag prefixes.<br/>Other images are not affected by this rule and may be managed by other rules.<br/>Range: 1-10000 images. Set to null to disable this rule.<br/><br/>Examples:<br/>- 30: Keep the 30 most recent images<br/>- 100: Keep the 100 most recent images (production default)<br/>- 10: Keep only 10 images (cost optimization) | `number` | `null` | no |
@@ -1454,7 +1634,10 @@ No modules.
 | <a name="output_applied_tags"></a> [applied\_tags](#output\_applied\_tags) | The final set of tags applied to all resources after normalization and default tag application |
 | <a name="output_cloudwatch_alarms"></a> [cloudwatch\_alarms](#output\_cloudwatch\_alarms) | List of CloudWatch alarms created for ECR monitoring |
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | The ARN of the CloudWatch Log Group used for ECR logs (if logging is enabled) |
+| <a name="output_kms_alias_arn"></a> [kms\_alias\_arn](#output\_kms\_alias\_arn) | The ARN of the KMS alias (if created by this module). |
+| <a name="output_kms_configuration"></a> [kms\_configuration](#output\_kms\_configuration) | Complete KMS configuration information. |
 | <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | The ARN of the KMS key used for repository encryption. |
+| <a name="output_kms_key_id"></a> [kms\_key\_id](#output\_kms\_key\_id) | The globally unique identifier for the KMS key (if created by this module). |
 | <a name="output_lifecycle_policy"></a> [lifecycle\_policy](#output\_lifecycle\_policy) | The lifecycle policy JSON applied to the repository (if any) |
 | <a name="output_logging_role_arn"></a> [logging\_role\_arn](#output\_logging\_role\_arn) | The ARN of the IAM role used for ECR logging (if logging is enabled) |
 | <a name="output_monitoring_status"></a> [monitoring\_status](#output\_monitoring\_status) | Status of CloudWatch monitoring configuration |
