@@ -30,8 +30,37 @@ output "lifecycle_policy" {
 }
 
 output "kms_key_arn" {
-  value       = local.should_create_kms_key ? aws_kms_key.kms_key[0].arn : var.kms_key
+  value       = local.should_create_kms_key ? module.kms[0].key_arn : var.kms_key
   description = "The ARN of the KMS key used for repository encryption."
+}
+
+output "kms_key_id" {
+  value       = local.should_create_kms_key ? module.kms[0].key_id : null
+  description = "The globally unique identifier for the KMS key (if created by this module)."
+}
+
+output "kms_alias_arn" {
+  value       = local.should_create_kms_key ? module.kms[0].alias_arn : null
+  description = "The ARN of the KMS alias (if created by this module)."
+}
+
+output "kms_configuration" {
+  value = local.should_create_kms_key ? {
+    key_created   = true
+    key_arn       = module.kms[0].key_arn
+    key_id        = module.kms[0].key_id
+    alias_arn     = module.kms[0].alias_arn
+    alias_name    = module.kms[0].alias_name
+    configuration = module.kms[0].configuration_summary
+    } : {
+    key_created   = false
+    key_arn       = var.kms_key
+    key_id        = null
+    alias_arn     = null
+    alias_name    = null
+    configuration = null
+  }
+  description = "Complete KMS configuration information."
 }
 
 # Logging outputs

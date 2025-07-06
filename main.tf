@@ -309,89 +309,36 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
 # Get current AWS account ID
 data "aws_caller_identity" "current" {}
 
-# KMS key
-resource "aws_kms_key" "kms_key" {
-  count                   = local.should_create_kms_key ? 1 : 0
-  description             = "KMS key for ECR repository ${var.name} encryption"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-  multi_region            = false
+# Get current AWS region
+data "aws_region" "current" {}
 
-  tags = merge(
-    local.final_tags,
-    {
-      Name = "${var.name}-kms-key"
-    }
-  )
+# KMS key submodule
+module "kms" {
+  count  = local.should_create_kms_key ? 1 : 0
+  source = "./modules/kms"
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "Enable IAM Root User Permissions"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-        Action = [
-          "kms:Create*",
-          "kms:Describe*",
-          "kms:Enable*",
-          "kms:List*",
-          "kms:Put*",
-          "kms:Update*",
-          "kms:Revoke*",
-          "kms:Disable*",
-          "kms:Get*",
-          "kms:Delete*",
-          "kms:ScheduleKeyDeletion",
-          "kms:CancelKeyDeletion"
-        ]
-        Resource = "*"
-      },
-      {
-        Sid    = "Allow ECR Service to use the key"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecr.amazonaws.com"
-        }
-        Action = [
-          "kms:Decrypt",
-          "kms:GenerateDataKey",
-          "kms:Encrypt"
-        ]
-        Resource = "*"
-      },
-      {
-        Sid    = "Allow Key Users"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-        Action = [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:ReEncrypt*",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
+  name           = var.name
+  aws_account_id = data.aws_caller_identity.current.account_id
 
-# KMS alias for easier key identification and management
-resource "aws_kms_alias" "kms_key_alias" {
-  count         = local.should_create_kms_key ? 1 : 0
-  name          = "alias/ecr/${var.name}"
-  target_key_id = aws_kms_key.kms_key[0].key_id
+  # Enhanced configuration options
+  deletion_window_in_days = var.kms_deletion_window_in_days
+  enable_key_rotation     = var.kms_enable_key_rotation
+  key_rotation_period     = var.kms_key_rotation_period
+  multi_region            = var.kms_multi_region
 
-  # Note: AWS KMS aliases don't support tags directly,
-  # but we're adding a lifecycle rule to prevent unnecessary updates
-  lifecycle {
-    create_before_destroy = true
-  }
+  # Policy configuration
+  additional_principals    = var.kms_additional_principals
+  key_administrators       = var.kms_key_administrators
+  key_users                = var.kms_key_users
+  custom_policy_statements = var.kms_custom_policy_statements
+  custom_policy            = var.kms_custom_policy
+
+  # Alias configuration
+  alias_name = var.kms_alias_name
+
+  # Tagging
+  tags     = local.final_tags
+  kms_tags = var.kms_tags
 }
 
 # ----------------------------------------------------------
@@ -774,7 +721,7 @@ locals {
   encryption_configuration = (
     var.encryption_type == "KMS" ? [{
       encryption_type = "KMS"
-      kms_key         = local.should_create_kms_key ? aws_kms_key.kms_key[0].arn : var.kms_key
+      kms_key         = local.should_create_kms_key ? module.kms[0].key_arn : var.kms_key
     }] : []
   )
 
@@ -919,9 +866,6 @@ locals {
 # ----------------------------------------------------------
 # CloudWatch Monitoring and Alerting
 # ----------------------------------------------------------
-
-# Get current AWS region for CloudWatch metrics
-data "aws_region" "current" {}
 
 # SNS Topic for CloudWatch alarm notifications
 resource "aws_sns_topic" "ecr_monitoring" {
