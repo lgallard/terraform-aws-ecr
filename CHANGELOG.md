@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.2](https://github.com/lgallard/terraform-aws-ecr/compare/0.16.1...0.16.2) (2025-07-06)
+
+
+### Bug Fixes
+
+* Remove v prefix from release titles to match tag format ([#89](https://github.com/lgallard/terraform-aws-ecr/issues/89)) ([2ccfec7](https://github.com/lgallard/terraform-aws-ecr/commit/2ccfec74dd384e31f43f98fbfa337ba4a5225c96))
+
 ## [0.16.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.16.0...0.16.1) (2025-07-04)
 
 
