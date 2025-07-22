@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.16.3...0.17.0) (2025-07-22)
+
+
+### Features
+
+* Add comment-based Claude Code Review triggers (like Cursor's Bugbot) ([#97](https://github.com/lgallard/terraform-aws-ecr/issues/97)) ([2da2479](https://github.com/lgallard/terraform-aws-ecr/commit/2da2479bce6f6b6d3a0ad3cdcd886337ded150ae))
+
 ## [0.16.3](https://github.com/lgallard/terraform-aws-ecr/compare/0.16.2...0.16.3) (2025-07-06)
 
 
