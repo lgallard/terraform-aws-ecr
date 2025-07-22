@@ -8,43 +8,13 @@ on:
     types: [created]
   pull_request:
     types: [opened, synchronize]
-    # Only run automatically for specific conditions
-    if: |
-      github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
-      contains(github.event.pull_request.title, '[auto-review]')
-
-  # Manual trigger via workflow dispatch
-  workflow_dispatch:
-    inputs:
-      review_mode:
-        description: 'Review mode to run'
-        required: true
-        default: 'review'
-        type: choice
-        options:
-          - 'review'
-          - 'hunt'
-          - 'analyze'
-          - 'security'
-          - 'performance'
-      focus_areas:
-        description: 'Specific areas to focus on (comma-separated)'
-        required: false
-        type: string
-        default: 'code-quality,security,performance'
-      verbose_output:
-        description: 'Enable verbose output'
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   claude-review:
-    # Only run on comment triggers or workflow dispatch
+    # Only run on comment triggers or specific PR conditions
     if: |
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'claude')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, 'claude')) ||
-      (github.event_name == 'workflow_dispatch') ||
       (github.event_name == 'pull_request' && (
         github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
         contains(github.event.pull_request.title, '[auto-review]')
@@ -119,12 +89,7 @@ jobs:
             fi
           fi
 
-          # Override with workflow dispatch inputs if present
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "mode=${{ github.event.inputs.review_mode }}" >> $GITHUB_OUTPUT
-            echo "focus=${{ github.event.inputs.focus_areas }}" >> $GITHUB_OUTPUT
-            echo "verbose=${{ github.event.inputs.verbose_output }}" >> $GITHUB_OUTPUT
-          fi
+
 
       - name: Run Claude Code Review
         id: claude-review
@@ -188,24 +153,3 @@ jobs:
 
           # Use sticky comments for better UX
           use_sticky_comment: true
-
-          # Skip review for certain conditions
-          if: |
-            !contains(github.event.pull_request.title, '[skip-review]') &&
-            !contains(github.event.pull_request.title, '[WIP]')
-
-      - name: Review Summary
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "🎯 Review completed!"
-          echo "Mode: ${{ steps.parse-command.outputs.mode }}"
-          echo "Focus areas: ${{ steps.parse-command.outputs.focus }}"
-          echo "Verbose: ${{ steps.parse-command.outputs.verbose }}"
-          echo ""
-          echo "💡 Usage tips:"
-          echo "- Comment 'claude hunt' for quick bug detection"
-          echo "- Comment 'claude analyze' for deep technical review"
-          echo "- Comment 'claude security' for security-focused review"
-          echo "- Comment 'claude performance' for optimization review"
-          echo "- Comment 'claude review' for comprehensive review"
-          echo "- Add 'verbose' to any command for detailed output"
