@@ -58,7 +58,7 @@ jobs:
 
       - name: Create trigger comment
         run: |
-          COMMENT_BODY="claude ${{ github.event.inputs.review_mode || 'hunt' }}"
+          COMMENT_BODY="codebot ${{ github.event.inputs.review_mode || 'hunt' }}"
           if [ "${{ github.event.inputs.verbose }}" = "true" ]; then
             COMMENT_BODY="$COMMENT_BODY verbose"
           fi
@@ -70,8 +70,8 @@ jobs:
   claude:
     # Only run on comment triggers or specific PR conditions
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, 'claude')) ||
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'codebot')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, 'codebot')) ||
       (github.event_name == 'pull_request' && (
         github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
         contains(github.event.pull_request.title, '[auto-review]')
@@ -106,28 +106,28 @@ jobs:
             COMMENT="$COMMENT_BODY"
 
             # Extract command and parameters
-            if echo "$COMMENT" | grep -qi "claude hunt"; then
+            if echo "$COMMENT" | grep -qi "codebot hunt"; then
               echo "mode=hunt" >> $GITHUB_OUTPUT
               echo "focus=bugs,security,performance" >> $GITHUB_OUTPUT
               echo "verbose=false" >> $GITHUB_OUTPUT
-            elif echo "$COMMENT" | grep -qi "claude analyze"; then
+            elif echo "$COMMENT" | grep -qi "codebot analyze"; then
               echo "mode=analyze" >> $GITHUB_OUTPUT
               echo "focus=architecture,patterns,complexity" >> $GITHUB_OUTPUT
               echo "verbose=true" >> $GITHUB_OUTPUT
-            elif echo "$COMMENT" | grep -qi "claude security"; then
+            elif echo "$COMMENT" | grep -qi "codebot security"; then
               echo "mode=security" >> $GITHUB_OUTPUT
               echo "focus=security,vulnerabilities,compliance" >> $GITHUB_OUTPUT
               echo "verbose=true" >> $GITHUB_OUTPUT
-            elif echo "$COMMENT" | grep -qi "claude performance"; then
+            elif echo "$COMMENT" | grep -qi "codebot performance"; then
               echo "mode=performance" >> $GITHUB_OUTPUT
               echo "focus=performance,optimization,bottlenecks" >> $GITHUB_OUTPUT
               echo "verbose=true" >> $GITHUB_OUTPUT
-            elif echo "$COMMENT" | grep -qi "claude review"; then
+            elif echo "$COMMENT" | grep -qi "codebot review"; then
               echo "mode=review" >> $GITHUB_OUTPUT
               echo "focus=code-quality,security,performance" >> $GITHUB_OUTPUT
               echo "verbose=true" >> $GITHUB_OUTPUT
-            elif echo "$COMMENT" | grep -qi "claude"; then
-              # Default to hunt mode for simple "claude" command
+            elif echo "$COMMENT" | grep -qi "codebot"; then
+              # Default to hunt mode for simple "codebot" command
               echo "mode=hunt" >> $GITHUB_OUTPUT
               echo "focus=bugs,security,performance" >> $GITHUB_OUTPUT
               echo "verbose=false" >> $GITHUB_OUTPUT
@@ -224,12 +224,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📝 Available Commands" >> $GITHUB_STEP_SUMMARY
           echo "Comment any of these in PRs to trigger specific review types:" >> $GITHUB_STEP_SUMMARY
-          echo "- \`claude hunt\` - Quick bug detection (like Bugbot)" >> $GITHUB_STEP_SUMMARY
-          echo "- \`claude analyze\` - Deep technical analysis" >> $GITHUB_STEP_SUMMARY
-          echo "- \`claude security\` - Security-focused review" >> $GITHUB_STEP_SUMMARY
-          echo "- \`claude performance\` - Performance optimization review" >> $GITHUB_STEP_SUMMARY
-          echo "- \`claude review\` - Comprehensive review" >> $GITHUB_STEP_SUMMARY
-          echo "- \`claude\` - Defaults to hunt mode" >> $GITHUB_STEP_SUMMARY
+          echo "- \`codebot hunt\` - Quick bug detection (like Bugbot)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`codebot analyze\` - Deep technical analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- \`codebot security\` - Security-focused review" >> $GITHUB_STEP_SUMMARY
+          echo "- \`codebot performance\` - Performance optimization review" >> $GITHUB_STEP_SUMMARY
+          echo "- \`codebot review\` - Comprehensive review" >> $GITHUB_STEP_SUMMARY
+          echo "- \`codebot\` - Defaults to hunt mode" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🚀 Manual Triggers" >> $GITHUB_STEP_SUMMARY
           echo "Run via GitHub CLI:" >> $GITHUB_STEP_SUMMARY
