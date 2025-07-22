@@ -35,6 +35,38 @@ on:
         type: boolean
 
 jobs:
+  # Handle workflow_dispatch by creating a comment to trigger Claude
+  dispatch-trigger:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Find open PR
+        id: find-pr
+        run: |
+          # Find the most recent open PR for this branch
+          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --state open --head ${{ github.ref_name }} --json number --jq '.[0].number // empty')
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No open PR found for branch ${{ github.ref_name }}"
+            exit 1
+          fi
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create trigger comment
+        run: |
+          COMMENT_BODY="claude ${{ github.event.inputs.review_mode || 'hunt' }}"
+          if [ "${{ github.event.inputs.verbose }}" = "true" ]; then
+            COMMENT_BODY="$COMMENT_BODY verbose"
+          fi
+
+          gh pr comment ${{ steps.find-pr.outputs.pr_number }} --repo ${{ github.repository }} --body "$COMMENT_BODY"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   claude:
     # Only run on comment triggers or specific PR conditions
     if: |
@@ -43,8 +75,7 @@ jobs:
       (github.event_name == 'pull_request' && (
         github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
         contains(github.event.pull_request.title, '[auto-review]')
-      )) ||
-      github.event_name == 'workflow_dispatch'
+      ))
 
     runs-on: ubuntu-latest
     permissions:
@@ -84,13 +115,8 @@ jobs:
           echo "verbose=false" >> $GITHUB_OUTPUT
           echo "include_tests=true" >> $GITHUB_OUTPUT
 
-          # Handle workflow_dispatch inputs
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "mode=${{ github.event.inputs.review_mode || 'hunt' }}" >> $GITHUB_OUTPUT
-            echo "focus=${{ github.event.inputs.focus || 'bugs,security,performance' }}" >> $GITHUB_OUTPUT
-            echo "verbose=${{ github.event.inputs.verbose || 'false' }}" >> $GITHUB_OUTPUT
           # Parse comment content for commands
-          elif [ "${{ github.event_name }}" == "issue_comment" ] || [ "${{ github.event_name }}" == "pull_request_review_comment" ]; then
+          if [ "${{ github.event_name }}" == "issue_comment" ] || [ "${{ github.event_name }}" == "pull_request_review_comment" ]; then
             COMMENT="${{ github.event.comment.body }}"
 
             # Extract command and parameters
