@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.18.0...0.19.0) (2025-07-22)
+
+
+### Features
+
+* Change Claude Code Review trigger from 'claude' to 'codebot' ([d5fc663](https://github.com/lgallard/terraform-aws-ecr/commit/d5fc663123ab1707cff4d78afe90f694f81f89ec))
+
 ## [0.18.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.17.0...0.18.0) (2025-07-22)
 
 
