@@ -132,8 +132,8 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # Use Sequential Thinking MCP for better planning
-          allowed_tools: "Sequential-Thinking(plan,execute,analyze)"
+          # Optional: Add specific tools for running tests or linting
+          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
 
           # Dynamic prompt based on review mode
           direct_prompt: |
@@ -142,7 +142,6 @@ jobs:
             - Focus on critical bugs, security vulnerabilities, and performance issues
             - Prioritize high-impact problems over style suggestions
             - Be concise and actionable
-            - Use Sequential Thinking to systematically analyze the codebase
             - Provide clear, actionable feedback
             ') || '' }}
 
@@ -152,7 +151,6 @@ jobs:
             - Evaluate code complexity and maintainability
             - Assess test coverage and quality
             - Provide strategic recommendations
-            - Use Sequential Thinking for comprehensive analysis
             - Consider long-term implications and scalability
             ') || '' }}
 
@@ -162,7 +160,6 @@ jobs:
             - Check for proper authentication and authorization
             - Validate input sanitization and output encoding
             - Review encryption and key management
-            - Use Sequential Thinking to trace security flows
             - Assess data protection and privacy concerns
             ') || '' }}
 
@@ -172,7 +169,6 @@ jobs:
             - Analyze resource usage and efficiency
             - Check for memory leaks and scalability issues
             - Review caching strategies and database queries
-            - Use Sequential Thinking to analyze performance impact
             - Consider load testing and monitoring needs
             ') || '' }}
 
@@ -187,7 +183,7 @@ jobs:
             Focus areas: {0}
             Verbose output: {1}
 
-            Be constructive and helpful. Use Sequential Thinking for systematic analysis.
+            Be constructive and helpful.
             ', steps.parse-command.outputs.focus, steps.parse-command.outputs.verbose) || '' }}
 
           # Use sticky comments for better UX
