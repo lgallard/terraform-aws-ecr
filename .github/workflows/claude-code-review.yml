@@ -52,7 +52,6 @@ jobs:
       pull-requests: read
       issues: read
       id-token: write
-      reactions: write
 
     steps:
       - name: Add initial reaction
