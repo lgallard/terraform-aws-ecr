@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.18.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.17.0...0.18.0) (2025-07-22)
+
+
+### Features
+
+* Add test file with intentional issues for Claude Code Review testing ([9e6ac26](https://github.com/lgallard/terraform-aws-ecr/commit/9e6ac26063aafb48f78c01ff928e7d85f13e7658))
+
+
+### Bug Fixes
+
+* Remove emoji reactions that were failing due to permissions ([3bc77e4](https://github.com/lgallard/terraform-aws-ecr/commit/3bc77e497407285b9fefdcee1029cbd94e71d425))
+* Use environment variable for comment body to prevent shell injection ([9ab0398](https://github.com/lgallard/terraform-aws-ecr/commit/9ab03988581e0d7aff51ed816ff442e54fb1633d))
+
 ## [0.17.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.16.3...0.17.0) (2025-07-22)
 
 
