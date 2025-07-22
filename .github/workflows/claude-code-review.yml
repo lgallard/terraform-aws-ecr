@@ -92,6 +92,8 @@ jobs:
 
       - name: Parse comment command
         id: parse-command
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
           # Default values
           echo "mode=review" >> $GITHUB_OUTPUT
@@ -101,7 +103,7 @@ jobs:
 
           # Parse comment content for commands
           if [ "${{ github.event_name }}" == "issue_comment" ] || [ "${{ github.event_name }}" == "pull_request_review_comment" ]; then
-            COMMENT="${{ github.event.comment.body }}"
+            COMMENT="$COMMENT_BODY"
 
             # Extract command and parameters
             if echo "$COMMENT" | grep -qi "claude hunt"; then
