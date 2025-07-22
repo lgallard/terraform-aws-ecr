@@ -85,22 +85,6 @@ jobs:
       id-token: write
 
     steps:
-      - name: Add initial reaction
-        if: github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment'
-        run: |
-          gh api graphql --silent --raw-field query='
-            mutation AddReaction {
-              addReaction(input: {
-                subjectId: "${{ github.event.comment.node_id }}"
-                content: EYES
-              }) {
-                reaction { content }
-                subject { id }
-              }
-            }'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -226,38 +210,6 @@ jobs:
 
           # Use sticky comments for better UX
           use_sticky_comment: true
-
-      - name: Add success reaction
-        if: success() && (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment')
-        run: |
-          gh api graphql --silent --raw-field query='
-            mutation AddReaction {
-              addReaction(input: {
-                subjectId: "${{ github.event.comment.node_id }}"
-                content: HOORAY
-              }) {
-                reaction { content }
-                subject { id }
-              }
-            }'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Add failure reaction
-        if: failure() && (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment')
-        run: |
-          gh api graphql --silent --raw-field query='
-            mutation AddReaction {
-              addReaction(input: {
-                subjectId: "${{ github.event.comment.node_id }}"
-                content: CONFUSED
-              }) {
-                reaction { content }
-                subject { id }
-              }
-            }'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Workflow Summary
         if: always()
