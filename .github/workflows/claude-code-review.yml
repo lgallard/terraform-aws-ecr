@@ -1,35 +1,130 @@
 name: Claude Code Review
 
 on:
+  # Comment-based triggers (like Cursor's Bugbot)
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
   pull_request:
     types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    # Only run automatically for specific conditions
+    if: |
+      github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
+      contains(github.event.pull_request.title, '[auto-review]')
+
+  # Manual trigger via workflow dispatch
+  workflow_dispatch:
+    inputs:
+      review_mode:
+        description: 'Review mode to run'
+        required: true
+        default: 'review'
+        type: choice
+        options:
+          - 'review'
+          - 'hunt'
+          - 'analyze'
+          - 'security'
+          - 'performance'
+      focus_areas:
+        description: 'Specific areas to focus on (comma-separated)'
+        required: false
+        type: string
+        default: 'code-quality,security,performance'
+      verbose_output:
+        description: 'Enable verbose output'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
-    
+    # Only run on comment triggers or workflow dispatch
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, 'claude')) ||
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'pull_request' && (
+        github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
+        contains(github.event.pull_request.title, '[auto-review]')
+      ))
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
       issues: read
       id-token: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Parse comment command
+        id: parse-command
+        run: |
+          # Default values
+          echo "mode=review" >> $GITHUB_OUTPUT
+          echo "focus=code-quality,security,performance" >> $GITHUB_OUTPUT
+          echo "verbose=false" >> $GITHUB_OUTPUT
+          echo "include_tests=true" >> $GITHUB_OUTPUT
+
+          # Parse comment content for commands
+          if [ "${{ github.event_name }}" == "issue_comment" ] || [ "${{ github.event_name }}" == "pull_request_review_comment" ]; then
+            COMMENT="${{ github.event.comment.body }}"
+
+            # Extract command and parameters
+            if echo "$COMMENT" | grep -qi "claude hunt"; then
+              echo "mode=hunt" >> $GITHUB_OUTPUT
+              echo "focus=bugs,security,performance" >> $GITHUB_OUTPUT
+              echo "verbose=false" >> $GITHUB_OUTPUT
+            elif echo "$COMMENT" | grep -qi "claude analyze"; then
+              echo "mode=analyze" >> $GITHUB_OUTPUT
+              echo "focus=architecture,patterns,complexity" >> $GITHUB_OUTPUT
+              echo "verbose=true" >> $GITHUB_OUTPUT
+            elif echo "$COMMENT" | grep -qi "claude security"; then
+              echo "mode=security" >> $GITHUB_OUTPUT
+              echo "focus=security,vulnerabilities,compliance" >> $GITHUB_OUTPUT
+              echo "verbose=true" >> $GITHUB_OUTPUT
+            elif echo "$COMMENT" | grep -qi "claude performance"; then
+              echo "mode=performance" >> $GITHUB_OUTPUT
+              echo "focus=performance,optimization,bottlenecks" >> $GITHUB_OUTPUT
+              echo "verbose=true" >> $GITHUB_OUTPUT
+            elif echo "$COMMENT" | grep -qi "claude review"; then
+              echo "mode=review" >> $GITHUB_OUTPUT
+              echo "focus=code-quality,security,performance" >> $GITHUB_OUTPUT
+              echo "verbose=true" >> $GITHUB_OUTPUT
+            elif echo "$COMMENT" | grep -qi "claude"; then
+              # Default to hunt mode for simple "claude" command
+              echo "mode=hunt" >> $GITHUB_OUTPUT
+              echo "focus=bugs,security,performance" >> $GITHUB_OUTPUT
+              echo "verbose=false" >> $GITHUB_OUTPUT
+            fi
+
+            # Check for verbose flag
+            if echo "$COMMENT" | grep -qi "verbose\|detailed"; then
+              echo "verbose=true" >> $GITHUB_OUTPUT
+            fi
+
+            # Check for specific focus areas
+            if echo "$COMMENT" | grep -qi "security"; then
+              echo "focus=security,vulnerabilities,compliance" >> $GITHUB_OUTPUT
+            elif echo "$COMMENT" | grep -qi "performance"; then
+              echo "focus=performance,optimization,bottlenecks" >> $GITHUB_OUTPUT
+            elif echo "$COMMENT" | grep -qi "tests"; then
+              echo "focus=test-coverage,test-quality" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          # Override with workflow dispatch inputs if present
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "mode=${{ github.event.inputs.review_mode }}" >> $GITHUB_OUTPUT
+            echo "focus=${{ github.event.inputs.focus_areas }}" >> $GITHUB_OUTPUT
+            echo "verbose=${{ github.event.inputs.verbose_output }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Run Claude Code Review
         id: claude-review
@@ -37,42 +132,84 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
-          
-          # Direct prompt for automated review (no @claude mention needed)
+          # Use Sequential Thinking MCP for better planning
+          allowed_tools: "Sequential-Thinking(plan,execute,analyze)"
+
+          # Dynamic prompt based on review mode
           direct_prompt: |
-            Please review this pull request and provide feedback on:
+            ${{ steps.parse-command.outputs.mode == 'hunt' && format('
+            🕵️ BUG HUNT MODE - Find potential issues quickly:
+            - Focus on critical bugs, security vulnerabilities, and performance issues
+            - Prioritize high-impact problems over style suggestions
+            - Be concise and actionable
+            - Use Sequential Thinking to systematically analyze the codebase
+            - Provide clear, actionable feedback
+            ') || '' }}
+
+            ${{ steps.parse-command.outputs.mode == 'analyze' && format('
+            📊 ANALYSIS MODE - Deep technical analysis:
+            - Analyze architecture, patterns, and design decisions
+            - Evaluate code complexity and maintainability
+            - Assess test coverage and quality
+            - Provide strategic recommendations
+            - Use Sequential Thinking for comprehensive analysis
+            - Consider long-term implications and scalability
+            ') || '' }}
+
+            ${{ steps.parse-command.outputs.mode == 'security' && format('
+            🔒 SECURITY MODE - Security-focused review:
+            - Identify security vulnerabilities and compliance issues
+            - Check for proper authentication and authorization
+            - Validate input sanitization and output encoding
+            - Review encryption and key management
+            - Use Sequential Thinking to trace security flows
+            - Assess data protection and privacy concerns
+            ') || '' }}
+
+            ${{ steps.parse-command.outputs.mode == 'performance' && format('
+            ⚡ PERFORMANCE MODE - Performance optimization review:
+            - Identify performance bottlenecks and optimization opportunities
+            - Analyze resource usage and efficiency
+            - Check for memory leaks and scalability issues
+            - Review caching strategies and database queries
+            - Use Sequential Thinking to analyze performance impact
+            - Consider load testing and monitoring needs
+            ') || '' }}
+
+            ${{ steps.parse-command.outputs.mode == 'review' && format('
+            📝 STANDARD REVIEW MODE - Comprehensive code review:
             - Code quality and best practices
             - Potential bugs or issues
             - Performance considerations
             - Security concerns
-            - Test coverage
-            
-            Be constructive and helpful in your feedback.
+            - Test coverage and quality
 
-          # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
-          # use_sticky_comment: true
-          
-          # Optional: Customize review based on file types
-          # direct_prompt: |
-          #   Review this PR focusing on:
-          #   - For TypeScript files: Type safety and proper interface usage
-          #   - For API endpoints: Security, input validation, and error handling
-          #   - For React components: Performance, accessibility, and best practices
-          #   - For tests: Coverage, edge cases, and test quality
-          
-          # Optional: Different prompts for different authors
-          # direct_prompt: |
-          #   ${{ github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' && 
-          #   'Welcome! Please review this PR from a first-time contributor. Be encouraging and provide detailed explanations for any suggestions.' ||
-          #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
-          
-          # Optional: Add specific tools for running tests or linting
-          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
-          
-          # Optional: Skip review for certain conditions
-          # if: |
-          #   !contains(github.event.pull_request.title, '[skip-review]') &&
-          #   !contains(github.event.pull_request.title, '[WIP]')
+            Focus areas: {0}
+            Verbose output: {1}
 
+            Be constructive and helpful. Use Sequential Thinking for systematic analysis.
+            ', steps.parse-command.outputs.focus, steps.parse-command.outputs.verbose) || '' }}
+
+          # Use sticky comments for better UX
+          use_sticky_comment: true
+
+          # Skip review for certain conditions
+          if: |
+            !contains(github.event.pull_request.title, '[skip-review]') &&
+            !contains(github.event.pull_request.title, '[WIP]')
+
+      - name: Review Summary
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "🎯 Review completed!"
+          echo "Mode: ${{ steps.parse-command.outputs.mode }}"
+          echo "Focus areas: ${{ steps.parse-command.outputs.focus }}"
+          echo "Verbose: ${{ steps.parse-command.outputs.verbose }}"
+          echo ""
+          echo "💡 Usage tips:"
+          echo "- Comment 'claude hunt' for quick bug detection"
+          echo "- Comment 'claude analyze' for deep technical review"
+          echo "- Comment 'claude security' for security-focused review"
+          echo "- Comment 'claude performance' for optimization review"
+          echo "- Comment 'claude review' for comprehensive review"
+          echo "- Add 'verbose' to any command for detailed output"
