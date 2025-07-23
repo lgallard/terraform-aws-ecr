@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.19.2...0.20.0) (2025-07-23)
+
+
+### Features
+
+* add automatic v-prefix removal from release titles ([#106](https://github.com/lgallard/terraform-aws-ecr/issues/106)) ([f0d9457](https://github.com/lgallard/terraform-aws-ecr/commit/f0d9457080b14009f95315fc285ef30224be484b))
+
 ## [0.19.2](https://github.com/lgallard/terraform-aws-ecr/compare/0.19.1...0.19.2) (2025-07-23)
 
 
