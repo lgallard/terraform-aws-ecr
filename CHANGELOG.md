@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.19.0...0.19.1) (2025-07-23)
+
+
+### Bug Fixes
+
+* update release-please config to prevent v-prefix in release titles ([#102](https://github.com/lgallard/terraform-aws-ecr/issues/102)) ([536af03](https://github.com/lgallard/terraform-aws-ecr/commit/536af0340bc5b596b0c6aa684952510a0ce7390d))
+
 ## [0.19.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.18.0...0.19.0) (2025-07-22)
 
 
