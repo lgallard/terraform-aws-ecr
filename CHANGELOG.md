@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.20.0...0.21.0) (2025-07-23)
+
+
+### Features
+
+* complete release-please standardization across all repositories ([#108](https://github.com/lgallard/terraform-aws-ecr/issues/108)) ([1506473](https://github.com/lgallard/terraform-aws-ecr/commit/1506473d12ffd57a1111aaafde8f1d889dcbfefe))
+
 ## [0.20.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.19.2...0.20.0) (2025-07-23)
 
 
