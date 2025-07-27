@@ -1,5 +1,11 @@
 {
   "extends": ["config:base"],
+  "includePaths": ["versions.tf", "examples/*/versions.tf"],
+  "reviewers": ["lgallard"],
+  "assignees": ["lgallard"],
+  "prConcurrentLimit": 10,
+  "schedule": ["at any time"],
+  "commitMessagePrefix": "chore(deps):",
   "terraform": {
     "ignoreDeps": ["hashicorp/terraform"]
   },
