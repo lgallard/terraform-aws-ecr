@@ -4,8 +4,11 @@
   "reviewers": ["lgallard"],
   "assignees": ["lgallard"],
   "prConcurrentLimit": 10,
-  "schedule": ["at any time"],
+  "schedule": ["every weekend"],
   "commitMessagePrefix": "chore(deps):",
+  "golang": {
+    "enabled": false
+  },
   "terraform": {
     "ignoreDeps": ["hashicorp/terraform"]
   },
