@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.21.0...0.22.0) (2025-07-28)
+
+
+### Features
+
+* migrate from Dependabot to Renovate for better Terraform support ([#110](https://github.com/lgallard/terraform-aws-ecr/issues/110)) ([c0b983c](https://github.com/lgallard/terraform-aws-ecr/commit/c0b983c48298da6d01d92b97aeb7836b5ff8e1a8))
+
 ## [0.21.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.20.0...0.21.0) (2025-07-23)
 
 
