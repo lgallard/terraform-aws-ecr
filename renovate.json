@@ -1,6 +1,6 @@
 {
   "extends": ["config:base"],
-  "includePaths": ["versions.tf", "examples/*/versions.tf"],
+  "includePaths": ["versions.tf", "examples/*/versions.tf", "modules/*/versions.tf", "test/fixtures/*/versions.tf"],
   "reviewers": ["lgallard"],
   "assignees": ["lgallard"],
   "prConcurrentLimit": 10,
