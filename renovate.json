@@ -1,21 +1,43 @@
 {
-  "extends": ["config:base"],
-  "includePaths": ["versions.tf", "examples/*/versions.tf", "modules/*/versions.tf", "test/fixtures/*/versions.tf"],
-  "reviewers": ["lgallard"],
-  "assignees": ["lgallard"],
+  "extends": [
+    "config:recommended"
+  ],
+  "includePaths": [
+    "versions.tf",
+    "examples/*/versions.tf",
+    "modules/*/versions.tf",
+    "test/fixtures/*/versions.tf"
+  ],
+  "reviewers": [
+    "lgallard"
+  ],
+  "assignees": [
+    "lgallard"
+  ],
   "prConcurrentLimit": 10,
-  "schedule": ["every weekend"],
+  "schedule": [
+    "every weekend"
+  ],
   "commitMessagePrefix": "chore(deps):",
-  "golang": {
-    "enabled": false
-  },
   "terraform": {
-    "ignoreDeps": ["hashicorp/terraform"]
+    "ignoreDeps": [
+      "hashicorp/terraform"
+    ]
   },
   "packageRules": [
     {
-      "datasources": ["terraform-provider"],
-      "updateTypes": ["major"],
+      "matchCategories": [
+        "golang"
+      ],
+      "enabled": false
+    },
+    {
+      "matchDatasources": [
+        "terraform-provider"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "enabled": false
     }
   ]
