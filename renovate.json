@@ -1,0 +1,22 @@
+{
+  "extends": ["config:base"],
+  "includePaths": ["versions.tf", "examples/*/versions.tf", "modules/*/versions.tf", "test/fixtures/*/versions.tf"],
+  "reviewers": ["lgallard"],
+  "assignees": ["lgallard"],
+  "prConcurrentLimit": 10,
+  "schedule": ["every weekend"],
+  "commitMessagePrefix": "chore(deps):",
+  "golang": {
+    "enabled": false
+  },
+  "terraform": {
+    "ignoreDeps": ["hashicorp/terraform"]
+  },
+  "packageRules": [
+    {
+      "datasources": ["terraform-provider"],
+      "updateTypes": ["major"],
+      "enabled": false
+    }
+  ]
+}
