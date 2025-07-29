@@ -408,3 +408,24 @@ terraform {
 10. **Security-First Design** - Secure defaults with compliance support
 
 *Note: This module focuses on AWS ECR best practices and patterns specific to container registry management.*
+
+---
+
+## Enhanced Claude Code Review
+
+This module now includes enhanced Claude Code Review capabilities that focus on PR changes by default:
+
+### Command Usage
+- `codebot` - Hunt mode on PR changes (default)
+- `codebot hunt` - Quick bug detection on PR changes
+- `codebot analyze` - Deep technical analysis on PR changes
+- `codebot security` - Security-focused review on PR changes
+- `codebot performance` - Performance optimization review on PR changes
+- `codebot review` - Comprehensive review on PR changes
+
+### Scope Options
+- Add `--full` to any command to analyze the entire codebase
+- Example: `codebot hunt --full` - Hunt for bugs in the entire codebase
+- Default behavior (without --full) focuses only on changed files in the PR
+
+This enhancement provides more focused, actionable feedback by analyzing only the files changed in pull requests while maintaining the option for complete codebase analysis when needed.
