@@ -52,8 +52,8 @@ jobs:
 
           BRANCH_NAME="${{ github.ref_name }}"
 
-          # Validate branch name for security
-          if ! [[ "$BRANCH_NAME" =~ ^[a-zA-Z0-9/_-]+$ ]]; then
+          # Validate branch name for security (strict - no path traversal)
+          if ! [[ "$BRANCH_NAME" =~ ^[a-zA-Z0-9-]+$ ]]; then
             echo "Error: Invalid branch name format: $BRANCH_NAME"
             exit 1
           fi
@@ -204,8 +204,8 @@ jobs:
               echo "verbose=false" >> $GITHUB_OUTPUT
             fi
 
-            # Check for verbose flag
-            if echo "$SAFE_COMMENT" | grep -qiE "verbose|detailed"; then
+            # Check for verbose flag (using fixed strings for security)
+            if echo "$SAFE_COMMENT" | grep -qiF "verbose" || echo "$SAFE_COMMENT" | grep -qiF "detailed"; then
               echo "verbose=true" >> $GITHUB_OUTPUT
             fi
 
@@ -271,12 +271,11 @@ jobs:
 
               if [ $attempt -eq 3 ]; then
                 echo "Error: Failed to fetch PR data after 3 attempts"
-                echo "PR_DATA response: $PR_DATA"
                 exit 1
               fi
 
-              echo "Retrying in 2 seconds..."
-              sleep 2
+              echo "Retrying in $((2 ** attempt)) seconds..."
+              sleep $((2 ** attempt))
             done
 
           elif [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
@@ -294,8 +293,8 @@ jobs:
             exit 1
           fi
 
-          # Sanitize branch name for security
-          if ! [[ "$BASE_REF" =~ ^[a-zA-Z0-9/_-]+$ ]]; then
+          # Sanitize branch name for security (strict - no path traversal)
+          if ! [[ "$BASE_REF" =~ ^[a-zA-Z0-9-]+$ ]]; then
             echo "Error: Invalid base ref format: $BASE_REF"
             exit 1
           fi
@@ -334,8 +333,8 @@ jobs:
                 exit 1
               fi
             else
-              echo "Fetch attempt failed, retrying in 2 seconds..."
-              sleep 2
+              echo "Fetch attempt failed, retrying in $((2 ** attempt)) seconds..."
+              sleep $((2 ** attempt))
             fi
           done
 
@@ -346,6 +345,7 @@ jobs:
           fi
 
           # Verify HEAD hasn't changed (race condition protection)
+          CURRENT_HEAD=$(git rev-parse HEAD)
           NEW_HEAD=$(git rev-parse HEAD)
           if [ "$CURRENT_HEAD" != "$NEW_HEAD" ]; then
             echo "Warning: HEAD changed during execution ($CURRENT_HEAD -> $NEW_HEAD)"
