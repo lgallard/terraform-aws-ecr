@@ -364,7 +364,13 @@ jobs:
 
           # Convert to space-separated string and validate
           CHANGED_FILES_STR=$(echo "$CHANGED_FILES" | tr '\n' ' ' | sed 's/[[:space:]]*$//')
-          CHANGED_COUNT=$(echo "$CHANGED_FILES" | grep -c . || echo "0")
+
+          # Count changed files safely
+          if [ -z "$CHANGED_FILES" ]; then
+            CHANGED_COUNT=0
+          else
+            CHANGED_COUNT=$(echo "$CHANGED_FILES" | grep -c .)
+          fi
 
           # Validate results with better handling for large PRs
           if [ "$CHANGED_COUNT" -eq 0 ]; then
