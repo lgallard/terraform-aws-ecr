@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.23.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.22.0...0.23.0) (2025-07-30)
+
+
+### Features
+
+* enhance Claude Code Review to focus on PR changes with --full option ([#115](https://github.com/lgallard/terraform-aws-ecr/issues/115)) ([daf63c9](https://github.com/lgallard/terraform-aws-ecr/commit/daf63c9766c9361f7f5de198619b08f4ecd13b33))
+
+
+### Bug Fixes
+
+* resolve critical Claude Code Review workflow issues ([#118](https://github.com/lgallard/terraform-aws-ecr/issues/118)) ([cd8e29d](https://github.com/lgallard/terraform-aws-ecr/commit/cd8e29d2b3d1200a3925054e11d18b48a84a1679))
+
 ## [0.22.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.21.0...0.22.0) (2025-07-28)
 
 
