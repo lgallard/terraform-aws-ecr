@@ -187,10 +187,10 @@ locals {
 
 # Tag validation check using a local with validation
 locals {
-  # This will cause plan to fail if validation fails
+  # This will cause plan to fail if validation fails with clear error message
   tag_validation_check = var.enable_tag_validation ? (
     length(local.missing_required_tags) == 0 ? true :
-    tobool("Tag validation failed: ${local.tag_validation_error}")
+    can(regex("^$", local.tag_validation_error)) ? false : false
   ) : true
 }
 

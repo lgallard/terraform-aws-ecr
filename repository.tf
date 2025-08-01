@@ -97,8 +97,8 @@ resource "aws_ecr_repository" "repo_protected" {
 
 # Repository output references for use in other resources and outputs
 locals {
-  repository_id   = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].id : aws_ecr_repository.repo[0].id
-  repository_name = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].name : aws_ecr_repository.repo[0].name
-  repository_url  = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].repository_url : aws_ecr_repository.repo[0].repository_url
-  registry_id     = var.prevent_destroy ? aws_ecr_repository.repo_protected[0].registry_id : aws_ecr_repository.repo[0].registry_id
+  repository_id   = var.prevent_destroy ? one(aws_ecr_repository.repo_protected[*].id) : one(aws_ecr_repository.repo[*].id)
+  repository_name = var.prevent_destroy ? one(aws_ecr_repository.repo_protected[*].name) : one(aws_ecr_repository.repo[*].name)
+  repository_url  = var.prevent_destroy ? one(aws_ecr_repository.repo_protected[*].repository_url) : one(aws_ecr_repository.repo[*].repository_url)
+  registry_id     = var.prevent_destroy ? one(aws_ecr_repository.repo_protected[*].registry_id) : one(aws_ecr_repository.repo[*].registry_id)
 }
