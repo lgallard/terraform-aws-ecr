@@ -13,7 +13,32 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 # ----------------------------------------------------------
-# ECR Repository
+# ECR Repository - Dual Resource Pattern
+# ----------------------------------------------------------
+#
+# IMPORTANT: The two ECR repository resources below exist due to Terraform limitations:
+#
+# 1. LIFECYCLE LIMITATIONS:
+#    - Lifecycle blocks cannot use variables (prevent_destroy = var.prevent_destroy is INVALID)
+#    - Only literal values are allowed in lifecycle meta-arguments
+#    - Dynamic blocks cannot generate meta-arguments like lifecycle blocks
+#
+# 2. TECHNICAL CONSTRAINTS:
+#    - prevent_destroy must be known at plan time with static boolean values
+#    - Variables are explicitly forbidden in lifecycle configurations
+#    - Template expressions and functions are not supported in lifecycle blocks
+#
+# 3. ARCHITECTURAL DECISION:
+#    - This dual-resource pattern is the ONLY viable approach for conditional prevent_destroy
+#    - Alternative approaches (dynamic blocks, conditional lifecycle) are not supported by Terraform
+#    - This pattern follows Terraform best practices for conditional lifecycle management
+#
+# 4. REFERENCES:
+#    - Lifecycle limitations: https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle
+#    - Dynamic block constraints: https://developer.hashicorp.com/terraform/language/expressions/dynamic-blocks
+#    - GitHub discussion: https://github.com/hashicorp/terraform/issues/30957
+#
+# DO NOT attempt to merge these resources - it will break conditional prevent_destroy functionality
 # ----------------------------------------------------------
 
 # ECR Repository - Standard version (prevent_destroy = false)
