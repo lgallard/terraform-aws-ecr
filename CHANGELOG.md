@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.24.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.23.0...0.24.0) (2025-08-01)
+
+
+### Features
+
+* add GitHub issue templates for AI-consumable task management ([ea92669](https://github.com/lgallard/terraform-aws-ecr/commit/ea92669121bd38f329f2172ecdf39277cc0ad148))
+
+
+### Bug Fixes
+
+* resolve Claude Code Review change detection issues ([#119](https://github.com/lgallard/terraform-aws-ecr/issues/119)) ([9132872](https://github.com/lgallard/terraform-aws-ecr/commit/9132872f8579a7b3424d12a02f187a4bf9bb5609))
+
 ## [0.23.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.22.0...0.23.0) (2025-07-30)
 
 
