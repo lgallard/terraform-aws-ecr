@@ -12,43 +12,19 @@ variable "name" {
 }
 
 variable "force_delete" {
-  description = <<-EOT
-    Whether to delete the repository even if it contains images.
-    Setting this to true will delete all images in the repository when the repository is deleted.
-    Use with caution as this operation cannot be undone.
-    Defaults to false for safety.
-  EOT
+  description = "Whether to delete the repository even if it contains images. Use with caution."
   type        = bool
   default     = false
-  validation {
-    condition     = can(tobool(var.force_delete))
-    error_message = "The force_delete variable must be a boolean value (true/false)."
-  }
 }
 
 variable "prevent_destroy" {
-  description = <<-EOT
-    Whether to protect the repository from being destroyed.
-    When set to true, the repository will have the lifecycle block with prevent_destroy = true.
-    When set to false, the repository can be destroyed.
-    This provides a way to dynamically control protection against accidental deletion.
-    Defaults to false to allow repository deletion.
-  EOT
+  description = "Whether to protect the repository from being destroyed via lifecycle prevent_destroy."
   type        = bool
   default     = false
-  validation {
-    condition     = can(tobool(var.prevent_destroy))
-    error_message = "The prevent_destroy variable must be a boolean value (true/false)."
-  }
 }
 
 variable "image_tag_mutability" {
-  description = <<-EOT
-    The tag mutability setting for the repository.
-    - MUTABLE: Image tags can be overwritten
-    - IMMUTABLE: Image tags cannot be overwritten (recommended for production)
-    Defaults to MUTABLE to maintain backwards compatibility.
-  EOT
+  description = "The tag mutability setting for the repository. Either MUTABLE or IMMUTABLE."
   type        = string
   default     = "MUTABLE"
   validation {
@@ -62,22 +38,13 @@ variable "image_tag_mutability" {
 # ----------------------------------------------------------
 
 variable "scan_on_push" {
-  description = <<-EOT
-    Indicates whether images should be scanned for vulnerabilities after being pushed to the repository.
-    - true: Images will be automatically scanned after each push
-    - false: Images must be scanned manually
-    Only used if image_scanning_configuration is null.
-  EOT
+  description = "Whether images should be scanned after being pushed to the repository."
   type        = bool
   default     = true
 }
 
 variable "image_scanning_configuration" {
-  description = <<-EOT
-    Configuration block that defines image scanning configuration for the repository.
-    Set to null to use the scan_on_push variable setting.
-    Example: { scan_on_push = true }
-  EOT
+  description = "Image scanning configuration block. Set to null to use scan_on_push variable."
   type = object({
     scan_on_push = bool
   })
@@ -89,11 +56,7 @@ variable "image_scanning_configuration" {
 # ----------------------------------------------------------
 
 variable "timeouts" {
-  description = <<-EOT
-    Timeout configuration for repository operations.
-    Specify as an object with a 'delete' key containing a duration string (e.g. "20m").
-    Example: { delete = "20m" }
-  EOT
+  description = "Timeout configuration for repository operations. Example: { delete = \"20m\" }"
   type = object({
     delete = optional(string)
   })
@@ -110,37 +73,19 @@ variable "timeouts" {
   }
 }
 
-variable "timeouts_delete" {
-  description = <<-EOT
-    Deprecated: Use timeouts = { delete = "duration" } instead.
-    How long to wait for a repository to be deleted.
-    Specify as a duration string, e.g. "20m" for 20 minutes.
-  EOT
-  type        = string
-  default     = null
-}
 
 # ----------------------------------------------------------
 # Repository Policies
 # ----------------------------------------------------------
 
 variable "policy" {
-  description = <<-EOT
-    JSON string representing the repository policy.
-    If null (default), no repository policy will be created.
-    See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-policies.html
-  EOT
+  description = "JSON string representing the repository policy. If null, no policy is created."
   type        = string
   default     = null
 }
 
 variable "lifecycle_policy" {
-  description = <<-EOT
-    JSON string representing the lifecycle policy.
-    If null (default), no lifecycle policy will be created.
-    Takes precedence over helper variables and templates if specified.
-    See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/lifecycle_policy_examples.html
-  EOT
+  description = "JSON string representing the lifecycle policy. Takes precedence over helper variables."
   type        = string
   default     = null
 }
@@ -150,18 +95,7 @@ variable "lifecycle_policy" {
 # ----------------------------------------------------------
 
 variable "lifecycle_keep_latest_n_images" {
-  description = <<-EOT
-    Number of latest images to keep in the repository.
-    If specified, creates a lifecycle policy rule to keep only the N most recent images.
-    When used with lifecycle_tag_prefixes_to_keep, only applies to images with those tag prefixes.
-    Other images are not affected by this rule and may be managed by other rules.
-    Range: 1-10000 images. Set to null to disable this rule.
-
-    Examples:
-    - 30: Keep the 30 most recent images
-    - 100: Keep the 100 most recent images (production default)
-    - 10: Keep only 10 images (cost optimization)
-  EOT
+  description = "Number of latest images to keep in the repository (1-10000). Null to disable."
   type        = number
   default     = null
   validation {
@@ -173,17 +107,7 @@ variable "lifecycle_keep_latest_n_images" {
 }
 
 variable "lifecycle_expire_untagged_after_days" {
-  description = <<-EOT
-    Number of days after which untagged images should be expired.
-    If specified, creates a lifecycle policy rule to delete untagged images older than N days.
-    This rule applies to ALL untagged images regardless of lifecycle_tag_prefixes_to_keep.
-    Range: 1-3650 days (up to 10 years). Set to null to disable this rule.
-
-    Examples:
-    - 7: Delete untagged images after 7 days (development default)
-    - 14: Delete untagged images after 14 days (production default)
-    - 1: Delete untagged images daily (aggressive cleanup)
-  EOT
+  description = "Number of days after which untagged images expire (1-3650). Null to disable."
   type        = number
   default     = null
   validation {
@@ -195,18 +119,7 @@ variable "lifecycle_expire_untagged_after_days" {
 }
 
 variable "lifecycle_expire_tagged_after_days" {
-  description = <<-EOT
-    Number of days after which tagged images should be expired.
-    If specified, creates a lifecycle policy rule to delete tagged images older than N days.
-    This rule applies to ALL tagged images regardless of lifecycle_tag_prefixes_to_keep.
-    Use with caution as this may delete images you want to keep long-term.
-    Range: 1-3650 days (up to 10 years). Set to null to disable this rule.
-
-    Examples:
-    - 90: Delete tagged images after 90 days (production default)
-    - 30: Delete tagged images after 30 days (cost optimization)
-    - 365: Delete tagged images after 1 year (compliance)
-  EOT
+  description = "Number of days after which tagged images expire (1-3650). Use with caution."
   type        = number
   default     = null
   validation {
@@ -218,21 +131,7 @@ variable "lifecycle_expire_tagged_after_days" {
 }
 
 variable "lifecycle_tag_prefixes_to_keep" {
-  description = <<-EOT
-    List of tag prefixes for images that should be managed by the keep-latest rule.
-    When used with lifecycle_keep_latest_n_images, applies the keep rule ONLY to images with these tag prefixes.
-    Images without these prefixes are not affected by the keep-latest rule.
-    The expire rules (untagged/tagged) still apply to ALL images regardless of this setting.
-
-    Common patterns:
-    - ["v"]: Apply keep rule to semantic versions (v1.0.0, v2.1.3, etc.)
-    - ["release-", "prod-"]: Apply to release and production builds
-    - ["main", "develop"]: Apply to main branch builds
-    - []: Apply keep rule to ALL images (empty list)
-
-    Constraints: Maximum 100 prefixes, each up to 255 characters.
-    Set to empty list to apply rules to all images.
-  EOT
+  description = "List of tag prefixes for keep-latest rule. Empty list applies to all images. Max 100 prefixes."
   type        = list(string)
   default     = []
   validation {
@@ -249,46 +148,7 @@ variable "lifecycle_tag_prefixes_to_keep" {
 # ----------------------------------------------------------
 
 variable "lifecycle_policy_template" {
-  description = <<-EOT
-    Predefined lifecycle policy template to use for common scenarios.
-    Templates provide tested configurations and best practices for different environments.
-
-    Available templates:
-
-    - "development": Optimized for dev workflows with frequent builds
-      * Keep 50 images
-      * Expire untagged after 7 days
-      * No tagged expiry (developers may need old builds)
-      * Tag prefixes: ["dev", "feature"]
-
-    - "production": Balanced retention for production stability
-      * Keep 100 images
-      * Expire untagged after 14 days
-      * Expire tagged after 90 days
-      * Tag prefixes: ["v", "release", "prod"]
-
-    - "cost_optimization": Aggressive cleanup to minimize storage costs
-      * Keep 10 images
-      * Expire untagged after 3 days
-      * Expire tagged after 30 days
-      * Tag prefixes: [] (applies to all images)
-
-    - "compliance": Long retention for audit and compliance
-      * Keep 200 images
-      * Expire untagged after 30 days
-      * Expire tagged after 365 days (1 year)
-      * Tag prefixes: ["v", "release", "audit"]
-
-    Set to null to use custom helper variables or manual lifecycle_policy.
-
-    Configuration precedence:
-    1. Manual lifecycle_policy (highest - overrides template)
-    2. Template lifecycle_policy_template (overrides helper variables)
-    3. Helper variables (lowest precedence)
-
-    Note: When using a template, all helper variables (lifecycle_keep_latest_n_images,
-    lifecycle_expire_untagged_after_days, etc.) will be ignored to prevent conflicts.
-  EOT
+  description = "Predefined lifecycle policy template. Options: development, production, cost_optimization, compliance."
   type        = string
   default     = null
   validation {
@@ -305,7 +165,7 @@ variable "lifecycle_policy_template" {
 # ----------------------------------------------------------
 
 variable "encryption_type" {
-  description = "The encryption type for the repository. Valid values are \"KMS\" or \"AES256\"."
+  description = "Repository encryption type. Either KMS or AES256.""
   type        = string
   default     = "AES256"
   validation {
@@ -315,11 +175,7 @@ variable "encryption_type" {
 }
 
 variable "kms_key" {
-  description = <<-EOT
-    The ARN of an existing KMS key to use for repository encryption.
-    Only applicable when encryption_type is set to 'KMS'.
-    If not specified when using KMS encryption, a new KMS key will be created.
-  EOT
+  description = "ARN of existing KMS key for repository encryption. If null, a new key is created."
   type        = string
   default     = null
 }
@@ -329,11 +185,7 @@ variable "kms_key" {
 # ----------------------------------------------------------
 
 variable "kms_deletion_window_in_days" {
-  description = <<-EOT
-    Number of days to wait before actually deleting the KMS key (7-30 days).
-    Only applicable when a new KMS key is created by this module.
-    Defaults to 7 days for faster cleanup in development environments.
-  EOT
+  description = "Number of days to wait before deleting the KMS key (7-30 days)."
   type        = number
   default     = 7
   validation {
@@ -343,21 +195,13 @@ variable "kms_deletion_window_in_days" {
 }
 
 variable "kms_enable_key_rotation" {
-  description = <<-EOT
-    Whether to enable automatic key rotation for the KMS key.
-    Only applicable when a new KMS key is created by this module.
-    Defaults to true for enhanced security.
-  EOT
+  description = "Whether to enable automatic key rotation for the KMS key."
   type        = bool
   default     = true
 }
 
 variable "kms_key_rotation_period" {
-  description = <<-EOT
-    Number of days between automatic key rotations (90-2555 days).
-    Only applicable when a new KMS key is created and key rotation is enabled.
-    If not specified, AWS uses the default rotation period.
-  EOT
+  description = "Number of days between automatic key rotations (90-2555 days)."
   type        = number
   default     = null
   validation {
@@ -369,23 +213,13 @@ variable "kms_key_rotation_period" {
 }
 
 variable "kms_multi_region" {
-  description = <<-EOT
-    Whether to create a multi-region KMS key.
-    Multi-region keys can be used in multiple AWS regions without cross-region calls.
-    Only applicable when a new KMS key is created by this module.
-    Defaults to false.
-  EOT
+  description = "Whether to create a multi-region KMS key."
   type        = bool
   default     = false
 }
 
 variable "kms_additional_principals" {
-  description = <<-EOT
-    List of additional IAM principals (ARNs) to grant access to the KMS key.
-    These principals will be granted encrypt/decrypt permissions.
-    Only applicable when a new KMS key is created by this module.
-    Example: ["arn:aws:iam::123456789012:role/CrossAccountRole"]
-  EOT
+  description = "List of additional IAM principals (ARNs) to grant KMS key access."
   type        = list(string)
   default     = []
   validation {
@@ -398,53 +232,19 @@ variable "kms_additional_principals" {
 }
 
 variable "kms_key_administrators" {
-  description = <<-EOT
-    List of IAM principals (ARNs) who can administer the KMS key.
-    These principals will have full administrative access to the key.
-    Only applicable when a new KMS key is created by this module.
-    Example: ["arn:aws:iam::123456789012:role/KMSAdminRole"]
-  EOT
+  description = "List of IAM principals (ARNs) who can administer the KMS key."
   type        = list(string)
   default     = []
 }
 
 variable "kms_key_users" {
-  description = <<-EOT
-    List of IAM principals (ARNs) who can use the KMS key for cryptographic operations.
-    These principals will be granted encrypt/decrypt permissions.
-    Only applicable when a new KMS key is created by this module.
-    Example: ["arn:aws:iam::123456789012:role/ECRAccessRole"]
-  EOT
+  description = "List of IAM principals (ARNs) who can use the KMS key for crypto operations."
   type        = list(string)
   default     = []
 }
 
 variable "kms_custom_policy_statements" {
-  description = <<-EOT
-    List of custom policy statements to add to the KMS key policy.
-    These statements will be added to the generated policy.
-    Only applicable when a new KMS key is created by this module.
-
-    Example:
-    [
-      {
-        sid    = "AllowCloudTrailEncryption"
-        effect = "Allow"
-        principals = {
-          type        = "Service"
-          identifiers = ["cloudtrail.amazonaws.com"]
-        }
-        actions = [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:ReEncrypt*",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ]
-        resources = ["*"]
-      }
-    ]
-  EOT
+  description = "List of custom policy statements to add to the KMS key policy."
   type = list(object({
     sid    = optional(string)
     effect = string
@@ -464,23 +264,13 @@ variable "kms_custom_policy_statements" {
 }
 
 variable "kms_custom_policy" {
-  description = <<-EOT
-    Complete custom policy JSON for the KMS key.
-    If specified, this will override all other policy settings.
-    Only applicable when a new KMS key is created by this module.
-    Use with caution as this bypasses all built-in security policies.
-  EOT
+  description = "Complete custom policy JSON for the KMS key. Use with caution."
   type        = string
   default     = null
 }
 
 variable "kms_alias_name" {
-  description = <<-EOT
-    Custom alias name for the KMS key (without 'alias/' prefix).
-    If not provided, uses 'ecr/{repository_name}'.
-    Only applicable when a new KMS key is created by this module.
-    Example: "production/ecr/my-app"
-  EOT
+  description = "Custom alias name for the KMS key (without 'alias/' prefix)."
   type        = string
   default     = null
   validation {
@@ -492,12 +282,7 @@ variable "kms_alias_name" {
 }
 
 variable "kms_tags" {
-  description = <<-EOT
-    Additional tags specific to KMS resources.
-    These tags will be applied to the KMS key and alias in addition to the general tags.
-    Only applicable when a new KMS key is created by this module.
-    Example: { KeyType = "ECR-Encryption", Rotation = "Enabled" }
-  EOT
+  description = "Additional tags specific to KMS resources."
   type        = map(string)
   default     = {}
 }
@@ -507,11 +292,7 @@ variable "kms_tags" {
 # ----------------------------------------------------------
 
 variable "tags" {
-  description = <<-EOT
-    A map of tags to assign to all resources created by this module.
-    Tags are key-value pairs that help you manage, identify, organize, search for and filter resources.
-    Example: { Environment = "Production", Owner = "Team" }
-  EOT
+  description = "A map of tags to assign to all resources created by this module."
   type        = map(string)
   default     = {}
 }
@@ -521,28 +302,13 @@ variable "tags" {
 # ----------------------------------------------------------
 
 variable "enable_default_tags" {
-  description = <<-EOT
-    Whether to enable automatic default tags for all resources.
-    When enabled, standard organizational tags will be automatically applied.
-    Defaults to true for better resource management and compliance.
-  EOT
+  description = "Whether to enable automatic default tags for all resources."
   type        = bool
   default     = true
 }
 
 variable "default_tags_template" {
-  description = <<-EOT
-    Predefined default tag template to use for organizational compliance.
-
-    Available templates:
-    - "basic": Minimal set of organizational tags (CreatedBy, ManagedBy, Environment)
-    - "cost_allocation": Tags optimized for cost tracking and allocation
-    - "compliance": Tags required for security and compliance frameworks
-    - "sdlc": Tags for software development lifecycle management
-    - null: Use custom default_tags configuration
-
-    When using a template, it will override individual default_tags_* variables.
-  EOT
+  description = "Predefined default tag template. Options: basic, cost_allocation, compliance, sdlc."
   type        = string
   default     = null
   validation {
@@ -555,65 +321,37 @@ variable "default_tags_template" {
 }
 
 variable "default_tags_environment" {
-  description = <<-EOT
-    Environment tag value to be automatically applied to all resources.
-    Common values: production, staging, development, test
-    Set to null to disable automatic environment tagging.
-  EOT
+  description = "Environment tag value applied to all resources. Null to disable."
   type        = string
   default     = null
 }
 
 variable "default_tags_owner" {
-  description = <<-EOT
-    Owner tag value to be automatically applied to all resources.
-    Should specify the team, department, or individual responsible for the resource.
-    Example: "platform-team", "data-engineering", "john.doe@company.com"
-    Set to null to disable automatic owner tagging.
-  EOT
+  description = "Owner tag value applied to all resources. Null to disable."
   type        = string
   default     = null
 }
 
 variable "default_tags_project" {
-  description = <<-EOT
-    Project tag value to be automatically applied to all resources.
-    Should specify the project or application name this resource belongs to.
-    Example: "web-app", "data-pipeline", "user-service"
-    Set to null to disable automatic project tagging.
-  EOT
+  description = "Project tag value applied to all resources. Null to disable."
   type        = string
   default     = null
 }
 
 variable "default_tags_cost_center" {
-  description = <<-EOT
-    Cost center tag value for financial tracking and allocation.
-    Should specify the cost center, budget code, or billing department.
-    Example: "engineering", "marketing", "cc-1234"
-    Set to null to disable automatic cost center tagging.
-  EOT
+  description = "Cost center tag value for financial tracking. Null to disable."
   type        = string
   default     = null
 }
 
 variable "enable_tag_validation" {
-  description = <<-EOT
-    Whether to enable tag validation to ensure compliance with organizational standards.
-    When enabled, validates that required tags are present and follow naming conventions.
-    Defaults to false to maintain backward compatibility.
-  EOT
+  description = "Whether to enable tag validation to ensure compliance with organizational standards."
   type        = bool
   default     = false
 }
 
 variable "required_tags" {
-  description = <<-EOT
-    List of tag keys that are required to be present.
-    Validation will fail if any of these tags are missing from the final tag set.
-    Example: ["Environment", "Owner", "Project"]
-    Empty list disables required tag validation.
-  EOT
+  description = "List of tag keys that are required to be present. Empty list disables validation."
   type        = list(string)
   default     = []
   validation {
@@ -623,14 +361,7 @@ variable "required_tags" {
 }
 
 variable "tag_key_case" {
-  description = <<-EOT
-    Enforce consistent casing for tag keys.
-    - "PascalCase": Capitalize first letter of each word (Environment, CostCenter)
-    - "camelCase": First word lowercase, subsequent words capitalized (environment, costCenter)
-    - "snake_case": All lowercase with underscores (environment, cost_center)
-    - "kebab-case": All lowercase with hyphens (environment, cost-center)
-    - null: No case enforcement (preserve original casing)
-  EOT
+  description = "Enforce consistent casing for tag keys. Options: PascalCase, camelCase, snake_case, kebab-case."
   type        = string
   default     = "PascalCase"
   validation {
@@ -643,21 +374,13 @@ variable "tag_key_case" {
 }
 
 variable "enable_tag_normalization" {
-  description = <<-EOT
-    Whether to enable automatic tag normalization.
-    When enabled, normalizes tag keys to consistent casing and handles special characters.
-    Defaults to true for better tag consistency across resources.
-  EOT
+  description = "Whether to enable automatic tag normalization."
   type        = bool
   default     = true
 }
 
 variable "normalize_tag_values" {
-  description = <<-EOT
-    Whether to normalize tag values by trimming whitespace and handling special characters.
-    Applies common normalizations like removing leading/trailing spaces.
-    Defaults to true for cleaner tag values.
-  EOT
+  description = "Whether to normalize tag values by trimming whitespace."
   type        = bool
   default     = true
 }
@@ -667,21 +390,13 @@ variable "normalize_tag_values" {
 # ----------------------------------------------------------
 
 variable "enable_logging" {
-  description = <<-EOT
-    Whether to enable CloudWatch logging for the repository.
-    When enabled, ECR API actions and image push/pull events will be logged to CloudWatch.
-    Defaults to false.
-  EOT
+  description = "Whether to enable CloudWatch logging for the repository."
   type        = bool
   default     = false
 }
 
 variable "log_retention_days" {
-  description = <<-EOT
-    Number of days to retain ECR logs in CloudWatch.
-    Only applicable when enable_logging is true.
-    Defaults to 30 days.
-  EOT
+  description = "Number of days to retain ECR logs in CloudWatch."
   type        = number
   default     = 30
   validation {
@@ -695,22 +410,13 @@ variable "log_retention_days" {
 # ----------------------------------------------------------
 
 variable "enable_replication" {
-  description = <<-EOT
-    Whether to enable cross-region replication for the ECR registry.
-    When enabled, images will be automatically replicated to the specified regions.
-    Note: This is a registry-level configuration that affects all repositories in the account.
-    Defaults to false.
-  EOT
+  description = "Whether to enable cross-region replication for the ECR registry."
   type        = bool
   default     = false
 }
 
 variable "replication_regions" {
-  description = <<-EOT
-    List of AWS regions to replicate ECR images to.
-    Only applicable when enable_replication is true.
-    Example: ["us-west-2", "eu-west-1"]
-  EOT
+  description = "List of AWS regions to replicate ECR images to."
   type        = list(string)
   default     = []
 }
@@ -720,23 +426,13 @@ variable "replication_regions" {
 # ----------------------------------------------------------
 
 variable "enable_registry_scanning" {
-  description = <<-EOT
-    Whether to enable enhanced scanning for the ECR registry.
-    Enhanced scanning uses Amazon Inspector to provide detailed vulnerability assessments.
-    This is a registry-level configuration that affects all repositories in the account.
-    Defaults to false.
-  EOT
+  description = "Whether to enable enhanced scanning for the ECR registry."
   type        = bool
   default     = false
 }
 
 variable "registry_scan_type" {
-  description = <<-EOT
-    The type of scanning to configure for the registry.
-    - BASIC: Basic scanning for OS vulnerabilities
-    - ENHANCED: Enhanced scanning with Amazon Inspector integration
-    Only applicable when enable_registry_scanning is true.
-  EOT
+  description = "The type of scanning to configure for the registry. Either BASIC or ENHANCED."
   type        = string
   default     = "ENHANCED"
   validation {
@@ -746,15 +442,7 @@ variable "registry_scan_type" {
 }
 
 variable "registry_scan_filters" {
-  description = <<-EOT
-    List of scan filters for filtering scan results when querying ECR scan findings.
-    These filters can be used by external tools or scripts to filter scan results by criteria such as vulnerability severity.
-    Each filter should specify name and values.
-    Example: [{ name = "PACKAGE_VULNERABILITY_SEVERITY", values = ["HIGH", "CRITICAL"] }]
-
-    Note: These filters are not applied at the registry scanning configuration level, but are made available
-    as outputs for use in querying and filtering scan results.
-  EOT
+  description = "List of scan filters for filtering scan results when querying ECR findings."
   type = list(object({
     name   = string
     values = list(string)
@@ -767,21 +455,13 @@ variable "registry_scan_filters" {
 # ----------------------------------------------------------
 
 variable "enable_pull_through_cache" {
-  description = <<-EOT
-    Whether to create pull-through cache rules.
-    Pull-through cache rules allow you to cache images from upstream registries.
-    Defaults to false.
-  EOT
+  description = "Whether to create pull-through cache rules."
   type        = bool
   default     = false
 }
 
 variable "pull_through_cache_rules" {
-  description = <<-EOT
-    List of pull-through cache rules to create.
-    Each rule should specify ecr_repository_prefix and upstream_registry_url.
-    Example: [{ ecr_repository_prefix = "docker-hub", upstream_registry_url = "registry-1.docker.io" }]
-  EOT
+  description = "List of pull-through cache rules to create."
   type = list(object({
     ecr_repository_prefix = string
     upstream_registry_url = string
@@ -795,25 +475,13 @@ variable "pull_through_cache_rules" {
 # ----------------------------------------------------------
 
 variable "enable_secret_scanning" {
-  description = <<-EOT
-    Whether to enable secret scanning as part of enhanced scanning.
-    This feature detects secrets like API keys, passwords, and tokens in container images.
-    When enabled, automatically sets the registry scan type to ENHANCED, overriding registry_scan_type.
-    Requires enable_registry_scanning to be true.
-    Defaults to false.
-  EOT
+  description = "Whether to enable secret scanning. Detects secrets in container images."
   type        = bool
   default     = false
 }
 
 variable "scan_repository_filters" {
-  description = <<-EOT
-    List of repository filters to apply for registry scanning.
-    Each filter specifies which repositories should be scanned.
-    Supports wildcard patterns using '*' character.
-    If empty, defaults to scanning all repositories ("*").
-    Example: ["my-app-*", "important-service"]
-  EOT
+  description = "List of repository filters to apply for registry scanning. Supports wildcards."
   type        = list(string)
   default     = ["*"]
 }
@@ -823,22 +491,13 @@ variable "scan_repository_filters" {
 # ----------------------------------------------------------
 
 variable "enable_monitoring" {
-  description = <<-EOT
-    Whether to enable CloudWatch monitoring and alerting for the ECR repository.
-    When enabled, creates metric alarms for storage usage, API calls, and security findings.
-    Defaults to false to maintain backward compatibility.
-  EOT
+  description = "Whether to enable CloudWatch monitoring and alerting for the ECR repository."
   type        = bool
   default     = false
 }
 
 variable "monitoring_threshold_storage" {
-  description = <<-EOT
-    Storage usage threshold in GB to trigger CloudWatch alarm.
-    When repository storage exceeds this threshold, an alarm will be triggered.
-    Only applicable when enable_monitoring is true.
-    Defaults to 10 GB.
-  EOT
+  description = "Storage usage threshold in GB to trigger CloudWatch alarm."
   type        = number
   default     = 10
   validation {
@@ -848,12 +507,7 @@ variable "monitoring_threshold_storage" {
 }
 
 variable "monitoring_threshold_api_calls" {
-  description = <<-EOT
-    API call volume threshold per minute to trigger CloudWatch alarm.
-    When API calls exceed this threshold, an alarm will be triggered.
-    Only applicable when enable_monitoring is true.
-    Defaults to 1000 calls per minute.
-  EOT
+  description = "API call volume threshold per minute to trigger CloudWatch alarm."
   type        = number
   default     = 1000
   validation {
@@ -863,12 +517,7 @@ variable "monitoring_threshold_api_calls" {
 }
 
 variable "monitoring_threshold_security_findings" {
-  description = <<-EOT
-    Security findings threshold to trigger CloudWatch alarm.
-    When security findings exceed this threshold, an alarm will be triggered.
-    Only applicable when enable_monitoring is true.
-    Defaults to 10 findings.
-  EOT
+  description = "Security findings threshold to trigger CloudWatch alarm."
   type        = number
   default     = 10
   validation {
@@ -878,35 +527,19 @@ variable "monitoring_threshold_security_findings" {
 }
 
 variable "create_sns_topic" {
-  description = <<-EOT
-    Whether to create an SNS topic for CloudWatch alarm notifications.
-    When enabled, creates a new SNS topic for sending alerts.
-    Only applicable when enable_monitoring is true.
-    Defaults to false.
-  EOT
+  description = "Whether to create an SNS topic for CloudWatch alarm notifications."
   type        = bool
   default     = false
 }
 
 variable "sns_topic_name" {
-  description = <<-EOT
-    Name of the SNS topic to create or use for alarm notifications.
-    If create_sns_topic is true, this will be the name of the created topic.
-    If create_sns_topic is false, this should be the name of an existing topic.
-    Only applicable when enable_monitoring is true.
-    Defaults to null.
-  EOT
+  description = "Name of the SNS topic to create or use for alarm notifications."
   type        = string
   default     = null
 }
 
 variable "sns_topic_subscribers" {
-  description = <<-EOT
-    List of email addresses to subscribe to the SNS topic for alarm notifications.
-    Each email address will receive notifications when alarms are triggered.
-    Only applicable when enable_monitoring and create_sns_topic are true.
-    Example: ["admin@company.com", "devops@company.com"]
-  EOT
+  description = "List of email addresses to subscribe to the SNS topic for alarm notifications."
   type        = list(string)
   default     = []
   validation {
@@ -923,46 +556,13 @@ variable "sns_topic_subscribers" {
 # ----------------------------------------------------------
 
 variable "enable_pull_request_rules" {
-  description = <<-EOT
-    Whether to enable pull request rules for enhanced governance and quality control.
-    Pull request rules provide approval workflows and validation requirements for container images,
-    similar to pull request approval processes for code repositories.
-    When enabled, additional governance controls will be applied to the ECR repository.
-    Defaults to false.
-  EOT
+  description = "Whether to enable pull request rules for enhanced governance and quality control."
   type        = bool
   default     = false
 }
 
 variable "pull_request_rules" {
-  description = <<-EOT
-    List of pull request rule configurations for enhanced governance.
-    Each rule defines governance controls for container image changes.
-
-    Rule structure:
-    - name: Unique identifier for the rule
-    - type: Type of rule (approval, security_scan, ci_integration)
-    - enabled: Whether the rule is active
-    - conditions: Conditions that trigger the rule
-    - actions: Actions to take when rule conditions are met
-
-    Example:
-    [
-      {
-        name = "require-security-approval"
-        type = "approval"
-        enabled = true
-        conditions = {
-          tag_patterns = ["prod-*", "release-*"]
-          severity_threshold = "HIGH"
-        }
-        actions = {
-          require_approval_count = 2
-          notification_topic_arn = "arn:aws:sns:region:account:topic"
-        }
-      }
-    ]
-  EOT
+  description = "List of pull request rule configurations for enhanced governance."
   type = list(object({
     name    = string
     type    = string
@@ -988,21 +588,5 @@ variable "pull_request_rules" {
       for rule in var.pull_request_rules : contains(["approval", "security_scan", "ci_integration"], rule.type)
     ])
     error_message = "Pull request rule type must be one of: approval, security_scan, ci_integration."
-  }
-
-  validation {
-    condition = alltrue([
-      for rule in var.pull_request_rules :
-      rule.conditions.severity_threshold == null || contains(["LOW", "MEDIUM", "HIGH", "CRITICAL"], rule.conditions.severity_threshold)
-    ])
-    error_message = "Severity threshold must be one of: LOW, MEDIUM, HIGH, CRITICAL."
-  }
-
-  validation {
-    condition = alltrue([
-      for rule in var.pull_request_rules :
-      rule.actions.require_approval_count == null || (rule.actions.require_approval_count >= 1 && rule.actions.require_approval_count <= 10)
-    ])
-    error_message = "Approval count must be between 1 and 10."
   }
 }
