@@ -267,6 +267,7 @@ jobs:
           echo "current_sha=$FINAL_SHA" >> $GITHUB_OUTPUT
           echo "current_branch=$FINAL_BRANCH" >> $GITHUB_OUTPUT
 
+
       - name: Parse comment command
         id: parse-command
         timeout-minutes: 2
@@ -423,8 +424,8 @@ jobs:
       - name: Get changed files
         id: changes
         if: steps.parse-command.outputs.full_analysis == 'false'
-        timeout-minutes: 5
         run: |
+
           set -euo pipefail
 
           BASE_REF="${{ steps.pr-info.outputs.base_ref }}"
@@ -515,6 +516,7 @@ jobs:
           echo "📋 Changed files summary:"
           echo "  Count: $CHANGED_COUNT"
           echo "  Files: $CHANGED_FILES_STR"
+
 
           if [ "$CHANGED_COUNT" -gt 0 ]; then
             echo "📄 Individual files:"
