@@ -165,7 +165,7 @@ variable "lifecycle_policy_template" {
 # ----------------------------------------------------------
 
 variable "encryption_type" {
-  description = "Repository encryption type. Either KMS or AES256.""
+  description = "Repository encryption type. Either KMS or AES256."
   type        = string
   default     = "AES256"
   validation {
