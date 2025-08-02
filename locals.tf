@@ -23,13 +23,7 @@ locals {
   }]
 
   # Timeouts configuration with default fallback
-  timeouts = (
-    length(var.timeouts) > 0 ? [var.timeouts] : (
-      var.timeouts_delete != null ? [{
-        delete = var.timeouts_delete
-      }] : []
-    )
-  )
+  timeouts = length(var.timeouts) > 0 ? [var.timeouts] : []
 }
 
 # ----------------------------------------------------------

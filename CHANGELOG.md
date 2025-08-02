@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.24.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.24.0...0.24.1) (2025-08-02)
+
+
+### Bug Fixes
+
+* Grant Bash permissions to Claude for pre-commit hooks ([#132](https://github.com/lgallard/terraform-aws-ecr/issues/132)) ([230e943](https://github.com/lgallard/terraform-aws-ecr/commit/230e943c71f9b1d22fe9dcc7c9f734c068c81a84))
+
 ## [0.24.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.23.0...0.24.0) (2025-08-01)
 
 
