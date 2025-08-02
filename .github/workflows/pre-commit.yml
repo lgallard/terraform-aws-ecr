@@ -65,13 +65,10 @@ jobs:
 
       - name: Install tflint
         run: |
-          if [ ! -f ~/.local/bin/tflint ]; then
+          if ! command -v tflint &> /dev/null; then
             echo "Installing tflint..."
-            mkdir -p ~/.local/bin
             curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-            mv ./tflint ~/.local/bin/
           fi
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install pre-commit
         run: |
