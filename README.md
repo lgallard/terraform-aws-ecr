@@ -80,7 +80,6 @@ module "ecr" {
 
   name                 = "ecr-repo-dev"
   scan_on_push        = true
-  timeouts_delete     = "60m"
   image_tag_mutability = "IMMUTABLE"
   encryption_type     = "KMS"
 
@@ -248,7 +247,6 @@ module "ecr" {
 
   name                 = "ecr-repo-dev"
   scan_on_push         = true
-  timeouts_delete      = "60m"
   image_tag_mutability = "MUTABLE"
   prevent_destroy      = true  # Protect repository from accidental deletion
 
@@ -1625,7 +1623,6 @@ For more details on tests, see the [test directory README](test/README.md).
 | <a name="input_tag_key_case"></a> [tag\_key\_case](#input\_tag\_key\_case) | Enforce consistent casing for tag keys.<br/>- "PascalCase": Capitalize first letter of each word (Environment, CostCenter)<br/>- "camelCase": First word lowercase, subsequent words capitalized (environment, costCenter)<br/>- "snake\_case": All lowercase with underscores (environment, cost\_center)<br/>- "kebab-case": All lowercase with hyphens (environment, cost-center)<br/>- null: No case enforcement (preserve original casing) | `string` | `"PascalCase"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to all resources created by this module.<br/>Tags are key-value pairs that help you manage, identify, organize, search for and filter resources.<br/>Example: { Environment = "Production", Owner = "Team" } | `map(string)` | `{}` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Timeout configuration for repository operations.<br/>Specify as an object with a 'delete' key containing a duration string (e.g. "20m").<br/>Example: { delete = "20m" } | <pre>object({<br/>    delete = optional(string)<br/>  })</pre> | `{}` | no |
-| <a name="input_timeouts_delete"></a> [timeouts\_delete](#input\_timeouts\_delete) | Deprecated: Use timeouts = { delete = "duration" } instead.<br/>How long to wait for a repository to be deleted.<br/>Specify as a duration string, e.g. "20m" for 20 minutes. | `string` | `null` | no |
 
 ## Outputs
 
