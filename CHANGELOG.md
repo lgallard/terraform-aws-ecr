@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.24.2](https://github.com/lgallard/terraform-aws-ecr/compare/0.24.1...0.24.2) (2025-08-02)
+
+
+### Bug Fixes
+
+* allow missing AWS credentials in pre-commit CI ([baf9cc0](https://github.com/lgallard/terraform-aws-ecr/commit/baf9cc006f560c3ee34858ba50f5bca9fcbd7ce2))
+* improve tflint installation in pre-commit workflow ([ce208bc](https://github.com/lgallard/terraform-aws-ecr/commit/ce208bcbb2b5c7cc738861426cea3926c1f6851d))
+* remove pip cache from pre-commit workflow ([9e3935c](https://github.com/lgallard/terraform-aws-ecr/commit/9e3935c4e8a41e59b0da5da2feb7c2cf090df2d8))
+
 ## [0.24.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.24.0...0.24.1) (2025-08-02)
 
 
