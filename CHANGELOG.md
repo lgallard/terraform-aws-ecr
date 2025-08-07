@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.25.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.24.2...0.25.0) (2025-08-07)
+
+
+### Features
+
+* add Claude dispatch workflow for repository events ([#135](https://github.com/lgallard/terraform-aws-ecr/issues/135)) ([4877708](https://github.com/lgallard/terraform-aws-ecr/commit/4877708c1089e1ba1255587f06fa90bbce035b00))
+
 ## [0.24.2](https://github.com/lgallard/terraform-aws-ecr/compare/0.24.1...0.24.2) (2025-08-02)
 
 
