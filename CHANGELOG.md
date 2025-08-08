@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.25.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.25.0...0.25.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* repository_arn output should return ARN instead of repository name ([#138](https://github.com/lgallard/terraform-aws-ecr/issues/138)) ([6b9f0cc](https://github.com/lgallard/terraform-aws-ecr/commit/6b9f0cc78eabe60fe5b7fdd932f247105e7d44fa))
+
 ## [0.25.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.24.2...0.25.0) (2025-08-07)
 
 
