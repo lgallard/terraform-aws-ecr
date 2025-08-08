@@ -1,7 +1,7 @@
 # ECR repository details
 output "repository_arn" {
   description = "ARN of the ECR repository"
-  value       = local.repository_id
+  value       = local.repository_arn
 }
 
 output "repository_url" {
