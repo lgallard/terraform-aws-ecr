@@ -49,8 +49,29 @@ jobs:
           # Optional: Trigger when specific user is assigned to an issue
           # assignee_trigger: "claude-bot"
 
-          # Allow Bash permissions for pre-commit hooks and documentation updates
-          allowed_tools: "Bash(pre-commit run --files),Bash(terraform fmt),Bash(terraform validate),Bash(terraform-docs)"
+          # MCP Configuration for Terraform and Context7 documentation access
+          mcp_config: |
+            {
+              "mcpServers": {
+                "terraform": {
+                  "command": "npx",
+                  "args": [
+                    "-y",
+                    "@modelcontextprotocol/server-terraform@latest"
+                  ]
+                },
+                "context7": {
+                  "command": "npx",
+                  "args": [
+                    "-y",
+                    "@upstash/context7-mcp@latest"
+                  ]
+                }
+              }
+            }
+
+          # Allow Bash permissions for pre-commit hooks and documentation updates + MCP tools
+          allowed_tools: "Bash(pre-commit run --files),Bash(terraform fmt),Bash(terraform validate),Bash(terraform-docs),mcp__terraform-server__getProviderDocs,mcp__terraform-server__resolveProviderDocID,mcp__terraform-server__searchModules,mcp__terraform-server__moduleDetails,mcp__context7__resolve-library-id,mcp__context7__get-library-docs"
 
           # Optional: Add custom instructions for Claude to customize its behavior for your project
           # custom_instructions: |
