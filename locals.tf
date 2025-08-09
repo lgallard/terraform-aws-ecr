@@ -10,7 +10,7 @@ locals {
   encryption_configuration = (
     var.encryption_type == "KMS" ? [{
       encryption_type = "KMS"
-      kms_key         = local.should_create_kms_key ? module.kms[0].key_arn : var.kms_key
+      kms_key         = local.should_create_kms_key ? try(module.kms["main"].key_arn, null) : var.kms_key
     }] : []
   )
 

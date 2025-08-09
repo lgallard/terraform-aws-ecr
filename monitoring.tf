@@ -2,83 +2,161 @@
 # CloudWatch Monitoring and Alerting
 # ----------------------------------------------------------
 
-# SNS Topic for CloudWatch alarm notifications
-resource "aws_sns_topic" "ecr_monitoring" {
-  count = var.enable_monitoring && var.create_sns_topic ? 1 : 0
-  name  = var.sns_topic_name != null ? var.sns_topic_name : "${var.name}-ecr-monitoring"
+# SNS Topics Configuration using for_each pattern
+locals {
+  sns_topics = var.enable_monitoring && var.create_sns_topic ? {
+    ecr_monitoring = {
+      name         = var.sns_topic_name != null ? var.sns_topic_name : "${var.name}-ecr-monitoring"
+      display_name = "ECR Monitoring Alerts for ${var.name}"
+      tag_name     = var.sns_topic_name != null ? var.sns_topic_name : "${var.name}-ecr-monitoring"
+    }
+  } : {}
 
-  display_name = "ECR Monitoring Alerts for ${var.name}"
+  # Create subscription configuration
+  sns_subscriptions = var.enable_monitoring && var.create_sns_topic ? {
+    for i, email in var.sns_topic_subscribers : "${i}-email" => {
+      topic_key = "ecr_monitoring"
+      protocol  = "email"
+      endpoint  = email
+    }
+  } : {}
+}
+
+# SNS Topic for CloudWatch alarm notifications
+resource "aws_sns_topic" "this" {
+  for_each = local.sns_topics
+
+  name         = each.value.name
+  display_name = each.value.display_name
 
   tags = merge(
     local.final_tags,
     {
-      Name = var.sns_topic_name != null ? var.sns_topic_name : "${var.name}-ecr-monitoring"
+      Name = each.value.tag_name
     }
   )
 }
 
-# SNS Topic subscriptions
-resource "aws_sns_topic_subscription" "ecr_monitoring_email" {
-  count     = var.enable_monitoring && var.create_sns_topic ? length(var.sns_topic_subscribers) : 0
-  topic_arn = aws_sns_topic.ecr_monitoring[0].arn
-  protocol  = "email"
-  endpoint  = var.sns_topic_subscribers[count.index]
+# SNS Topic subscriptions using for_each pattern
+resource "aws_sns_topic_subscription" "this" {
+  for_each = local.sns_subscriptions
+
+  topic_arn = aws_sns_topic.this[each.value.topic_key].arn
+  protocol  = each.value.protocol
+  endpoint  = each.value.endpoint
 }
 
 # Local for SNS topic ARN (either created or existing)
 locals {
   sns_topic_arn = var.enable_monitoring ? (
-    var.create_sns_topic ? aws_sns_topic.ecr_monitoring[0].arn :
+    var.create_sns_topic ? try(aws_sns_topic.this["ecr_monitoring"].arn, null) :
     (var.sns_topic_name != null ? "arn:aws:sns:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:${var.sns_topic_name}" : null)
   ) : null
 }
 
-# CloudWatch Alarm: Repository Storage Usage
-resource "aws_cloudwatch_metric_alarm" "repository_storage_usage" {
-  count = var.enable_monitoring ? 1 : 0
+# ----------------------------------------------------------
+# CloudWatch Alarms Configuration
+# ----------------------------------------------------------
 
-  alarm_name          = "${var.name}-ecr-storage-usage"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
-  metric_name         = "RepositorySizeInBytes"
-  namespace           = "AWS/ECR"
-  period              = "300"
-  statistic           = "Average"
-  threshold           = var.monitoring_threshold_storage * 1024 * 1024 * 1024 # Convert GB to bytes
-  alarm_description   = "This metric monitors ECR repository storage usage for ${var.name}"
-  alarm_actions       = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
-  ok_actions          = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
-
-  dimensions = {
-    RepositoryName = local.repository_name
-  }
-
-  tags = merge(
-    local.final_tags,
-    {
-      Name = "${var.name}-ecr-storage-usage-alarm"
+# Local configuration for CloudWatch alarms
+locals {
+  cloudwatch_alarms = var.enable_monitoring ? {
+    repository_storage_usage = {
+      alarm_name          = "${var.name}-ecr-storage-usage"
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = "2"
+      metric_name         = "RepositorySizeInBytes"
+      namespace           = "AWS/ECR"
+      period              = "300"
+      statistic           = "Average"
+      threshold           = var.monitoring_threshold_storage * 1024 * 1024 * 1024 # Convert GB to bytes
+      alarm_description   = "This metric monitors ECR repository storage usage for ${var.name}"
+      enabled             = true
+      depends_on_scanning = false
+      alarm_tag_name      = "${var.name}-ecr-storage-usage-alarm"
     }
-  )
 
-  depends_on = [
-    aws_ecr_repository.repo,
-    aws_ecr_repository.repo_protected
-  ]
+    api_call_volume = {
+      alarm_name          = "${var.name}-ecr-api-calls"
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = "2"
+      metric_name         = "ApiCallCount"
+      namespace           = "AWS/ECR"
+      period              = "60"
+      statistic           = "Sum"
+      threshold           = var.monitoring_threshold_api_calls
+      alarm_description   = "This metric monitors ECR API call volume for ${var.name}"
+      enabled             = true
+      depends_on_scanning = false
+      alarm_tag_name      = "${var.name}-ecr-api-calls-alarm"
+    }
+
+    image_push_count = {
+      alarm_name          = "${var.name}-ecr-image-push"
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = "2"
+      metric_name         = "ImagePushCount"
+      namespace           = "AWS/ECR"
+      period              = "300"
+      statistic           = "Sum"
+      threshold           = 10 # Alert if more than 10 pushes in 5 minutes
+      alarm_description   = "This metric monitors ECR image push frequency for ${var.name}"
+      enabled             = true
+      depends_on_scanning = false
+      alarm_tag_name      = "${var.name}-ecr-image-push-alarm"
+    }
+
+    image_pull_count = {
+      alarm_name          = "${var.name}-ecr-image-pull"
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = "2"
+      metric_name         = "ImagePullCount"
+      namespace           = "AWS/ECR"
+      period              = "300"
+      statistic           = "Sum"
+      threshold           = 100 # Alert if more than 100 pulls in 5 minutes
+      alarm_description   = "This metric monitors ECR image pull frequency for ${var.name}"
+      enabled             = true
+      depends_on_scanning = false
+      alarm_tag_name      = "${var.name}-ecr-image-pull-alarm"
+    }
+
+    security_findings = {
+      alarm_name          = "${var.name}-ecr-security-findings"
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = "1"
+      metric_name         = "HighSeverityVulnerabilityCount"
+      namespace           = "AWS/ECR"
+      period              = "300"
+      statistic           = "Maximum"
+      threshold           = var.monitoring_threshold_security_findings
+      alarm_description   = "This metric monitors ECR security findings for ${var.name}"
+      enabled             = var.enable_registry_scanning
+      depends_on_scanning = true
+      alarm_tag_name      = "${var.name}-ecr-security-findings-alarm"
+    }
+  } : {}
+
+  # Filter enabled alarms for for_each
+  enabled_cloudwatch_alarms = {
+    for key, alarm in local.cloudwatch_alarms : key => alarm
+    if alarm.enabled
+  }
 }
 
-# CloudWatch Alarm: API Call Volume
-resource "aws_cloudwatch_metric_alarm" "api_call_volume" {
-  count = var.enable_monitoring ? 1 : 0
+# CloudWatch Alarms using for_each pattern
+resource "aws_cloudwatch_metric_alarm" "monitoring" {
+  for_each = local.enabled_cloudwatch_alarms
 
-  alarm_name          = "${var.name}-ecr-api-calls"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
-  metric_name         = "ApiCallCount"
-  namespace           = "AWS/ECR"
-  period              = "60"
-  statistic           = "Sum"
-  threshold           = var.monitoring_threshold_api_calls
-  alarm_description   = "This metric monitors ECR API call volume for ${var.name}"
+  alarm_name          = each.value.alarm_name
+  comparison_operator = each.value.comparison_operator
+  evaluation_periods  = each.value.evaluation_periods
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = each.value.statistic
+  threshold           = each.value.threshold
+  alarm_description   = each.value.alarm_description
   alarm_actions       = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
   ok_actions          = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
 
@@ -89,114 +167,17 @@ resource "aws_cloudwatch_metric_alarm" "api_call_volume" {
   tags = merge(
     local.final_tags,
     {
-      Name = "${var.name}-ecr-api-calls-alarm"
+      Name = each.value.alarm_tag_name
     }
   )
 
-  depends_on = [
-    aws_ecr_repository.repo,
-    aws_ecr_repository.repo_protected
-  ]
-}
-
-# CloudWatch Alarm: Image Push Count
-resource "aws_cloudwatch_metric_alarm" "image_push_count" {
-  count = var.enable_monitoring ? 1 : 0
-
-  alarm_name          = "${var.name}-ecr-image-push"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
-  metric_name         = "ImagePushCount"
-  namespace           = "AWS/ECR"
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = 10 # Alert if more than 10 pushes in 5 minutes
-  alarm_description   = "This metric monitors ECR image push frequency for ${var.name}"
-  alarm_actions       = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
-  ok_actions          = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
-
-  dimensions = {
-    RepositoryName = local.repository_name
-  }
-
-  tags = merge(
-    local.final_tags,
-    {
-      Name = "${var.name}-ecr-image-push-alarm"
-    }
+  depends_on = concat(
+    [
+      aws_ecr_repository.repo,
+      aws_ecr_repository.repo_protected
+    ],
+    each.value.depends_on_scanning ? [aws_ecr_registry_scanning_configuration.this["main"]] : []
   )
-
-  depends_on = [
-    aws_ecr_repository.repo,
-    aws_ecr_repository.repo_protected
-  ]
-}
-
-# CloudWatch Alarm: Image Pull Count
-resource "aws_cloudwatch_metric_alarm" "image_pull_count" {
-  count = var.enable_monitoring ? 1 : 0
-
-  alarm_name          = "${var.name}-ecr-image-pull"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
-  metric_name         = "ImagePullCount"
-  namespace           = "AWS/ECR"
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = 100 # Alert if more than 100 pulls in 5 minutes
-  alarm_description   = "This metric monitors ECR image pull frequency for ${var.name}"
-  alarm_actions       = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
-  ok_actions          = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
-
-  dimensions = {
-    RepositoryName = local.repository_name
-  }
-
-  tags = merge(
-    local.final_tags,
-    {
-      Name = "${var.name}-ecr-image-pull-alarm"
-    }
-  )
-
-  depends_on = [
-    aws_ecr_repository.repo,
-    aws_ecr_repository.repo_protected
-  ]
-}
-
-# CloudWatch Alarm: Security Findings (only if enhanced scanning is enabled)
-resource "aws_cloudwatch_metric_alarm" "security_findings" {
-  count = var.enable_monitoring && var.enable_registry_scanning ? 1 : 0
-
-  alarm_name          = "${var.name}-ecr-security-findings"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "HighSeverityVulnerabilityCount"
-  namespace           = "AWS/ECR"
-  period              = "300"
-  statistic           = "Maximum"
-  threshold           = var.monitoring_threshold_security_findings
-  alarm_description   = "This metric monitors ECR security findings for ${var.name}"
-  alarm_actions       = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
-  ok_actions          = local.sns_topic_arn != null ? [local.sns_topic_arn] : []
-
-  dimensions = {
-    RepositoryName = local.repository_name
-  }
-
-  tags = merge(
-    local.final_tags,
-    {
-      Name = "${var.name}-ecr-security-findings-alarm"
-    }
-  )
-
-  depends_on = [
-    aws_ecr_repository.repo,
-    aws_ecr_repository.repo_protected,
-    aws_ecr_registry_scanning_configuration.scanning
-  ]
 }
 
 # ----------------------------------------------------------

@@ -30,28 +30,28 @@ output "lifecycle_policy" {
 }
 
 output "kms_key_arn" {
-  value       = local.should_create_kms_key ? module.kms[0].key_arn : var.kms_key
+  value       = local.should_create_kms_key ? try(module.kms["main"].key_arn, null) : var.kms_key
   description = "The ARN of the KMS key used for repository encryption."
 }
 
 output "kms_key_id" {
-  value       = local.should_create_kms_key ? module.kms[0].key_id : null
+  value       = local.should_create_kms_key ? try(module.kms["main"].key_id, null) : null
   description = "The globally unique identifier for the KMS key (if created by this module)."
 }
 
 output "kms_alias_arn" {
-  value       = local.should_create_kms_key ? module.kms[0].alias_arn : null
+  value       = local.should_create_kms_key ? try(module.kms["main"].alias_arn, null) : null
   description = "The ARN of the KMS alias (if created by this module)."
 }
 
 output "kms_configuration" {
   value = local.should_create_kms_key ? {
     key_created   = true
-    key_arn       = module.kms[0].key_arn
-    key_id        = module.kms[0].key_id
-    alias_arn     = module.kms[0].alias_arn
-    alias_name    = module.kms[0].alias_name
-    configuration = module.kms[0].configuration_summary
+    key_arn       = try(module.kms["main"].key_arn, null)
+    key_id        = try(module.kms["main"].key_id, null)
+    alias_arn     = try(module.kms["main"].alias_arn, null)
+    alias_name    = try(module.kms["main"].alias_name, null)
+    configuration = try(module.kms["main"].configuration_summary, null)
     } : {
     key_created   = false
     key_arn       = var.kms_key
@@ -66,18 +66,18 @@ output "kms_configuration" {
 # Logging outputs
 output "cloudwatch_log_group_arn" {
   description = "The ARN of the CloudWatch Log Group used for ECR logs (if logging is enabled)"
-  value       = try(aws_cloudwatch_log_group.ecr_logs[0].arn, null)
+  value       = try(aws_cloudwatch_log_group.this["main"].arn, null)
 }
 
 output "logging_role_arn" {
   description = "The ARN of the IAM role used for ECR logging (if logging is enabled)"
-  value       = try(aws_iam_role.ecr_logging[0].arn, null)
+  value       = try(aws_iam_role.logging["main"].arn, null)
 }
 
 # Replication outputs
 output "replication_configuration_arn" {
   description = "The ARN of the ECR replication configuration (if replication is enabled)"
-  value       = try(aws_ecr_replication_configuration.replication[0].id, null)
+  value       = try(aws_ecr_replication_configuration.this["main"].id, null)
 }
 
 output "replication_regions" {
@@ -96,7 +96,7 @@ output "replication_status" {
 # Enhanced scanning outputs
 output "registry_scanning_configuration_arn" {
   description = "The ARN of the ECR registry scanning configuration (if enhanced scanning is enabled)"
-  value       = try(aws_ecr_registry_scanning_configuration.scanning[0].id, null)
+  value       = try(aws_ecr_registry_scanning_configuration.this["main"].id, null)
 }
 
 output "registry_scanning_status" {
@@ -193,7 +193,7 @@ output "monitoring_status" {
     api_calls_threshold         = var.enable_monitoring ? var.monitoring_threshold_api_calls : null
     security_findings_threshold = var.enable_monitoring ? var.monitoring_threshold_security_findings : null
     sns_topic_created           = var.enable_monitoring && var.create_sns_topic
-    sns_topic_name              = var.enable_monitoring && var.create_sns_topic ? aws_sns_topic.ecr_monitoring[0].name : null
+    sns_topic_name              = var.enable_monitoring && var.create_sns_topic ? try(aws_sns_topic.this["ecr_monitoring"].name, null) : null
     sns_subscribers_count       = var.enable_monitoring && var.create_sns_topic ? length(var.sns_topic_subscribers) : 0
     security_monitoring_enabled = var.enable_monitoring && var.enable_registry_scanning
   }
@@ -201,32 +201,16 @@ output "monitoring_status" {
 
 output "sns_topic_arn" {
   description = "ARN of the SNS topic used for ECR monitoring alerts (if created)"
-  value       = var.enable_monitoring && var.create_sns_topic ? aws_sns_topic.ecr_monitoring[0].arn : null
+  value       = var.enable_monitoring && var.create_sns_topic ? try(aws_sns_topic.this["ecr_monitoring"].arn, null) : null
 }
 
 output "cloudwatch_alarms" {
   description = "List of CloudWatch alarms created for ECR monitoring"
   value = var.enable_monitoring ? {
-    storage_usage_alarm = {
-      name = aws_cloudwatch_metric_alarm.repository_storage_usage[0].alarm_name
-      arn  = aws_cloudwatch_metric_alarm.repository_storage_usage[0].arn
+    for alarm_key, alarm in aws_cloudwatch_metric_alarm.monitoring : alarm_key => {
+      name = alarm.alarm_name
+      arn  = alarm.arn
     }
-    api_calls_alarm = {
-      name = aws_cloudwatch_metric_alarm.api_call_volume[0].alarm_name
-      arn  = aws_cloudwatch_metric_alarm.api_call_volume[0].arn
-    }
-    image_push_alarm = {
-      name = aws_cloudwatch_metric_alarm.image_push_count[0].alarm_name
-      arn  = aws_cloudwatch_metric_alarm.image_push_count[0].arn
-    }
-    image_pull_alarm = {
-      name = aws_cloudwatch_metric_alarm.image_pull_count[0].alarm_name
-      arn  = aws_cloudwatch_metric_alarm.image_pull_count[0].arn
-    }
-    security_findings_alarm = var.enable_registry_scanning ? {
-      name = aws_cloudwatch_metric_alarm.security_findings[0].alarm_name
-      arn  = aws_cloudwatch_metric_alarm.security_findings[0].arn
-    } : null
   } : {}
 }
 
