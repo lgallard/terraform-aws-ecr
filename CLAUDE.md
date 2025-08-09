@@ -408,3 +408,78 @@ terraform {
 10. **Security-First Design** - Secure defaults with compliance support
 
 *Note: This module focuses on AWS ECR best practices and patterns specific to container registry management.*
+
+## MCP Server Configuration
+
+### Available MCP Servers
+This project is configured to use the following Model Context Protocol (MCP) servers for enhanced documentation access:
+
+#### Terraform MCP Server
+**Purpose**: Access up-to-date Terraform and AWS provider documentation
+**Package**: `@modelcontextprotocol/server-terraform`
+
+**Local Configuration** (`.mcp.json`):
+```json
+{
+  "mcpServers": {
+    "terraform": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-terraform@latest"]
+    }
+  }
+}
+```
+
+**Usage Examples**:
+- `Look up aws_ecr_repository resource documentation`
+- `Find the latest ECR lifecycle policy examples`
+- `Search for AWS ECR Terraform modules`
+- `Get documentation for aws_ecr_repository_policy resource`
+
+#### Context7 MCP Server
+**Purpose**: Access general library and framework documentation
+**Package**: `@upstash/context7-mcp`
+
+**Local Configuration** (`.mcp.json`):
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    }
+  }
+}
+```
+
+**Usage Examples**:
+- `Look up Go testing patterns for Terratest`
+- `Find AWS CLI ECR commands documentation`
+- `Get current Terraform best practices`
+- `Search for GitHub Actions workflow patterns`
+
+### GitHub Actions Integration
+The MCP servers are automatically available in GitHub Actions through the claude.yml workflow configuration. Claude can access the same documentation in PRs and issues as available locally.
+
+### Usage Tips
+1. **Be Specific**: When requesting documentation, specify the exact resource or concept
+2. **Version Awareness**: Both servers provide current, version-specific documentation
+3. **Combine Sources**: Use Terraform MCP for ECR-specific docs, Context7 for general development patterns
+4. **Local vs CI**: Same MCP servers work in both local development and GitHub Actions
+
+### Example Workflows
+
+**ECR Resource Development**:
+```
+@claude I need to add support for ECR pull-through cache. Can you look up the latest aws_ecr_pull_through_cache_rule documentation and show me how to implement this feature?
+```
+
+**Testing Pattern Research**:
+```
+@claude Look up current Terratest patterns for testing ECR repositories and help me add comprehensive tests for the pull-through cache feature.
+```
+
+**Security Enhancement**:
+```
+@claude Research the latest ECR security best practices and help me implement enhanced scanning configurations in this module.
+```
