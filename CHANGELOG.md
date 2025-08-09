@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.26.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.25.1...0.26.0) (2025-08-09)
+
+
+### Features
+
+* add MCP server support for enhanced documentation access ([#140](https://github.com/lgallard/terraform-aws-ecr/issues/140)) ([07b8723](https://github.com/lgallard/terraform-aws-ecr/commit/07b87235336582b5d40b7d518c26259fac81571c))
+
 ## [0.25.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.25.0...0.25.1) (2025-08-08)
 
 
