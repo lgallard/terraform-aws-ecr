@@ -112,18 +112,12 @@ output "registry_scanning_status" {
 # Pull-through cache outputs
 output "pull_through_cache_rules" {
   description = "List of pull-through cache rules (if enabled)"
-  value = var.enable_pull_through_cache ? [
-    for rule in aws_ecr_pull_through_cache_rule.cache_rules : {
-      ecr_repository_prefix = rule.ecr_repository_prefix
-      upstream_registry_url = rule.upstream_registry_url
-      registry_id           = rule.registry_id
-    }
-  ] : []
+  value       = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? module.pull_through_cache[0].pull_through_cache_rules : []
 }
 
 output "pull_through_cache_role_arn" {
   description = "The ARN of the IAM role used for pull-through cache operations (if enabled)"
-  value       = try(aws_iam_role.pull_through_cache[0].arn, null)
+  value       = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? module.pull_through_cache[0].pull_through_cache_role_arn : null
 }
 
 output "registry_scan_filters" {

@@ -30,6 +30,22 @@ The terraform-aws-ecr module enables several common architectures for container 
 
 For more detailed architecture diagrams including CI/CD integration, multi-region deployments, and security controls, see [docs/diagrams.md](docs/diagrams.md).
 
+## Submodules
+
+This module is organized with specialized submodules for better maintainability and reusability:
+
+### KMS Module (`modules/kms/`)
+Manages KMS encryption keys for ECR repositories with advanced key policies, rotation, and access control.
+
+### Pull-Through Cache Module (`modules/pull-through-cache/`)
+Manages pull-through cache rules and associated IAM resources for upstream registry integration. Supports multiple upstream registries including Docker Hub, Quay.io, GitHub Container Registry, and Amazon ECR Public.
+
+**Key Benefits of Submodule Architecture:**
+- **Separation of Concerns** - Each submodule focuses on a specific functionality
+- **Optional Components** - Use only the features you need
+- **Easier Maintenance** - Isolated testing and development
+- **Reusability** - Submodules can be used independently in other projects
+
 ## Versioning
 
 This module follows [Semantic Versioning](https://semver.org/) principles. For full details on the versioning scheme, release process, and compatibility guarantees, see the following documentation:
@@ -52,6 +68,7 @@ Check the [examples](examples/) directory for examples including:
 - **Lifecycle Policies** - Image lifecycle management with predefined templates
 - **Pull Request Rules** - Governance and approval workflows for container images
 - **Enhanced KMS** - Advanced KMS key configuration with custom policies and access control
+- **Pull-Through Cache** - Cached access to upstream registries (Docker Hub, Quay, GitHub, etc.)
 
 ### Simple example
 This example creates an ECR registry using few parameters
@@ -1524,6 +1541,7 @@ For more details on tests, see the [test directory README](test/README.md).
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_kms"></a> [kms](#module\_kms) | ./modules/kms | n/a |
+| <a name="module_pull_through_cache"></a> [pull\_through\_cache](#module\_pull\_through\_cache) | ./modules/pull-through-cache | n/a |
 
 ## Resources
 
