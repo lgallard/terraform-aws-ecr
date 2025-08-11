@@ -1,62 +1,65 @@
-# Pull-Through Cache Example
+# ECR Pull-Through Cache Example
 
-This example demonstrates how to configure AWS ECR with pull-through cache rules for multiple upstream registries.
-
-## Features Demonstrated
-
-- Pull-through cache configuration for multiple upstream registries
-- Docker Hub, Quay.io, GitHub Container Registry, and Amazon ECR Public integration
-- Optional credential management for private registries
-- Lifecycle policies optimized for cached images
-- Enhanced image scanning and security features
+This example demonstrates how to configure Amazon ECR with pull-through cache rules to cache images from public registries like Docker Hub, Quay.io, GitHub Container Registry, and Amazon ECR Public.
 
 ## What This Example Creates
 
-1. **ECR Repository** with pull-through cache enabled
-2. **Pull-Through Cache Rules** for multiple upstream registries:
-   - Docker Hub (`docker-hub/*`)
-   - Quay.io (`quay/*`)
-   - GitHub Container Registry (`ghcr/*`)
-   - Amazon ECR Public (`public-ecr/*`)
-3. **IAM Role and Policy** for cache operations
-4. **Lifecycle Policy** to manage cached images
-5. **Image Scanning** configuration
+- **ECR Repository** with pull-through cache enabled
+- **Pull-Through Cache Rules** for multiple upstream registries
+- **IAM Role and Policies** for cache operations
+- **Lifecycle Policy** for managing cached images
+- **Enhanced Image Scanning** for security
+
+## Architecture
+
+```
+External Registries          Your AWS ECR
+┌─────────────────┐          ┌──────────────────┐
+│   Docker Hub    │──────────│                  │
+│     Quay.io     │   Pull   │  Pull-Through    │
+│     GHCR        │ ────────►│     Cache        │
+│  ECR Public     │          │                  │
+└─────────────────┘          └──────────────────┘
+```
+
+## Prerequisites
+
+- AWS CLI configured with appropriate permissions
+- Terraform installed
+- ECR permissions for pull-through cache management
 
 ## Usage
+
+### 1. Configure Variables
+
+```bash
+# Set your preferred AWS region
+export AWS_DEFAULT_REGION=us-west-2
+
+# Optional: Configure credentials for private registries
+export TF_VAR_quay_credentials_arn="arn:aws:secretsmanager:region:account:secret:quay-creds"
+export TF_VAR_github_credentials_arn="arn:aws:secretsmanager:region:account:secret:github-creds"
+```
+
+### 2. Deploy Infrastructure
 
 ```bash
 # Initialize Terraform
 terraform init
 
-# Plan the deployment
+# Review the plan
 terraform plan
 
 # Apply the configuration
 terraform apply
-
-# View outputs including pull examples
-terraform output
 ```
 
-## Configuration Options
+### 3. Use Pull-Through Cache
 
-### Required Variables
-
-- `repository_name` - Name for your ECR repository
-
-### Optional Variables
-
-- `environment` - Environment tag (default: "dev")
-- `force_delete` - Force delete repository with images (default: false)
-- `quay_credentials_arn` - ARN for Quay.io credentials (for private repos)
-- `github_credentials_arn` - ARN for GitHub credentials (for private repos)
-
-## Using the Cache
-
-Once deployed, you can pull images through your ECR cache:
+After deployment, you can pull images through your cache:
 
 ```bash
-# Configure AWS credentials
+# Login to ECR
 aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-west-2.amazonaws.com
 
 # Pull from Docker Hub through your cache
@@ -87,12 +90,15 @@ For private registries, store credentials in AWS Secrets Manager:
 ```bash
 # Example: Store Quay.io credentials
 aws secretsmanager create-secret \
-  --name "quay-io-credentials" \
-  --description "Credentials for Quay.io private repositories" \
-  --secret-string '{"username":"your-username","password":"your-password"}'
+    --name "ecr-pullthroughcache/quay" \
+    --description "Quay.io credentials for ECR pull-through cache" \
+    --secret-string '{"username":"your-username","accessToken":"your-token"}'
 
-# Use the ARN in your Terraform variables
-terraform apply -var="quay_credentials_arn=arn:aws:secretsmanager:us-west-2:123456789012:secret:quay-io-credentials-AbCdEf"
+# Example: Store GitHub credentials  
+aws secretsmanager create-secret \
+    --name "ecr-pullthroughcache/github" \
+    --description "GitHub Container Registry credentials" \
+    --secret-string '{"username":"your-username","accessToken":"ghp_your_personal_access_token"}'
 ```
 
 ## Monitoring and Troubleshooting
@@ -113,4 +119,3 @@ terraform destroy
 
 - Storage costs apply to cached images
 - Use lifecycle policies to manage storage costs
-- Consider your image pull patterns when configuring cache rules
