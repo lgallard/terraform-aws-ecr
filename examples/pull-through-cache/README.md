@@ -62,7 +62,7 @@ aws ecr get-login-password --region us-west-2 | docker login --username AWS --pa
 # Pull from Docker Hub through your cache
 docker pull <account-id>.dkr.ecr.us-west-2.amazonaws.com/docker-hub/library/nginx:latest
 
-# Pull from Quay.io through your cache  
+# Pull from Quay.io through your cache
 docker pull <account-id>.dkr.ecr.us-west-2.amazonaws.com/quay/prometheus/prometheus:latest
 
 # Pull from GitHub Container Registry through your cache
@@ -112,6 +112,6 @@ terraform destroy
 ## Cost Considerations
 
 - Storage costs apply to cached images
-
 - Use lifecycle policies to manage storage costs
+
 - Consider your image pull patterns when configuring cache rules
