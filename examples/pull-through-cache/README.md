@@ -112,5 +112,6 @@ terraform destroy
 ## Cost Considerations
 
 - Storage costs apply to cached images
+
 - Use lifecycle policies to manage storage costs
 - Consider your image pull patterns when configuring cache rules
