@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.26.0...0.27.0) (2025-08-11)
+
+
+### Features
+
+* extract pull-through cache rules into dedicated submodule ([#142](https://github.com/lgallard/terraform-aws-ecr/issues/142)) ([d2a9f4c](https://github.com/lgallard/terraform-aws-ecr/commit/d2a9f4cb58789f01442ef73650e304225098b539))
+
 ## [0.26.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.25.1...0.26.0) (2025-08-09)
 
 
