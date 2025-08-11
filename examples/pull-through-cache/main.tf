@@ -38,9 +38,9 @@ module "ecr_with_pull_through_cache" {
   ]
 
   # Repository configuration
-  image_tag_mutability         = "IMMUTABLE"
-  repository_force_delete      = var.force_delete
-  repository_encryption_type   = "AES256"
+  image_tag_mutability = "IMMUTABLE"
+  force_delete         = var.force_delete
+  encryption_type      = "AES256"
 
   # Image scanning
   scan_on_push             = true
@@ -48,7 +48,7 @@ module "ecr_with_pull_through_cache" {
   registry_scan_type       = "ENHANCED"
 
   # Lifecycle policy to manage cached images
-  repository_lifecycle_policy = jsonencode({
+  lifecycle_policy = jsonencode({
     rules = [
       {
         rulePriority = 1
