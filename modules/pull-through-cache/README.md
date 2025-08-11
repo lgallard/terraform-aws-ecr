@@ -78,5 +78,3 @@ module "pull_through_cache" {
 |------|-------------|
 | pull_through_cache_rules | List of pull-through cache rules |
 | pull_through_cache_role_arn | The ARN of the IAM role used for pull-through cache operations |
-
-| pull_through_cache_role_name | The name of the IAM role used for pull-through cache operations |
