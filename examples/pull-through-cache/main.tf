@@ -2,19 +2,6 @@
 # Pull-Through Cache Example Configuration
 # ----------------------------------------------------------
 
-terraform {
-  required_version = ">= 1.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.0"
-    }
-  }
-}
-
-# Data source for current AWS account ID
-data "aws_caller_identity" "current" {}
-
 # ----------------------------------------------------------
 # ECR Repository with Pull-Through Cache
 # ----------------------------------------------------------

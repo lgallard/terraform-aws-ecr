@@ -122,7 +122,6 @@ resource "aws_ecr_repository" "repo_protected" {
 
 # Repository output references for use in other resources and outputs
 locals {
-  repository_id   = var.prevent_destroy ? one(aws_ecr_repository.repo_protected[*].id) : one(aws_ecr_repository.repo[*].id)
   repository_arn  = var.prevent_destroy ? one(aws_ecr_repository.repo_protected[*].arn) : one(aws_ecr_repository.repo[*].arn)
   repository_name = var.prevent_destroy ? one(aws_ecr_repository.repo_protected[*].name) : one(aws_ecr_repository.repo[*].name)
   repository_url  = var.prevent_destroy ? one(aws_ecr_repository.repo_protected[*].repository_url) : one(aws_ecr_repository.repo[*].repository_url)
