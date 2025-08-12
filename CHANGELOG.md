@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.27.0...0.27.1) (2025-08-12)
+
+
+### Bug Fixes
+
+* address failing pre-commit checks in pull-through cache PR ([#145](https://github.com/lgallard/terraform-aws-ecr/issues/145)) ([dacc9e1](https://github.com/lgallard/terraform-aws-ecr/commit/dacc9e18f1cb52acb54d3ddc5393041ec85f3e41))
+
 ## [0.27.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.26.0...0.27.0) (2025-08-11)
 
 
