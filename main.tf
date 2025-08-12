@@ -2,10 +2,50 @@
 # KMS Module Integration
 # ----------------------------------------------------------
 
+# Local configuration for modules
+locals {
+  kms_modules = local.should_create_kms_key ? {
+    kms = {
+      source = "./modules/kms"
+    }
+  } : {}
+
+  logging_resources = var.enable_logging ? {
+    log_group = {
+      name              = "/aws/ecr/${var.name}"
+      retention_in_days = var.log_retention_days
+      tag_name         = "${var.name}-logs"
+    }
+    iam_role = {
+      name     = "ecr-logging-${var.name}"
+      tag_name = "${var.name}-logging-role"
+    }
+  } : {}
+
+  replication_configs = var.enable_replication && length(var.replication_regions) > 0 ? {
+    replication = {
+      regions = var.replication_regions
+    }
+  } : {}
+
+  scanning_configs = var.enable_registry_scanning ? {
+    scanning = {
+      scan_type = var.enable_secret_scanning ? "ENHANCED" : var.registry_scan_type
+      filters   = var.scan_repository_filters
+    }
+  } : {}
+
+  pull_through_cache_modules = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? {
+    cache = {
+      source = "./modules/pull-through-cache"
+    }
+  } : {}
+}
+
 # KMS key submodule
 module "kms" {
-  count  = local.should_create_kms_key ? 1 : 0
-  source = "./modules/kms"
+  for_each = local.kms_modules
+  source   = each.value.source
 
   name           = var.name
   aws_account_id = data.aws_caller_identity.current.account_id
@@ -37,22 +77,24 @@ module "kms" {
 
 # CloudWatch Log Group for ECR logs
 resource "aws_cloudwatch_log_group" "ecr_logs" {
-  count             = var.enable_logging ? 1 : 0
-  name              = "/aws/ecr/${var.name}"
-  retention_in_days = var.log_retention_days
+  for_each = { for k, v in local.logging_resources : k => v if k == "log_group" }
+
+  name              = each.value.name
+  retention_in_days = each.value.retention_in_days
 
   tags = merge(
     local.final_tags,
     {
-      Name = "${var.name}-logs"
+      Name = each.value.tag_name
     }
   )
 }
 
 # IAM Role for ECR logging
 resource "aws_iam_role" "ecr_logging" {
-  count = var.enable_logging ? 1 : 0
-  name  = "ecr-logging-${var.name}"
+  for_each = { for k, v in local.logging_resources : k => v if k == "iam_role" }
+
+  name = each.value.name
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -70,16 +112,17 @@ resource "aws_iam_role" "ecr_logging" {
   tags = merge(
     local.final_tags,
     {
-      Name = "${var.name}-logging-role"
+      Name = each.value.tag_name
     }
   )
 }
 
 # IAM Policy for ECR logging
 resource "aws_iam_role_policy" "ecr_logging" {
-  count = var.enable_logging ? 1 : 0
-  name  = "ecr-logging-${var.name}"
-  role  = aws_iam_role.ecr_logging[0].id
+  for_each = { for k, v in local.logging_resources : k => v if k == "iam_role" }
+
+  name = "ecr-logging-${var.name}"
+  role = aws_iam_role.ecr_logging[each.key].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -92,7 +135,7 @@ resource "aws_iam_role_policy" "ecr_logging" {
           "logs:CreateLogGroup"
         ]
         Resource = [
-          "${aws_cloudwatch_log_group.ecr_logs[0].arn}:*"
+          "${aws_cloudwatch_log_group.ecr_logs["log_group"].arn}:*"
         ]
       }
     ]
@@ -105,12 +148,12 @@ resource "aws_iam_role_policy" "ecr_logging" {
 
 # ECR replication configuration for cross-region replication
 resource "aws_ecr_replication_configuration" "replication" {
-  count = var.enable_replication && length(var.replication_regions) > 0 ? 1 : 0
+  for_each = local.replication_configs
 
   replication_configuration {
     rule {
       dynamic "destination" {
-        for_each = var.replication_regions
+        for_each = each.value.regions
         content {
           region      = destination.value
           registry_id = data.aws_caller_identity.current.account_id
@@ -132,14 +175,14 @@ resource "aws_ecr_replication_configuration" "replication" {
 
 # Registry scanning configuration for enhanced security scanning
 resource "aws_ecr_registry_scanning_configuration" "scanning" {
-  count = var.enable_registry_scanning ? 1 : 0
+  for_each = local.scanning_configs
 
   # Use ENHANCED scan type when secret scanning is enabled, otherwise use the configured type
-  scan_type = var.enable_secret_scanning ? "ENHANCED" : var.registry_scan_type
+  scan_type = each.value.scan_type
 
   # Create rules for each repository filter pattern
   dynamic "rule" {
-    for_each = var.scan_repository_filters
+    for_each = each.value.filters
     content {
       scan_frequency = "SCAN_ON_PUSH"
 
@@ -171,8 +214,8 @@ resource "aws_ecr_registry_scanning_configuration" "scanning" {
 
 # Pull-through cache submodule
 module "pull_through_cache" {
-  count  = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? 1 : 0
-  source = "./modules/pull-through-cache"
+  for_each = local.pull_through_cache_modules
+  source   = each.value.source
 
   name                     = var.name
   aws_account_id           = data.aws_caller_identity.current.account_id
