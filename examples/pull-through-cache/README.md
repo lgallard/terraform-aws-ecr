@@ -94,7 +94,7 @@ aws secretsmanager create-secret \
     --description "Quay.io credentials for ECR pull-through cache" \
     --secret-string '{"username":"your-username","accessToken":"your-token"}'
 
-# Example: Store GitHub credentials  
+# Example: Store GitHub credentials
 aws secretsmanager create-secret \
     --name "ecr-pullthroughcache/github" \
     --description "GitHub Container Registry credentials" \
