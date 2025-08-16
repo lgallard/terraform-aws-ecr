@@ -298,7 +298,7 @@ resource "aws_cloudwatch_event_target" "pull_request_rules_webhook" {
       tag         = "<tag>"
       action      = "<action>"
       time        = "<time>"
-      webhook_url = local.pull_request_rule_events_webhook[count.index].event.webhook_url
+      webhook_url = each.value.event.webhook_url
     })
   }
 }
