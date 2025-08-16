@@ -5,9 +5,7 @@
 # Local configuration for modules
 locals {
   kms_modules = local.should_create_kms_key ? {
-    kms = {
-      source = "./modules/kms"
-    }
+    kms = {}
   } : {}
 
   logging_resources = var.enable_logging ? {
@@ -36,16 +34,14 @@ locals {
   } : {}
 
   pull_through_cache_modules = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? {
-    cache = {
-      source = "./modules/pull-through-cache"
-    }
+    cache = {}
   } : {}
 }
 
 # KMS key submodule
 module "kms" {
   for_each = local.kms_modules
-  source   = each.value.source
+  source   = "./modules/kms"
 
   name           = var.name
   aws_account_id = data.aws_caller_identity.current.account_id
@@ -215,7 +211,7 @@ resource "aws_ecr_registry_scanning_configuration" "scanning" {
 # Pull-through cache submodule
 module "pull_through_cache" {
   for_each = local.pull_through_cache_modules
-  source   = each.value.source
+  source   = "./modules/pull-through-cache"
 
   name                     = var.name
   aws_account_id           = data.aws_caller_identity.current.account_id
