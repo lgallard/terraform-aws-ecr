@@ -131,7 +131,7 @@ resource "aws_iam_role_policy" "ecr_logging" {
           "logs:CreateLogGroup"
         ]
         Resource = [
-          "${aws_cloudwatch_log_group.ecr_logs["log_group"].arn}:*"
+          for log_group in aws_cloudwatch_log_group.ecr_logs : "${log_group.arn}:*"
         ]
       }
     ]

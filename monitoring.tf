@@ -236,30 +236,30 @@ resource "aws_sns_topic" "pull_request_rules" {
 
 # CloudWatch Event Rule for pull request rules
 resource "aws_cloudwatch_event_rule" "pull_request_rules" {
-  count = length(local.pull_request_rule_events)
+  for_each = { for i, event in local.pull_request_rule_events : "${i}-${event.name}" => event }
 
-  name        = "${var.name}-ecr-pr-rule-${local.pull_request_rule_events[count.index].name}"
-  description = "Pull request rule event for ${local.pull_request_rule_events[count.index].name}"
+  name        = "${var.name}-ecr-pr-rule-${each.value.name}"
+  description = "Pull request rule event for ${each.value.name}"
 
-  event_pattern = local.pull_request_rule_events[count.index].event_pattern
+  event_pattern = each.value.event_pattern
 
   tags = merge(
     local.final_tags,
     {
-      Name     = "${var.name}-ecr-pr-rule-${local.pull_request_rule_events[count.index].name}"
+      Name     = "${var.name}-ecr-pr-rule-${each.value.name}"
       Type     = "PullRequestRule"
-      RuleType = local.pull_request_rule_events[count.index].type
+      RuleType = each.value.type
     }
   )
 }
 
 # CloudWatch Event Target for SNS notifications
 resource "aws_cloudwatch_event_target" "pull_request_rules_sns" {
-  count = length(local.pull_request_rule_events_sns)
+  for_each = { for i, item in local.pull_request_rule_events_sns : "sns-${i}" => item }
 
-  rule      = aws_cloudwatch_event_rule.pull_request_rules[local.pull_request_rule_events_sns[count.index].original_index].name
+  rule      = aws_cloudwatch_event_rule.pull_request_rules["${each.value.original_index}-${each.value.event.name}"].name
   target_id = "SendToSNS"
-  arn       = local.pull_request_rule_events_sns[count.index].event.notification_topic_arn
+  arn       = each.value.event.notification_topic_arn
 
   input_transformer {
     input_paths = {
@@ -280,11 +280,11 @@ resource "aws_cloudwatch_event_target" "pull_request_rules_sns" {
 
 # CloudWatch Event Target for webhook notifications
 resource "aws_cloudwatch_event_target" "pull_request_rules_webhook" {
-  count = length(local.pull_request_rule_events_webhook)
+  for_each = { for i, item in local.pull_request_rule_events_webhook : "webhook-${i}" => item }
 
-  rule      = aws_cloudwatch_event_rule.pull_request_rules[local.pull_request_rule_events_webhook[count.index].original_index].name
+  rule      = aws_cloudwatch_event_rule.pull_request_rules["${each.value.original_index}-${each.value.event.name}"].name
   target_id = "SendToWebhook"
-  arn       = aws_lambda_function.pull_request_rules_webhook[count.index].arn
+  arn       = aws_lambda_function.pull_request_rules_webhook[each.key].arn
 
   input_transformer {
     input_paths = {
@@ -305,25 +305,25 @@ resource "aws_cloudwatch_event_target" "pull_request_rules_webhook" {
 
 # Lambda function for webhook notifications
 resource "aws_lambda_function" "pull_request_rules_webhook" {
-  count = length(local.pull_request_rule_events_webhook)
+  for_each = { for i, item in local.pull_request_rule_events_webhook : "webhook-${i}" => item }
 
-  filename      = data.archive_file.pull_request_rules_webhook[count.index].output_path
-  function_name = "${var.name}-ecr-pr-webhook-${local.pull_request_rule_events_webhook[count.index].event.name}"
-  role          = aws_iam_role.pull_request_rules_webhook[count.index].arn
+  filename      = data.archive_file.pull_request_rules_webhook[each.key].output_path
+  function_name = "${var.name}-ecr-pr-webhook-${each.value.event.name}"
+  role          = aws_iam_role.pull_request_rules_webhook[each.key].arn
   handler       = "index.handler"
-  runtime       = "python3.9"
+  runtime       = "python3.12"
   timeout       = 30
 
   environment {
     variables = {
-      WEBHOOK_URL = local.pull_request_rule_events_webhook[count.index].event.webhook_url
+      WEBHOOK_URL = each.value.event.webhook_url
     }
   }
 
   tags = merge(
     local.final_tags,
     {
-      Name = "${var.name}-ecr-pr-webhook-${local.pull_request_rule_events_webhook[count.index].event.name}"
+      Name = "${var.name}-ecr-pr-webhook-${each.value.event.name}"
       Type = "PullRequestRuleWebhook"
     }
   )
@@ -331,10 +331,10 @@ resource "aws_lambda_function" "pull_request_rules_webhook" {
 
 # Lambda function code for webhook notifications
 data "archive_file" "pull_request_rules_webhook" {
-  count = length(local.pull_request_rule_events_webhook)
+  for_each = { for i, item in local.pull_request_rule_events_webhook : "webhook-${i}" => item }
 
   type        = "zip"
-  output_path = "/tmp/pull_request_rules_webhook_${local.pull_request_rule_events_webhook[count.index].event.name}.zip"
+  output_path = "/tmp/pull_request_rules_webhook_${each.value.event.name}.zip"
 
   source {
     content  = <<-EOF
@@ -380,9 +380,9 @@ EOF
 
 # IAM role for Lambda webhook function
 resource "aws_iam_role" "pull_request_rules_webhook" {
-  count = length(local.pull_request_rule_events_webhook)
+  for_each = { for i, item in local.pull_request_rule_events_webhook : "webhook-${i}" => item }
 
-  name = "${var.name}-ecr-pr-webhook-role-${local.pull_request_rule_events_webhook[count.index].event.name}"
+  name = "${var.name}-ecr-pr-webhook-role-${each.value.event.name}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -400,7 +400,7 @@ resource "aws_iam_role" "pull_request_rules_webhook" {
   tags = merge(
     local.final_tags,
     {
-      Name = "${var.name}-ecr-pr-webhook-role-${local.pull_request_rule_events_webhook[count.index].event.name}"
+      Name = "${var.name}-ecr-pr-webhook-role-${each.value.event.name}"
       Type = "PullRequestRuleWebhookRole"
     }
   )
@@ -408,19 +408,19 @@ resource "aws_iam_role" "pull_request_rules_webhook" {
 
 # IAM policy attachment for Lambda webhook function
 resource "aws_iam_role_policy_attachment" "pull_request_rules_webhook" {
-  count = length(local.pull_request_rule_events_webhook)
+  for_each = { for i, item in local.pull_request_rule_events_webhook : "webhook-${i}" => item }
 
-  role       = aws_iam_role.pull_request_rules_webhook[count.index].name
+  role       = aws_iam_role.pull_request_rules_webhook[each.key].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 # Lambda permission for CloudWatch Events
 resource "aws_lambda_permission" "pull_request_rules_webhook" {
-  count = length(local.pull_request_rule_events_webhook)
+  for_each = { for i, item in local.pull_request_rule_events_webhook : "webhook-${i}" => item }
 
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.pull_request_rules_webhook[count.index].function_name
+  function_name = aws_lambda_function.pull_request_rules_webhook[each.key].function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.pull_request_rules[local.pull_request_rule_events_webhook[count.index].original_index].arn
+  source_arn    = aws_cloudwatch_event_rule.pull_request_rules["${each.value.original_index}-${each.value.event.name}"].arn
 }
