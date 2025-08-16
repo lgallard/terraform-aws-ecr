@@ -1,0 +1,129 @@
+# Terraform State Move Commands for Count-to-For_Each Migration
+# terraform-aws-ecr module v0.27.x -> v0.28.x+
+#
+# Usage: Execute these commands one by one, or copy relevant sections
+# Replace "ecr" with your actual module name if different
+#
+# IMPORTANT: Create a state backup before running these commands:
+# terraform state pull > terraform-state-backup-$(date +%Y%m%d-%H%M%S).tfstate
+
+# =============================================================================
+# CloudWatch Monitoring Resources
+# =============================================================================
+# Only run these if var.enable_monitoring = true
+
+# Storage usage alarm
+terraform state mv 'module.ecr.aws_cloudwatch_metric_alarm.repository_storage_usage[0]' 'module.ecr.aws_cloudwatch_metric_alarm.monitoring["storage_usage"]'
+
+# API call volume alarm  
+terraform state mv 'module.ecr.aws_cloudwatch_metric_alarm.api_call_volume[0]' 'module.ecr.aws_cloudwatch_metric_alarm.monitoring["api_call_volume"]'
+
+# Image push count alarm
+terraform state mv 'module.ecr.aws_cloudwatch_metric_alarm.image_push_count[0]' 'module.ecr.aws_cloudwatch_metric_alarm.monitoring["image_push_count"]'
+
+# Image pull count alarm
+terraform state mv 'module.ecr.aws_cloudwatch_metric_alarm.image_pull_count[0]' 'module.ecr.aws_cloudwatch_metric_alarm.monitoring["image_pull_count"]'
+
+# Security findings alarm (only if var.enable_registry_scanning = true)
+terraform state mv 'module.ecr.aws_cloudwatch_metric_alarm.security_findings[0]' 'module.ecr.aws_cloudwatch_metric_alarm.monitoring["security_findings"]'
+
+# =============================================================================
+# SNS Resources
+# =============================================================================
+# Only run these if var.enable_monitoring = true AND var.create_sns_topic = true
+
+# SNS Topic
+terraform state mv 'module.ecr.aws_sns_topic.ecr_monitoring[0]' 'module.ecr.aws_sns_topic.ecr_monitoring["ecr_monitoring"]'
+
+# SNS Subscriptions (run for each subscriber email)
+# Replace the numbers with actual indices based on your var.sns_topic_subscribers list
+terraform state mv 'module.ecr.aws_sns_topic_subscription.ecr_monitoring_email[0]' 'module.ecr.aws_sns_topic_subscription.ecr_monitoring_email["subscription-0"]'
+terraform state mv 'module.ecr.aws_sns_topic_subscription.ecr_monitoring_email[1]' 'module.ecr.aws_sns_topic_subscription.ecr_monitoring_email["subscription-1"]'
+terraform state mv 'module.ecr.aws_sns_topic_subscription.ecr_monitoring_email[2]' 'module.ecr.aws_sns_topic_subscription.ecr_monitoring_email["subscription-2"]'
+# Continue for all subscribers...
+
+# =============================================================================
+# KMS Module
+# =============================================================================
+# Only run this if var.create_kms_key = true
+
+terraform state mv 'module.ecr.module.kms[0]' 'module.ecr.module.kms["kms"]'
+
+# =============================================================================
+# Logging Resources  
+# =============================================================================
+# Only run these if var.enable_logging = true
+
+# CloudWatch Log Group
+terraform state mv 'module.ecr.aws_cloudwatch_log_group.ecr_logs[0]' 'module.ecr.aws_cloudwatch_log_group.ecr_logs["log_group"]'
+
+# IAM Role for logging
+terraform state mv 'module.ecr.aws_iam_role.ecr_logging[0]' 'module.ecr.aws_iam_role.ecr_logging["iam_role"]'
+
+# =============================================================================
+# Replication Configuration
+# =============================================================================
+# Only run this if var.enable_replication = true AND length(var.replication_regions) > 0
+
+terraform state mv 'module.ecr.aws_ecr_replication_configuration.replication[0]' 'module.ecr.aws_ecr_replication_configuration.replication["replication"]'
+
+# =============================================================================
+# Registry Scanning Configuration
+# =============================================================================
+# Only run this if var.enable_registry_scanning = true
+
+terraform state mv 'module.ecr.aws_ecr_registry_scanning_configuration.scanning[0]' 'module.ecr.aws_ecr_registry_scanning_configuration.scanning["scanning"]'
+
+# =============================================================================
+# Pull-Through Cache Module
+# =============================================================================
+# Only run this if var.enable_pull_through_cache = true AND length(var.pull_through_cache_rules) > 0
+
+terraform state mv 'module.ecr.module.pull_through_cache[0]' 'module.ecr.module.pull_through_cache["cache"]'
+
+# =============================================================================
+# Pull Request Rules (Advanced)
+# =============================================================================
+# Only run these if var.enable_pull_request_rules = true
+# Note: These commands depend on your specific pull request rules configuration
+# The exact keys depend on rule names and indices - adjust accordingly
+
+# Example for first rule (replace "rule-name" with actual rule name):
+# terraform state mv 'module.ecr.aws_cloudwatch_event_rule.pull_request_rules[0]' 'module.ecr.aws_cloudwatch_event_rule.pull_request_rules["0-rule-name"]'
+# terraform state mv 'module.ecr.aws_cloudwatch_event_target.pull_request_rules_sns[0]' 'module.ecr.aws_cloudwatch_event_target.pull_request_rules_sns["sns-0"]'
+# terraform state mv 'module.ecr.aws_cloudwatch_event_target.pull_request_rules_webhook[0]' 'module.ecr.aws_cloudwatch_event_target.pull_request_rules_webhook["webhook-0"]'
+# terraform state mv 'module.ecr.aws_lambda_function.pull_request_rules_webhook[0]' 'module.ecr.aws_lambda_function.pull_request_rules_webhook["webhook-0"]'
+# terraform state mv 'module.ecr.data.archive_file.pull_request_rules_webhook[0]' 'module.ecr.data.archive_file.pull_request_rules_webhook["webhook-0"]'
+# terraform state mv 'module.ecr.aws_iam_role.pull_request_rules_webhook[0]' 'module.ecr.aws_iam_role.pull_request_rules_webhook["webhook-0"]'
+# terraform state mv 'module.ecr.aws_iam_role_policy_attachment.pull_request_rules_webhook[0]' 'module.ecr.aws_iam_role_policy_attachment.pull_request_rules_webhook["webhook-0"]'
+# terraform state mv 'module.ecr.aws_lambda_permission.pull_request_rules_webhook[0]' 'module.ecr.aws_lambda_permission.pull_request_rules_webhook["webhook-0"]'
+
+# =============================================================================
+# Validation Commands
+# =============================================================================
+# Run these after migration to verify success:
+
+# List all resources in new format
+# terraform state list | grep -E "(monitoring|ecr_monitoring|kms|ecr_logs|replication|scanning|pull_through_cache)"
+
+# Validate configuration
+# terraform validate
+
+# Check plan (should show no changes if migration successful)
+# terraform plan
+
+# =============================================================================
+# Recovery Commands (if migration fails)
+# =============================================================================
+# Restore from backup:
+# terraform state push terraform-state-backup-[timestamp].tfstate
+
+# =============================================================================
+# Multiple Module Instances
+# =============================================================================
+# If you have multiple ECR modules, replace "ecr" with the appropriate module name:
+# Example for module named "app1_ecr":
+# terraform state mv 'module.app1_ecr.aws_cloudwatch_metric_alarm.repository_storage_usage[0]' 'module.app1_ecr.aws_cloudwatch_metric_alarm.monitoring["storage_usage"]'
+
+# Example for module named "app2_ecr":  
+# terraform state mv 'module.app2_ecr.aws_cloudwatch_metric_alarm.repository_storage_usage[0]' 'module.app2_ecr.aws_cloudwatch_metric_alarm.monitoring["storage_usage"]'
