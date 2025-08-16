@@ -95,7 +95,7 @@ locals {
       namespace           = "AWS/ECR"
       period              = "300"
       statistic           = "Sum"
-      threshold           = 10 # Alert if more than 10 pushes in 5 minutes
+      threshold           = var.monitoring_threshold_image_push
       alarm_description   = "This metric monitors ECR image push frequency for ${var.name}"
       tag_name           = "${var.name}-ecr-image-push-alarm"
       enabled            = true
@@ -111,7 +111,7 @@ locals {
       namespace           = "AWS/ECR"
       period              = "300"
       statistic           = "Sum"
-      threshold           = 100 # Alert if more than 100 pulls in 5 minutes
+      threshold           = var.monitoring_threshold_image_pull
       alarm_description   = "This metric monitors ECR image pull frequency for ${var.name}"
       tag_name           = "${var.name}-ecr-image-pull-alarm"
       enabled            = true

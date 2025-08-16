@@ -526,6 +526,26 @@ variable "monitoring_threshold_security_findings" {
   }
 }
 
+variable "monitoring_threshold_image_push" {
+  description = "Image push frequency threshold per 5-minute period to trigger CloudWatch alarm."
+  type        = number
+  default     = 10
+  validation {
+    condition     = var.monitoring_threshold_image_push > 0
+    error_message = "Image push threshold must be greater than 0."
+  }
+}
+
+variable "monitoring_threshold_image_pull" {
+  description = "Image pull frequency threshold per 5-minute period to trigger CloudWatch alarm."
+  type        = number
+  default     = 100
+  validation {
+    condition     = var.monitoring_threshold_image_pull > 0
+    error_message = "Image pull threshold must be greater than 0."
+  }
+}
+
 variable "create_sns_topic" {
   description = "Whether to create an SNS topic for CloudWatch alarm notifications."
   type        = bool
