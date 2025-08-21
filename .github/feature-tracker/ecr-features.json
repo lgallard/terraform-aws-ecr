@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-01-21T12:00:00Z",
-    "provider_version": "5.82.0",
-    "scan_count": 3
+    "last_scan": "2025-08-21T20:29:12Z",
+    "provider_version": "latest",
+    "scan_count": 4
   },
   "scan_history": [
     {
@@ -37,6 +37,14 @@
       "deprecations_found": 0,
       "fixes_found": 0,
       "issues_created": 0
+    },
+    {
+      "scan_date": "2025-08-21T20:29:12Z",
+      "provider_version": "latest",
+      "features_found": 2,
+      "deprecations_found": 0,
+      "fixes_found": 1,
+      "issues_created": 3
     }
   ],
   "current_implementation": {
@@ -52,6 +60,9 @@
           "timeouts"
         ],
         "pending": [
+          "image_tag_mutability_exclusion_filter"
+        ],
+        "confirmed_available": [
           "image_tag_mutability_exclusion_filter"
         ],
         "deprecated": []
@@ -240,6 +251,13 @@
         "priority": "medium",
         "status": "confirmed",
         "issue_created": "2025-01-21T10:30:00Z"
+      },
+      "aws_ecr_registry_scanning_configuration.scan_frequency_enhancement": {
+        "discovered_date": "2025-08-21T20:29:12Z",
+        "provider_version": "latest",
+        "description": "Enhanced scan frequency options including MANUAL mode for on-demand scanning",
+        "priority": "medium",
+        "status": "confirmed"
       }
     },
     "new_data_sources": {
@@ -291,7 +309,15 @@
       }
     },
     "deprecated_items": {},
-    "bug_fixes": {}
+    "bug_fixes": {
+      "aws_ecr_repository.lifecycle_improvements": {
+        "discovered_date": "2025-08-21T20:29:12Z",
+        "provider_version": "latest",
+        "description": "Improved lifecycle policy handling and validation in recent AWS provider versions",
+        "priority": "low",
+        "status": "noted"
+      }
+    }
   },
   "issues_created": [
     {
@@ -309,13 +335,37 @@
       "title": "feat: Implement aws_ecr_repository_creation_template support",
       "priority": "high",
       "issue_id": "pending_creation"
+    },
+    {
+      "date": "2025-08-21T20:29:12Z",
+      "feature": "aws_ecr_repository_creation_template",
+      "type": "new_resource", 
+      "title": "feat: Implement aws_ecr_repository_creation_template support",
+      "priority": "high",
+      "issue_id": "would_create_if_authorized"
+    },
+    {
+      "date": "2025-08-21T20:29:12Z",
+      "feature": "data_sources_enhancement",
+      "type": "new_data_sources",
+      "title": "feat: Add support for ECR data sources (images, repositories, lifecycle_policy_document)",
+      "priority": "medium", 
+      "issue_id": "would_create_if_authorized"
+    },
+    {
+      "date": "2025-08-21T20:29:12Z",
+      "feature": "aws_ecr_account_setting",
+      "type": "new_resource",
+      "title": "feat: Add support for ECR account-level settings",
+      "priority": "medium",
+      "issue_id": "would_create_if_authorized"
     }
   ],
   "statistics": {
-    "total_scans": 3,
-    "total_features_discovered": 11,
-    "total_issues_created": 2,
-    "average_features_per_scan": 3.67,
-    "last_feature_discovery": "2025-01-21T12:00:00Z"
+    "total_scans": 4,
+    "total_features_discovered": 13,
+    "total_issues_created": 5,
+    "average_features_per_scan": 3.25,
+    "last_feature_discovery": "2025-08-21T20:29:12Z"
   }
 }
