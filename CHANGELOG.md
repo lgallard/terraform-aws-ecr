@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.1.0...1.1.1) (2025-08-21)
+
+
+### Bug Fixes
+
+* add missing mode parameter for Claude Code Action ([9be7805](https://github.com/lgallard/terraform-aws-ecr/commit/9be78054b7c37f3c2b7ae68c4237ab7a83d85ecc))
+
 ## [1.1.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.0.0...1.1.0) (2025-08-21)
 
 
