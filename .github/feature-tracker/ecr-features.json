@@ -1,0 +1,134 @@
+{
+  "metadata": {
+    "module_name": "terraform-aws-ecr",
+    "last_scan": "1970-01-01T00:00:00Z",
+    "provider_version": "0.0.0",
+    "scan_count": 0
+  },
+  "scan_history": [
+    {
+      "scan_date": "1970-01-01T00:00:00Z",
+      "provider_version": "0.0.0",
+      "features_found": 0,
+      "deprecations_found": 0,
+      "fixes_found": 0,
+      "issues_created": 0
+    }
+  ],
+  "current_implementation": {
+    "resources": {
+      "aws_ecr_repository": {
+        "implemented": [
+          "name",
+          "image_tag_mutability",
+          "image_scanning_configuration",
+          "encryption_configuration",
+          "tags"
+        ],
+        "pending": [],
+        "deprecated": []
+      },
+      "aws_ecr_repository_policy": {
+        "implemented": [
+          "repository",
+          "policy"
+        ],
+        "pending": [],
+        "deprecated": []
+      },
+      "aws_ecr_lifecycle_policy": {
+        "implemented": [
+          "repository",
+          "policy"
+        ],
+        "pending": [],
+        "deprecated": []
+      },
+      "aws_ecr_registry_policy": {
+        "implemented": [
+          "policy"
+        ],
+        "pending": [],
+        "deprecated": []
+      },
+      "aws_ecr_registry_scanning_configuration": {
+        "implemented": [
+          "scan_type",
+          "rule"
+        ],
+        "pending": [],
+        "deprecated": []
+      },
+      "aws_ecr_replication_configuration": {
+        "implemented": [
+          "replication_configuration"
+        ],
+        "pending": [],
+        "deprecated": []
+      },
+      "aws_ecr_pull_through_cache_rule": {
+        "implemented": [
+          "ecr_repository_prefix",
+          "upstream_registry_url",
+          "credential_arn"
+        ],
+        "pending": [],
+        "deprecated": []
+      }
+    },
+    "data_sources": {
+      "aws_ecr_authorization_token": {
+        "implemented": [
+          "registry_id"
+        ],
+        "pending": [],
+        "deprecated": []
+      },
+      "aws_ecr_image": {
+        "implemented": [
+          "repository_name",
+          "image_tag",
+          "registry_id"
+        ],
+        "pending": [],
+        "deprecated": []
+      },
+      "aws_ecr_repository": {
+        "implemented": [
+          "name",
+          "registry_id"
+        ],
+        "pending": [],
+        "deprecated": []
+      }
+    },
+    "submodules": {
+      "kms": {
+        "resources": [
+          "aws_kms_key",
+          "aws_kms_alias"
+        ]
+      },
+      "pull-through-cache": {
+        "resources": [
+          "aws_ecr_pull_through_cache_rule"
+        ]
+      }
+    }
+  },
+  "discovered_features": {
+    "new_resources": {},
+    "new_arguments": {},
+    "new_data_sources": {},
+    "deprecated_items": {},
+    "bug_fixes": {}
+  },
+  "issues_created": [],
+  "statistics": {
+    "total_scans": 0,
+    "total_features_discovered": 0,
+    "total_issues_created": 0,
+    "average_features_per_scan": 0,
+    "last_feature_discovery": "never"
+  }
+}
