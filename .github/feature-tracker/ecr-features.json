@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-01-21T10:30:00Z",
-    "provider_version": "latest",
-    "scan_count": 2
+    "last_scan": "2025-01-21T12:00:00Z",
+    "provider_version": "5.82.0",
+    "scan_count": 3
   },
   "scan_history": [
     {
@@ -29,6 +29,14 @@
       "deprecations_found": 0,
       "fixes_found": 0,
       "issues_created": 2
+    },
+    {
+      "scan_date": "2025-01-21T12:00:00Z",
+      "provider_version": "5.82.0",
+      "features_found": 3,
+      "deprecations_found": 0,
+      "fixes_found": 0,
+      "issues_created": 0
     }
   ],
   "current_implementation": {
@@ -107,6 +115,14 @@
           "lifecycle_policy",
           "repository_policy",
           "resource_tags"
+        ],
+        "deprecated": []
+      },
+      "aws_ecr_account_setting": {
+        "implemented": [],
+        "pending": [
+          "name",
+          "value"
         ],
         "deprecated": []
       }
@@ -253,6 +269,27 @@
         "priority": "low"
       }
     },
+    "new_resources": {
+      "aws_ecr_account_setting": {
+        "discovered_date": "2025-01-21T12:00:00Z",
+        "provider_version": "5.82.0",
+        "description": "Manages ECR account-level settings including scan type and policy scope",
+        "priority": "medium",
+        "arguments": [
+          "name",
+          "value"
+        ]
+      }
+    },
+    "new_arguments": {
+      "aws_ecr_registry_scanning_configuration.scan_frequency": {
+        "discovered_date": "2025-01-21T12:00:00Z",
+        "provider_version": "5.82.0",
+        "description": "Enhanced scanning frequency options: SCAN_ON_PUSH, CONTINUOUS_SCAN, MANUAL",
+        "priority": "medium",
+        "status": "discovered"
+      }
+    },
     "deprecated_items": {},
     "bug_fixes": {}
   },
@@ -275,10 +312,10 @@
     }
   ],
   "statistics": {
-    "total_scans": 2,
-    "total_features_discovered": 9,
+    "total_scans": 3,
+    "total_features_discovered": 11,
     "total_issues_created": 2,
-    "average_features_per_scan": 4.5,
-    "last_feature_discovery": "2025-01-21T10:30:00Z"
+    "average_features_per_scan": 3.67,
+    "last_feature_discovery": "2025-01-21T12:00:00Z"
   }
 }
