@@ -181,20 +181,20 @@ jobs:
 
             ```bash
             # For new features
-            gh issue create --template .github/ISSUE_TEMPLATE/new-ecr-feature.md \
-              --title "feat: Add support for [feature_name]" \
+            gh issue create --title "feat: Add support for [feature_name]" \
+              --body "Auto-discovered ECR feature requiring implementation. See feature tracker for details." \
               --label "enhancement,aws-provider-update,auto-discovered" \
               --assignee "@me"
 
             # For deprecations
-            gh issue create --template .github/ISSUE_TEMPLATE/ecr-deprecation.md \
-              --title "chore: Handle deprecation of [feature_name]" \
+            gh issue create --title "chore: Handle deprecation of [feature_name]" \
+              --body "Auto-discovered deprecation in AWS ECR provider. Migration required." \
               --label "deprecation,breaking-change,auto-discovered" \
               --assignee "@me"
 
             # For bug fixes
-            gh issue create --template .github/ISSUE_TEMPLATE/ecr-bug-fix.md \
-              --title "fix: Address [bug_description]" \
+            gh issue create --title "fix: Address [bug_description]" \
+              --body "Auto-discovered bug fix available in AWS ECR provider." \
               --label "bug,aws-provider-update,auto-discovered" \
               --assignee "@me"
             ```
