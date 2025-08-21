@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-08-21T23:50:00Z",
+    "last_scan": "2025-08-21T23:55:00Z",
     "provider_version": "5.50.0",
-    "scan_count": 8
+    "scan_count": 9
   },
   "scan_history": [
     {
@@ -77,6 +77,14 @@
       "deprecations_found": 0,
       "fixes_found": 0,
       "issues_created": 0
+    },
+    {
+      "scan_date": "2025-08-21T23:55:00Z",
+      "provider_version": "5.50.0",
+      "features_found": 1,
+      "deprecations_found": 0,
+      "fixes_found": 1,
+      "issues_created": 1
     }
   ],
   "current_implementation": {
@@ -332,6 +340,14 @@
         "description": "Upstream repository prefix for pull through cache rule. Used for ECR private registry and wildcard configurations. Defaults to ROOT",
         "priority": "medium",
         "status": "confirmed_available"
+      },
+      "aws_ecr_repository.image_tag_mutability_validation_enhancement": {
+        "discovered_date": "2025-08-21T23:55:00Z",
+        "provider_version": "5.50.0",
+        "description": "Module validation needs update to support IMMUTABLE_WITH_EXCLUSION and MUTABLE_WITH_EXCLUSION values for enhanced tag protection",
+        "priority": "medium",
+        "status": "validation_bug",
+        "issue_needed": "fix: Update image_tag_mutability validation for IMMUTABLE_WITH_EXCLUSION support"
       }
     },
     "new_data_sources": {
@@ -390,6 +406,13 @@
         "description": "Improved lifecycle policy handling and validation in recent AWS provider versions",
         "priority": "low",
         "status": "noted"
+      },
+      "aws_ecr_registry_scanning_configuration.manual_scan_frequency_confirmation": {
+        "discovered_date": "2025-08-21T23:55:00Z",
+        "provider_version": "5.50.0",
+        "description": "Confirmed MANUAL scan frequency option is available in aws_ecr_registry_scanning_configuration resource, complementing SCAN_ON_PUSH and CONTINUOUS_SCAN",
+        "priority": "low",
+        "status": "confirmed_available"
       }
     }
   },
@@ -433,13 +456,21 @@
       "title": "feat: Add support for ECR account-level settings",
       "priority": "medium",
       "issue_id": "would_create_if_authorized"
+    },
+    {
+      "date": "2025-08-21T23:55:00Z",
+      "feature": "aws_ecr_repository.image_tag_mutability_validation_enhancement",
+      "type": "validation_bug_fix",
+      "title": "fix: Update image_tag_mutability validation for IMMUTABLE_WITH_EXCLUSION support",
+      "priority": "medium",
+      "issue_id": "pending_creation_requires_approval"
     }
   ],
   "statistics": {
-    "total_scans": 8,
-    "total_features_discovered": 19,
-    "total_issues_created": 7,
-    "average_features_per_scan": 2.4,
-    "last_feature_discovery": "2025-08-21T23:50:00Z"
+    "total_scans": 9,
+    "total_features_discovered": 20,
+    "total_issues_created": 8,
+    "average_features_per_scan": 2.2,
+    "last_feature_discovery": "2025-08-21T23:55:00Z"
   }
 }
