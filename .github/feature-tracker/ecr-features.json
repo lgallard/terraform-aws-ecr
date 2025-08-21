@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-08-21T23:45:00Z",
-    "provider_version": "latest",
-    "scan_count": 7
+    "last_scan": "2025-08-21T23:50:00Z",
+    "provider_version": "5.50.0",
+    "scan_count": 8
   },
   "scan_history": [
     {
@@ -69,6 +69,14 @@
       "deprecations_found": 0,
       "fixes_found": 0,
       "issues_created": 0
+    },
+    {
+      "scan_date": "2025-08-21T23:50:00Z",
+      "provider_version": "5.50.0",
+      "features_found": 2,
+      "deprecations_found": 0,
+      "fixes_found": 0,
+      "issues_created": 2
     }
   ],
   "current_implementation": {
@@ -310,6 +318,20 @@
         "description": "Pull-through cache rules now support custom_role_arn and upstream_repository_prefix for enhanced cross-account and wildcard configurations",
         "priority": "medium",
         "status": "confirmed_available"
+      },
+      "aws_ecr_pull_through_cache_rule.custom_role_arn": {
+        "discovered_date": "2025-08-21T23:50:00Z",
+        "provider_version": "5.50.0",
+        "description": "ARN of the IAM role associated with the pull through cache rule. Required for cross-account ECR private registry configurations",
+        "priority": "medium",
+        "status": "confirmed_available"
+      },
+      "aws_ecr_pull_through_cache_rule.upstream_repository_prefix": {
+        "discovered_date": "2025-08-21T23:50:00Z",
+        "provider_version": "5.50.0",
+        "description": "Upstream repository prefix for pull through cache rule. Used for ECR private registry and wildcard configurations. Defaults to ROOT",
+        "priority": "medium",
+        "status": "confirmed_available"
       }
     },
     "new_data_sources": {
@@ -411,13 +433,29 @@
       "title": "feat: Add support for ECR account-level settings",
       "priority": "medium",
       "issue_id": "would_create_if_authorized"
+    },
+    {
+      "date": "2025-08-21T23:50:00Z",
+      "feature": "aws_ecr_pull_through_cache_rule.custom_role_arn",
+      "type": "new_argument",
+      "title": "feat: Add support for custom_role_arn in pull-through cache rules",
+      "priority": "medium",
+      "issue_id": "not_authorized_to_create"
+    },
+    {
+      "date": "2025-08-21T23:50:00Z",
+      "feature": "aws_ecr_pull_through_cache_rule.upstream_repository_prefix",
+      "type": "new_argument",
+      "title": "feat: Add support for upstream_repository_prefix in pull-through cache rules",
+      "priority": "medium",
+      "issue_id": "not_authorized_to_create"
     }
   ],
   "statistics": {
-    "total_scans": 7,
-    "total_features_discovered": 17,
-    "total_issues_created": 5,
+    "total_scans": 8,
+    "total_features_discovered": 19,
+    "total_issues_created": 7,
     "average_features_per_scan": 2.4,
-    "last_feature_discovery": "2025-08-21T20:30:45Z"
+    "last_feature_discovery": "2025-08-21T23:50:00Z"
   }
 }
