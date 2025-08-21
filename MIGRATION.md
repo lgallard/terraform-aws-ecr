@@ -17,10 +17,10 @@ The module converted from `count` patterns to `for_each` patterns for better res
 
 ## Benefits
 
-✅ **Better State Management**: Stable resource addresses that don't shift when configuration changes  
-✅ **Improved Performance**: Better terraform parallelization and plan efficiency  
-✅ **Enhanced Maintainability**: Centralized resource configuration with locals  
-✅ **Future-Proof Design**: Easier to extend with new monitoring types and configurations  
+✅ **Better State Management**: Stable resource addresses that don't shift when configuration changes
+✅ **Improved Performance**: Better terraform parallelization and plan efficiency
+✅ **Enhanced Maintainability**: Centralized resource configuration with locals
+✅ **Future-Proof Design**: Easier to extend with new monitoring types and configurations
 
 ## Prerequisites
 
@@ -49,7 +49,7 @@ Update your Terraform configuration to use the new module version:
 module "ecr" {
   source = "lgallard/ecr/aws"
   version = "~> 0.28.0"  # Update to the new version
-  
+
   # Your existing configuration...
 }
 ```
@@ -159,9 +159,9 @@ The new version introduces configurable monitoring thresholds:
 module "ecr" {
   source = "lgallard/ecr/aws"
   version = "~> 0.28.0"
-  
+
   # Previous configuration...
-  
+
   # New configurable thresholds (optional)
   monitoring_threshold_image_push = 15    # Default: 10
   monitoring_threshold_image_pull = 150   # Default: 100
@@ -227,7 +227,7 @@ If you have multiple ECR modules:
 # Module instance: app1
 terraform state mv 'module.app1_ecr.aws_cloudwatch_metric_alarm.repository_storage_usage[0]' 'module.app1_ecr.aws_cloudwatch_metric_alarm.monitoring["storage_usage"]'
 
-# Module instance: app2  
+# Module instance: app2
 terraform state mv 'module.app2_ecr.aws_cloudwatch_metric_alarm.repository_storage_usage[0]' 'module.app2_ecr.aws_cloudwatch_metric_alarm.monitoring["storage_usage"]'
 ```
 
@@ -236,7 +236,7 @@ terraform state mv 'module.app2_ecr.aws_cloudwatch_metric_alarm.repository_stora
 Only migrate resources for features you have enabled:
 
 - **Monitoring disabled**: Skip CloudWatch and SNS migrations
-- **KMS disabled**: Skip KMS module migration  
+- **KMS disabled**: Skip KMS module migration
 - **Logging disabled**: Skip logging resource migrations
 - **Enhanced scanning disabled**: Skip scanning configuration and security findings alarm
 

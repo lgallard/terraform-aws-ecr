@@ -12,7 +12,7 @@ locals {
     log_group = {
       name              = "/aws/ecr/${var.name}"
       retention_in_days = var.log_retention_days
-      tag_name         = "${var.name}-logs"
+      tag_name          = "${var.name}-logs"
     }
     iam_role = {
       name     = "ecr-logging-${var.name}"

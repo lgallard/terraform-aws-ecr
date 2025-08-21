@@ -65,8 +65,8 @@ locals {
       statistic           = "Average"
       threshold           = var.monitoring_threshold_storage * 1024 * 1024 * 1024 # Convert GB to bytes
       alarm_description   = "This metric monitors ECR repository storage usage for ${var.name}"
-      tag_name           = "${var.name}-ecr-storage-usage-alarm"
-      enabled            = true
+      tag_name            = "${var.name}-ecr-storage-usage-alarm"
+      enabled             = true
       dimensions = {
         RepositoryName = local.repository_name
       }
@@ -81,8 +81,8 @@ locals {
       statistic           = "Sum"
       threshold           = var.monitoring_threshold_api_calls
       alarm_description   = "This metric monitors ECR API call volume for ${var.name}"
-      tag_name           = "${var.name}-ecr-api-calls-alarm"
-      enabled            = true
+      tag_name            = "${var.name}-ecr-api-calls-alarm"
+      enabled             = true
       dimensions = {
         RepositoryName = local.repository_name
       }
@@ -97,8 +97,8 @@ locals {
       statistic           = "Sum"
       threshold           = var.monitoring_threshold_image_push
       alarm_description   = "This metric monitors ECR image push frequency for ${var.name}"
-      tag_name           = "${var.name}-ecr-image-push-alarm"
-      enabled            = true
+      tag_name            = "${var.name}-ecr-image-push-alarm"
+      enabled             = true
       dimensions = {
         RepositoryName = local.repository_name
       }
@@ -113,8 +113,8 @@ locals {
       statistic           = "Sum"
       threshold           = var.monitoring_threshold_image_pull
       alarm_description   = "This metric monitors ECR image pull frequency for ${var.name}"
-      tag_name           = "${var.name}-ecr-image-pull-alarm"
-      enabled            = true
+      tag_name            = "${var.name}-ecr-image-pull-alarm"
+      enabled             = true
       dimensions = {
         RepositoryName = local.repository_name
       }
@@ -129,8 +129,8 @@ locals {
       statistic           = "Maximum"
       threshold           = var.monitoring_threshold_security_findings
       alarm_description   = "This metric monitors ECR security findings for ${var.name}"
-      tag_name           = "${var.name}-ecr-security-findings-alarm"
-      enabled            = var.enable_registry_scanning
+      tag_name            = "${var.name}-ecr-security-findings-alarm"
+      enabled             = var.enable_registry_scanning
       dimensions = {
         RepositoryName = local.repository_name
       }
