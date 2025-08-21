@@ -1,12 +1,17 @@
 # Changelog
 
-## [0.28.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.27.1...0.28.0) (2025-08-21)
+## [1.0.0](https://github.com/lgallard/terraform-aws-ecr/compare/0.27.1...1.0.0) (2025-08-21)
 
+
+### ⚠ BREAKING CHANGES
+
+* **resource addressing**: optimize resource management by replacing count with for_each patterns ([#147](https://github.com/lgallard/terraform-aws-ecr/issues/147)) ([2009edd](https://github.com/lgallard/terraform-aws-ecr/commit/2009eddb336482c3d3b699518f25f7d33e1f9ab5))
+
+This is a breaking change that converts all resources from `count` to `for_each` patterns. Existing Terraform state will need to be migrated. See MIGRATION.md for detailed migration instructions.
 
 ### Features
 
 * add automated ECR feature discovery system ([#149](https://github.com/lgallard/terraform-aws-ecr/issues/149)) ([a8e0fbf](https://github.com/lgallard/terraform-aws-ecr/commit/a8e0fbf50203c5816d3be455d13f992b2aa587d3))
-* optimize resource management by replacing count with for_each patterns ([#147](https://github.com/lgallard/terraform-aws-ecr/issues/147)) ([2009edd](https://github.com/lgallard/terraform-aws-ecr/commit/2009eddb336482c3d3b699518f25f7d33e1f9ab5))
 
 ## [0.27.1](https://github.com/lgallard/terraform-aws-ecr/compare/0.27.0...0.27.1) (2025-08-12)
 
