@@ -76,7 +76,7 @@
       "features_found": 2,
       "deprecations_found": 0,
       "fixes_found": 0,
-      "issues_created": 2
+      "issues_created": 0
     }
   ],
   "current_implementation": {
@@ -265,7 +265,7 @@
         "arguments": [
           "prefix",
           "applied_for",
-          "custom_role_arn", 
+          "custom_role_arn",
           "description",
           "encryption_configuration",
           "image_tag_mutability",
@@ -341,7 +341,7 @@
         "priority": "medium"
       },
       "aws_ecr_repositories": {
-        "discovered_date": "2025-01-22T00:00:00Z", 
+        "discovered_date": "2025-01-22T00:00:00Z",
         "description": "List all ECR repositories in a region",
         "priority": "medium"
       },
@@ -403,7 +403,7 @@
       "issue_id": "pending_creation"
     },
     {
-      "date": "2025-01-21T10:30:00Z", 
+      "date": "2025-01-21T10:30:00Z",
       "feature": "aws_ecr_repository_creation_template",
       "type": "new_resource",
       "title": "feat: Implement aws_ecr_repository_creation_template support",
@@ -413,7 +413,7 @@
     {
       "date": "2025-08-21T20:29:12Z",
       "feature": "aws_ecr_repository_creation_template",
-      "type": "new_resource", 
+      "type": "new_resource",
       "title": "feat: Implement aws_ecr_repository_creation_template support",
       "priority": "high",
       "issue_id": "would_create_if_authorized"
@@ -423,7 +423,7 @@
       "feature": "data_sources_enhancement",
       "type": "new_data_sources",
       "title": "feat: Add support for ECR data sources (images, repositories, lifecycle_policy_document)",
-      "priority": "medium", 
+      "priority": "medium",
       "issue_id": "would_create_if_authorized"
     },
     {
@@ -433,22 +433,6 @@
       "title": "feat: Add support for ECR account-level settings",
       "priority": "medium",
       "issue_id": "would_create_if_authorized"
-    },
-    {
-      "date": "2025-08-21T23:50:00Z",
-      "feature": "aws_ecr_pull_through_cache_rule.custom_role_arn",
-      "type": "new_argument",
-      "title": "feat: Add support for custom_role_arn in pull-through cache rules",
-      "priority": "medium",
-      "issue_id": "not_authorized_to_create"
-    },
-    {
-      "date": "2025-08-21T23:50:00Z",
-      "feature": "aws_ecr_pull_through_cache_rule.upstream_repository_prefix",
-      "type": "new_argument",
-      "title": "feat: Add support for upstream_repository_prefix in pull-through cache rules",
-      "priority": "medium",
-      "issue_id": "not_authorized_to_create"
     }
   ],
   "statistics": {
