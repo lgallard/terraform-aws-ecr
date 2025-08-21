@@ -222,6 +222,9 @@ jobs:
             ## Expected Output
             Provide a detailed report of your analysis and actions taken.
 
+          # Use agent mode for automation workflows
+          mode: agent
+
       - name: Commit feature tracker updates
         if: steps.claude-discovery.conclusion == 'success'
         run: |
