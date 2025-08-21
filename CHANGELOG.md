@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.1.1...1.2.0) (2025-08-21)
+
+
+### Features
+
+* schedule ECR feature discovery test run for 21:12 UTC today ([ef8e5bd](https://github.com/lgallard/terraform-aws-ecr/commit/ef8e5bdedda37b7e910fa297f105d2f2eda9b2c9))
+
 ## [1.1.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.1.0...1.1.1) (2025-08-21)
 
 
