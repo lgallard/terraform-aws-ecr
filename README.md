@@ -1601,7 +1601,7 @@ For more details on tests, see the [test directory README](test/README.md).
 | <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | Repository encryption type. Either KMS or AES256. | `string` | `"AES256"` | no |
 | <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to delete the repository even if it contains images. Use with caution. | `bool` | `false` | no |
 | <a name="input_image_scanning_configuration"></a> [image\_scanning\_configuration](#input\_image\_scanning\_configuration) | Image scanning configuration block. Set to null to use scan\_on\_push variable. | <pre>object({<br/>    scan_on_push = bool<br/>  })</pre> | `null` | no |
-| <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository. Either MUTABLE or IMMUTABLE. | `string` | `"MUTABLE"` | no |
+| <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository. Either MUTABLE, IMMUTABLE, IMMUTABLE_WITH_EXCLUSION, or MUTABLE_WITH_EXCLUSION. | `string` | `"MUTABLE"` | no |
 | <a name="input_kms_additional_principals"></a> [kms\_additional\_principals](#input\_kms\_additional\_principals) | List of additional IAM principals (ARNs) to grant KMS key access. | `list(string)` | `[]` | no |
 | <a name="input_kms_alias_name"></a> [kms\_alias\_name](#input\_kms\_alias\_name) | Custom alias name for the KMS key (without 'alias/' prefix). | `string` | `null` | no |
 | <a name="input_kms_custom_policy"></a> [kms\_custom\_policy](#input\_kms\_custom\_policy) | Complete custom policy JSON for the KMS key. Use with caution. | `string` | `null` | no |
