@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.3.0...1.3.1) (2025-08-22)
+
+
+### Bug Fixes
+
+* Update image_tag_mutability validation to support IMMUTABLE_WITH_EXCLUSION and MUTABLE_WITH_EXCLUSION ([#160](https://github.com/lgallard/terraform-aws-ecr/issues/160)) ([cbe4b56](https://github.com/lgallard/terraform-aws-ecr/commit/cbe4b56c8261c79041bd1fec156898f1b46c549e))
+
 ## [1.3.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.2.0...1.3.0) (2025-08-22)
 
 
