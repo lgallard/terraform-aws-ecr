@@ -1816,7 +1816,7 @@ The system is designed to minimize false positives, but you can help improve acc
 
 For more details on the discovery system architecture, see `.github/scripts/discovery-prompt.md`.
 
-<!-- BEGIN_TF_DOCS -->
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -1965,4 +1965,4 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="output_sns_topic_arn"></a> [sns\_topic\_arn](#output\_sns\_topic\_arn) | ARN of the SNS topic used for ECR monitoring alerts (if created) |
 | <a name="output_tag_compliance_status"></a> [tag\_compliance\_status](#output\_tag\_compliance\_status) | Tag compliance and validation status |
 | <a name="output_tagging_strategy"></a> [tagging\_strategy](#output\_tagging\_strategy) | Summary of the tagging strategy configuration |
-<!-- END_TF_DOCS -->
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
