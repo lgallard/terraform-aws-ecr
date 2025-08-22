@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-08-21T23:55:00Z",
-    "provider_version": "5.50.0",
-    "scan_count": 9
+    "last_scan": "2025-08-22T00:18:32Z",
+    "provider_version": "latest",
+    "scan_count": 10
   },
   "scan_history": [
     {
@@ -81,6 +81,14 @@
     {
       "scan_date": "2025-08-21T23:55:00Z",
       "provider_version": "5.50.0",
+      "features_found": 1,
+      "deprecations_found": 0,
+      "fixes_found": 1,
+      "issues_created": 1
+    },
+    {
+      "scan_date": "2025-08-22T00:18:32Z",
+      "provider_version": "latest",
       "features_found": 1,
       "deprecations_found": 0,
       "fixes_found": 1,
@@ -348,6 +356,16 @@
         "priority": "medium",
         "status": "validation_bug",
         "issue_needed": "fix: Update image_tag_mutability validation for IMMUTABLE_WITH_EXCLUSION support"
+      },
+      "aws_ecr_repository.image_tag_mutability_validation_critical_fix": {
+        "discovered_date": "2025-08-22T00:18:32Z",
+        "provider_version": "latest",
+        "description": "CRITICAL: Module validation in variables.tf:31 rejects valid AWS provider values IMMUTABLE_WITH_EXCLUSION and MUTABLE_WITH_EXCLUSION, preventing users from using latest ECR tag protection features",
+        "priority": "high",
+        "status": "validation_critical_bug",
+        "impact": "Module users cannot access latest AWS ECR tag mutability features due to outdated validation constraints",
+        "fix_location": "variables.tf lines 30-34",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository#image_tag_mutability"
       }
     },
     "new_data_sources": {
@@ -464,13 +482,22 @@
       "title": "fix: Update image_tag_mutability validation for IMMUTABLE_WITH_EXCLUSION support",
       "priority": "medium",
       "issue_id": "pending_creation_requires_approval"
+    },
+    {
+      "date": "2025-08-22T00:18:32Z",
+      "feature": "aws_ecr_repository.image_tag_mutability_validation_critical_fix",
+      "type": "critical_validation_bug_fix",
+      "title": "fix: Update image_tag_mutability validation to support IMMUTABLE_WITH_EXCLUSION and MUTABLE_WITH_EXCLUSION",
+      "priority": "high",
+      "description": "Critical validation bug blocking users from using latest AWS ECR tag protection features",
+      "issue_id": "requires_manual_creation_due_to_gh_permissions"
     }
   ],
   "statistics": {
-    "total_scans": 9,
-    "total_features_discovered": 20,
-    "total_issues_created": 8,
-    "average_features_per_scan": 2.2,
-    "last_feature_discovery": "2025-08-21T23:55:00Z"
+    "total_scans": 10,
+    "total_features_discovered": 21,
+    "total_issues_created": 9,
+    "average_features_per_scan": 2.1,
+    "last_feature_discovery": "2025-08-22T00:18:32Z"
   }
 }
