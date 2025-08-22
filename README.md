@@ -1815,3 +1815,154 @@ The system is designed to minimize false positives, but you can help improve acc
 4. **Report Gaps**: Let us know if the system misses important features
 
 For more details on the discovery system architecture, see `.github/scripts/discovery-prompt.md`.
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_kms"></a> [kms](#module\_kms) | ./modules/kms | n/a |
+| <a name="module_pull_through_cache"></a> [pull\_through\_cache](#module\_pull\_through\_cache) | ./modules/pull-through-cache | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_cloudwatch_event_rule.pull_request_rules](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.pull_request_rules_sns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| [aws_cloudwatch_event_target.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| [aws_cloudwatch_log_group.ecr_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_metric_alarm.monitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_ecr_lifecycle_policy.lifecycle_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_lifecycle_policy) | resource |
+| [aws_ecr_registry_scanning_configuration.scanning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
+| [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
+| [aws_ecr_repository.repo](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
+| [aws_ecr_repository.repo_protected](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
+| [aws_ecr_repository_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_policy) | resource |
+| [aws_iam_role.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy_attachment.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_lambda_function.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
+| [aws_lambda_permission.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
+| [aws_sns_topic.ecr_monitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
+| [aws_sns_topic.pull_request_rules](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
+| [aws_sns_topic_subscription.ecr_monitoring_email](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
+| [archive_file.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_create_sns_topic"></a> [create\_sns\_topic](#input\_create\_sns\_topic) | Whether to create an SNS topic for CloudWatch alarm notifications. | `bool` | `false` | no |
+| <a name="input_default_tags_cost_center"></a> [default\_tags\_cost\_center](#input\_default\_tags\_cost\_center) | Cost center tag value for financial tracking. Null to disable. | `string` | `null` | no |
+| <a name="input_default_tags_environment"></a> [default\_tags\_environment](#input\_default\_tags\_environment) | Environment tag value applied to all resources. Null to disable. | `string` | `null` | no |
+| <a name="input_default_tags_owner"></a> [default\_tags\_owner](#input\_default\_tags\_owner) | Owner tag value applied to all resources. Null to disable. | `string` | `null` | no |
+| <a name="input_default_tags_project"></a> [default\_tags\_project](#input\_default\_tags\_project) | Project tag value applied to all resources. Null to disable. | `string` | `null` | no |
+| <a name="input_default_tags_template"></a> [default\_tags\_template](#input\_default\_tags\_template) | Predefined default tag template. Options: basic, cost\_allocation, compliance, sdlc. | `string` | `null` | no |
+| <a name="input_enable_default_tags"></a> [enable\_default\_tags](#input\_enable\_default\_tags) | Whether to enable automatic default tags for all resources. | `bool` | `true` | no |
+| <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | Whether to enable CloudWatch logging for the repository. | `bool` | `false` | no |
+| <a name="input_enable_monitoring"></a> [enable\_monitoring](#input\_enable\_monitoring) | Whether to enable CloudWatch monitoring and alerting for the ECR repository. | `bool` | `false` | no |
+| <a name="input_enable_pull_request_rules"></a> [enable\_pull\_request\_rules](#input\_enable\_pull\_request\_rules) | Whether to enable pull request rules for enhanced governance and quality control. | `bool` | `false` | no |
+| <a name="input_enable_pull_through_cache"></a> [enable\_pull\_through\_cache](#input\_enable\_pull\_through\_cache) | Whether to create pull-through cache rules. | `bool` | `false` | no |
+| <a name="input_enable_registry_scanning"></a> [enable\_registry\_scanning](#input\_enable\_registry\_scanning) | Whether to enable enhanced scanning for the ECR registry. | `bool` | `false` | no |
+| <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Whether to enable cross-region replication for the ECR registry. | `bool` | `false` | no |
+| <a name="input_enable_secret_scanning"></a> [enable\_secret\_scanning](#input\_enable\_secret\_scanning) | Whether to enable secret scanning. Detects secrets in container images. | `bool` | `false` | no |
+| <a name="input_enable_tag_normalization"></a> [enable\_tag\_normalization](#input\_enable\_tag\_normalization) | Whether to enable automatic tag normalization. | `bool` | `true` | no |
+| <a name="input_enable_tag_validation"></a> [enable\_tag\_validation](#input\_enable\_tag\_validation) | Whether to enable tag validation to ensure compliance with organizational standards. | `bool` | `false` | no |
+| <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | Repository encryption type. Either KMS or AES256. | `string` | `"AES256"` | no |
+| <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to delete the repository even if it contains images. Use with caution. | `bool` | `false` | no |
+| <a name="input_image_scanning_configuration"></a> [image\_scanning\_configuration](#input\_image\_scanning\_configuration) | Image scanning configuration block. Set to null to use scan\_on\_push variable. | <pre>object({<br/>    scan_on_push = bool<br/>  })</pre> | `null` | no |
+| <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository. Either MUTABLE, IMMUTABLE, IMMUTABLE\_WITH\_EXCLUSION, or MUTABLE\_WITH\_EXCLUSION. | `string` | `"MUTABLE"` | no |
+| <a name="input_kms_additional_principals"></a> [kms\_additional\_principals](#input\_kms\_additional\_principals) | List of additional IAM principals (ARNs) to grant KMS key access. | `list(string)` | `[]` | no |
+| <a name="input_kms_alias_name"></a> [kms\_alias\_name](#input\_kms\_alias\_name) | Custom alias name for the KMS key (without 'alias/' prefix). | `string` | `null` | no |
+| <a name="input_kms_custom_policy"></a> [kms\_custom\_policy](#input\_kms\_custom\_policy) | Complete custom policy JSON for the KMS key. Use with caution. | `string` | `null` | no |
+| <a name="input_kms_custom_policy_statements"></a> [kms\_custom\_policy\_statements](#input\_kms\_custom\_policy\_statements) | List of custom policy statements to add to the KMS key policy. | <pre>list(object({<br/>    sid    = optional(string)<br/>    effect = string<br/>    principals = optional(object({<br/>      type        = string<br/>      identifiers = list(string)<br/>    }))<br/>    actions   = list(string)<br/>    resources = optional(list(string), ["*"])<br/>    conditions = optional(list(object({<br/>      test     = string<br/>      variable = string<br/>      values   = list(string)<br/>    })), [])<br/>  }))</pre> | `[]` | no |
+| <a name="input_kms_deletion_window_in_days"></a> [kms\_deletion\_window\_in\_days](#input\_kms\_deletion\_window\_in\_days) | Number of days to wait before deleting the KMS key (7-30 days). | `number` | `7` | no |
+| <a name="input_kms_enable_key_rotation"></a> [kms\_enable\_key\_rotation](#input\_kms\_enable\_key\_rotation) | Whether to enable automatic key rotation for the KMS key. | `bool` | `true` | no |
+| <a name="input_kms_key"></a> [kms\_key](#input\_kms\_key) | ARN of existing KMS key for repository encryption. If null, a new key is created. | `string` | `null` | no |
+| <a name="input_kms_key_administrators"></a> [kms\_key\_administrators](#input\_kms\_key\_administrators) | List of IAM principals (ARNs) who can administer the KMS key. | `list(string)` | `[]` | no |
+| <a name="input_kms_key_rotation_period"></a> [kms\_key\_rotation\_period](#input\_kms\_key\_rotation\_period) | Number of days between automatic key rotations (90-2555 days). | `number` | `null` | no |
+| <a name="input_kms_key_users"></a> [kms\_key\_users](#input\_kms\_key\_users) | List of IAM principals (ARNs) who can use the KMS key for crypto operations. | `list(string)` | `[]` | no |
+| <a name="input_kms_multi_region"></a> [kms\_multi\_region](#input\_kms\_multi\_region) | Whether to create a multi-region KMS key. | `bool` | `false` | no |
+| <a name="input_kms_tags"></a> [kms\_tags](#input\_kms\_tags) | Additional tags specific to KMS resources. | `map(string)` | `{}` | no |
+| <a name="input_lifecycle_expire_tagged_after_days"></a> [lifecycle\_expire\_tagged\_after\_days](#input\_lifecycle\_expire\_tagged\_after\_days) | Number of days after which tagged images expire (1-3650). Use with caution. | `number` | `null` | no |
+| <a name="input_lifecycle_expire_untagged_after_days"></a> [lifecycle\_expire\_untagged\_after\_days](#input\_lifecycle\_expire\_untagged\_after\_days) | Number of days after which untagged images expire (1-3650). Null to disable. | `number` | `null` | no |
+| <a name="input_lifecycle_keep_latest_n_images"></a> [lifecycle\_keep\_latest\_n\_images](#input\_lifecycle\_keep\_latest\_n\_images) | Number of latest images to keep in the repository (1-10000). Null to disable. | `number` | `null` | no |
+| <a name="input_lifecycle_policy"></a> [lifecycle\_policy](#input\_lifecycle\_policy) | JSON string representing the lifecycle policy. Takes precedence over helper variables. | `string` | `null` | no |
+| <a name="input_lifecycle_policy_template"></a> [lifecycle\_policy\_template](#input\_lifecycle\_policy\_template) | Predefined lifecycle policy template. Options: development, production, cost\_optimization, compliance. | `string` | `null` | no |
+| <a name="input_lifecycle_tag_prefixes_to_keep"></a> [lifecycle\_tag\_prefixes\_to\_keep](#input\_lifecycle\_tag\_prefixes\_to\_keep) | List of tag prefixes for keep-latest rule. Empty list applies to all images. Max 100 prefixes. | `list(string)` | `[]` | no |
+| <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days to retain ECR logs in CloudWatch. | `number` | `30` | no |
+| <a name="input_monitoring_threshold_api_calls"></a> [monitoring\_threshold\_api\_calls](#input\_monitoring\_threshold\_api\_calls) | API call volume threshold per minute to trigger CloudWatch alarm. | `number` | `1000` | no |
+| <a name="input_monitoring_threshold_image_pull"></a> [monitoring\_threshold\_image\_pull](#input\_monitoring\_threshold\_image\_pull) | Image pull frequency threshold per 5-minute period to trigger CloudWatch alarm. | `number` | `100` | no |
+| <a name="input_monitoring_threshold_image_push"></a> [monitoring\_threshold\_image\_push](#input\_monitoring\_threshold\_image\_push) | Image push frequency threshold per 5-minute period to trigger CloudWatch alarm. | `number` | `10` | no |
+| <a name="input_monitoring_threshold_security_findings"></a> [monitoring\_threshold\_security\_findings](#input\_monitoring\_threshold\_security\_findings) | Security findings threshold to trigger CloudWatch alarm. | `number` | `10` | no |
+| <a name="input_monitoring_threshold_storage"></a> [monitoring\_threshold\_storage](#input\_monitoring\_threshold\_storage) | Storage usage threshold in GB to trigger CloudWatch alarm. | `number` | `10` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name of the ECR repository. This name must be unique within the AWS account and region. | `string` | n/a | yes |
+| <a name="input_normalize_tag_values"></a> [normalize\_tag\_values](#input\_normalize\_tag\_values) | Whether to normalize tag values by trimming whitespace. | `bool` | `true` | no |
+| <a name="input_policy"></a> [policy](#input\_policy) | JSON string representing the repository policy. If null, no policy is created. | `string` | `null` | no |
+| <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed via lifecycle prevent\_destroy. | `bool` | `false` | no |
+| <a name="input_pull_request_rules"></a> [pull\_request\_rules](#input\_pull\_request\_rules) | List of pull request rule configurations for enhanced governance. | <pre>list(object({<br/>    name    = string<br/>    type    = string<br/>    enabled = bool<br/>    conditions = optional(object({<br/>      tag_patterns            = optional(list(string), [])<br/>      severity_threshold      = optional(string, "MEDIUM")<br/>      require_scan_completion = optional(bool, true)<br/>      allowed_principals      = optional(list(string), [])<br/>    }), {})<br/>    actions = optional(object({<br/>      require_approval_count = optional(number, 1)<br/>      notification_topic_arn = optional(string)<br/>      webhook_url            = optional(string)<br/>      block_on_failure       = optional(bool, true)<br/>      approval_timeout_hours = optional(number, 24)<br/>    }), {})<br/>  }))</pre> | `[]` | no |
+| <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
+| <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of AWS regions to replicate ECR images to. | `list(string)` | `[]` | no |
+| <a name="input_required_tags"></a> [required\_tags](#input\_required\_tags) | List of tag keys that are required to be present. Empty list disables validation. | `list(string)` | `[]` | no |
+| <a name="input_scan_on_push"></a> [scan\_on\_push](#input\_scan\_on\_push) | Whether images should be scanned after being pushed to the repository. | `bool` | `true` | no |
+| <a name="input_scan_repository_filters"></a> [scan\_repository\_filters](#input\_scan\_repository\_filters) | List of repository filters to apply for registry scanning. Supports wildcards. | `list(string)` | <pre>[<br/>  "*"<br/>]</pre> | no |
+| <a name="input_sns_topic_name"></a> [sns\_topic\_name](#input\_sns\_topic\_name) | Name of the SNS topic to create or use for alarm notifications. | `string` | `null` | no |
+| <a name="input_sns_topic_subscribers"></a> [sns\_topic\_subscribers](#input\_sns\_topic\_subscribers) | List of email addresses to subscribe to the SNS topic for alarm notifications. | `list(string)` | `[]` | no |
+| <a name="input_tag_key_case"></a> [tag\_key\_case](#input\_tag\_key\_case) | Enforce consistent casing for tag keys. Options: PascalCase, camelCase, snake\_case, kebab-case. | `string` | `"PascalCase"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to all resources created by this module. | `map(string)` | `{}` | no |
+| <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Timeout configuration for repository operations. Example: { delete = "20m" } | <pre>object({<br/>    delete = optional(string)<br/>  })</pre> | `{}` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_applied_tags"></a> [applied\_tags](#output\_applied\_tags) | The final set of tags applied to all resources after normalization and default tag application |
+| <a name="output_cloudwatch_alarms"></a> [cloudwatch\_alarms](#output\_cloudwatch\_alarms) | List of CloudWatch alarms created for ECR monitoring |
+| <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | The ARN of the CloudWatch Log Group used for ECR logs (if logging is enabled) |
+| <a name="output_kms_alias_arn"></a> [kms\_alias\_arn](#output\_kms\_alias\_arn) | The ARN of the KMS alias (if created by this module). |
+| <a name="output_kms_configuration"></a> [kms\_configuration](#output\_kms\_configuration) | Complete KMS configuration information. |
+| <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | The ARN of the KMS key used for repository encryption. |
+| <a name="output_kms_key_id"></a> [kms\_key\_id](#output\_kms\_key\_id) | The globally unique identifier for the KMS key (if created by this module). |
+| <a name="output_lifecycle_policy"></a> [lifecycle\_policy](#output\_lifecycle\_policy) | The lifecycle policy JSON applied to the repository (if any) |
+| <a name="output_logging_role_arn"></a> [logging\_role\_arn](#output\_logging\_role\_arn) | The ARN of the IAM role used for ECR logging (if logging is enabled) |
+| <a name="output_monitoring_status"></a> [monitoring\_status](#output\_monitoring\_status) | Status of CloudWatch monitoring configuration |
+| <a name="output_pull_request_rules"></a> [pull\_request\_rules](#output\_pull\_request\_rules) | Information about pull request rules configuration |
+| <a name="output_pull_through_cache_role_arn"></a> [pull\_through\_cache\_role\_arn](#output\_pull\_through\_cache\_role\_arn) | The ARN of the IAM role used for pull-through cache operations (if enabled) |
+| <a name="output_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#output\_pull\_through\_cache\_rules) | List of pull-through cache rules (if enabled) |
+| <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | ID of the ECR registry |
+| <a name="output_registry_scan_filters"></a> [registry\_scan\_filters](#output\_registry\_scan\_filters) | The configured scan filters for filtering scan results (e.g., by vulnerability severity) |
+| <a name="output_registry_scanning_configuration_arn"></a> [registry\_scanning\_configuration\_arn](#output\_registry\_scanning\_configuration\_arn) | The ARN of the ECR registry scanning configuration (if enhanced scanning is enabled) |
+| <a name="output_registry_scanning_status"></a> [registry\_scanning\_status](#output\_registry\_scanning\_status) | Status of ECR registry scanning configuration |
+| <a name="output_replication_configuration_arn"></a> [replication\_configuration\_arn](#output\_replication\_configuration\_arn) | The ARN of the ECR replication configuration (if replication is enabled) |
+| <a name="output_replication_regions"></a> [replication\_regions](#output\_replication\_regions) | List of regions where ECR images are replicated to (if replication is enabled) |
+| <a name="output_replication_status"></a> [replication\_status](#output\_replication\_status) | Status of ECR replication configuration |
+| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
+| <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
+| <a name="output_repository_policy_exists"></a> [repository\_policy\_exists](#output\_repository\_policy\_exists) | Whether a repository policy exists for this ECR repository |
+| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
+| <a name="output_security_status"></a> [security\_status](#output\_security\_status) | Comprehensive security status of the ECR configuration |
+| <a name="output_sns_topic_arn"></a> [sns\_topic\_arn](#output\_sns\_topic\_arn) | ARN of the SNS topic used for ECR monitoring alerts (if created) |
+| <a name="output_tag_compliance_status"></a> [tag\_compliance\_status](#output\_tag\_compliance\_status) | Tag compliance and validation status |
+| <a name="output_tagging_strategy"></a> [tagging\_strategy](#output\_tagging\_strategy) | Summary of the tagging strategy configuration |
+<!-- END_TF_DOCS -->
