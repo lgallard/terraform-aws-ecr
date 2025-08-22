@@ -15,7 +15,7 @@
 # Storage usage alarm
 terraform state mv 'module.ecr.aws_cloudwatch_metric_alarm.repository_storage_usage[0]' 'module.ecr.aws_cloudwatch_metric_alarm.monitoring["storage_usage"]'
 
-# API call volume alarm  
+# API call volume alarm
 terraform state mv 'module.ecr.aws_cloudwatch_metric_alarm.api_call_volume[0]' 'module.ecr.aws_cloudwatch_metric_alarm.monitoring["api_call_volume"]'
 
 # Image push count alarm
@@ -50,7 +50,7 @@ terraform state mv 'module.ecr.aws_sns_topic_subscription.ecr_monitoring_email[2
 terraform state mv 'module.ecr.module.kms[0]' 'module.ecr.module.kms["kms"]'
 
 # =============================================================================
-# Logging Resources  
+# Logging Resources
 # =============================================================================
 # Only run these if var.enable_logging = true
 
@@ -125,5 +125,5 @@ terraform state mv 'module.ecr.module.pull_through_cache[0]' 'module.ecr.module.
 # Example for module named "app1_ecr":
 # terraform state mv 'module.app1_ecr.aws_cloudwatch_metric_alarm.repository_storage_usage[0]' 'module.app1_ecr.aws_cloudwatch_metric_alarm.monitoring["storage_usage"]'
 
-# Example for module named "app2_ecr":  
+# Example for module named "app2_ecr":
 # terraform state mv 'module.app2_ecr.aws_cloudwatch_metric_alarm.repository_storage_usage[0]' 'module.app2_ecr.aws_cloudwatch_metric_alarm.monitoring["storage_usage"]'

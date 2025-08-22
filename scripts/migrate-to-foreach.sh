@@ -3,7 +3,7 @@
 # Migration Script: Count to For_Each Pattern Migration
 # terraform-aws-ecr module v0.27.x -> v0.28.x+
 #
-# This script helps migrate terraform state from count-based resources 
+# This script helps migrate terraform state from count-based resources
 # to for_each-based resources in the terraform-aws-ecr module.
 #
 # Usage: ./migrate-to-foreach.sh [module_name]
@@ -50,7 +50,7 @@ safe_state_mv() {
     local from="$1"
     local to="$2"
     local description="$3"
-    
+
     if resource_exists "$from"; then
         log_info "Migrating: $description"
         if terraform state mv "$from" "$to"; then
@@ -68,20 +68,20 @@ safe_state_mv() {
 main() {
     log_info "Starting terraform-aws-ecr migration from count to for_each patterns"
     log_info "Module name: $MODULE_NAME"
-    
+
     # Step 1: Validate prerequisites
     log_info "Checking prerequisites..."
-    
+
     if ! command -v terraform &> /dev/null; then
         log_error "Terraform not found. Please install Terraform."
         exit 1
     fi
-    
+
     if ! terraform version | grep -E "Terraform v(1\.|[2-9]\.)"; then
         log_error "Terraform 1.0+ required. Please upgrade Terraform."
         exit 1
     fi
-    
+
     # Step 2: Create state backup
     log_info "Creating state backup: $BACKUP_FILE"
     if terraform state pull > "$BACKUP_FILE"; then
@@ -90,7 +90,7 @@ main() {
         log_error "Failed to create state backup"
         exit 1
     fi
-    
+
     # Step 3: Validate current state
     log_info "Validating current state..."
     if ! terraform plan -detailed-exitcode > /dev/null 2>&1; then
@@ -102,38 +102,38 @@ main() {
             exit 0
         fi
     fi
-    
+
     # Step 4: Execute migrations
     log_info "Starting resource migrations..."
-    
+
     # CloudWatch Monitoring Resources
     log_info "Migrating CloudWatch monitoring resources..."
     safe_state_mv "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.repository_storage_usage[0]" \
                   "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.monitoring[\"storage_usage\"]" \
                   "Storage usage alarm"
-    
+
     safe_state_mv "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.api_call_volume[0]" \
                   "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.monitoring[\"api_call_volume\"]" \
                   "API call volume alarm"
-    
+
     safe_state_mv "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.image_push_count[0]" \
                   "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.monitoring[\"image_push_count\"]" \
                   "Image push count alarm"
-    
+
     safe_state_mv "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.image_pull_count[0]" \
                   "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.monitoring[\"image_pull_count\"]" \
                   "Image pull count alarm"
-    
+
     safe_state_mv "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.security_findings[0]" \
                   "module.${MODULE_NAME}.aws_cloudwatch_metric_alarm.monitoring[\"security_findings\"]" \
                   "Security findings alarm"
-    
+
     # SNS Resources
     log_info "Migrating SNS resources..."
     safe_state_mv "module.${MODULE_NAME}.aws_sns_topic.ecr_monitoring[0]" \
                   "module.${MODULE_NAME}.aws_sns_topic.ecr_monitoring[\"ecr_monitoring\"]" \
                   "SNS topic"
-    
+
     # SNS Subscriptions (check up to 10 subscriptions)
     log_info "Migrating SNS subscriptions..."
     for i in {0..9}; do
@@ -141,42 +141,42 @@ main() {
                       "module.${MODULE_NAME}.aws_sns_topic_subscription.ecr_monitoring_email[\"subscription-$i\"]" \
                       "SNS subscription $i"
     done
-    
+
     # Auxiliary Resources
     log_info "Migrating auxiliary resources..."
-    
+
     # KMS Module
     safe_state_mv "module.${MODULE_NAME}.module.kms[0]" \
                   "module.${MODULE_NAME}.module.kms[\"kms\"]" \
                   "KMS module"
-    
+
     # Logging Resources
     safe_state_mv "module.${MODULE_NAME}.aws_cloudwatch_log_group.ecr_logs[0]" \
                   "module.${MODULE_NAME}.aws_cloudwatch_log_group.ecr_logs[\"log_group\"]" \
                   "CloudWatch log group"
-    
+
     safe_state_mv "module.${MODULE_NAME}.aws_iam_role.ecr_logging[0]" \
                   "module.${MODULE_NAME}.aws_iam_role.ecr_logging[\"iam_role\"]" \
                   "IAM logging role"
-    
+
     # Replication Configuration
     safe_state_mv "module.${MODULE_NAME}.aws_ecr_replication_configuration.replication[0]" \
                   "module.${MODULE_NAME}.aws_ecr_replication_configuration.replication[\"replication\"]" \
                   "Replication configuration"
-    
-    # Registry Scanning Configuration  
+
+    # Registry Scanning Configuration
     safe_state_mv "module.${MODULE_NAME}.aws_ecr_registry_scanning_configuration.scanning[0]" \
                   "module.${MODULE_NAME}.aws_ecr_registry_scanning_configuration.scanning[\"scanning\"]" \
                   "Registry scanning configuration"
-    
+
     # Pull-Through Cache Module
     safe_state_mv "module.${MODULE_NAME}.module.pull_through_cache[0]" \
                   "module.${MODULE_NAME}.module.pull_through_cache[\"cache\"]" \
                   "Pull-through cache module"
-    
+
     # Step 5: Validate migration
     log_info "Validating migration..."
-    
+
     if terraform plan -detailed-exitcode > /dev/null 2>&1; then
         log_success "Migration completed successfully! No resource changes detected."
     else
@@ -184,19 +184,19 @@ main() {
         log_info "This may be normal if you've updated module version or configuration."
         log_info "Run 'terraform plan' to review the changes."
     fi
-    
+
     # Step 6: Show summary
     log_info "Migration Summary:"
     log_info "- Backup created: $BACKUP_FILE"
     log_info "- Module migrated: $MODULE_NAME"
     log_info "- Migration completed: $(date)"
-    
+
     log_success "Migration completed successfully!"
     log_info "Next steps:"
     log_info "1. Run 'terraform plan' to review any configuration changes"
     log_info "2. Run 'terraform apply' if needed"
     log_info "3. Update your module version to 0.28.x+ in your configuration"
-    
+
     # Cleanup suggestion
     echo
     read -p "Keep state backup file $BACKUP_FILE? (Y/n): " -n 1 -r

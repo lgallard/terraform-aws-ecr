@@ -24,12 +24,12 @@ variable "prevent_destroy" {
 }
 
 variable "image_tag_mutability" {
-  description = "The tag mutability setting for the repository. Either MUTABLE or IMMUTABLE."
+  description = "The tag mutability setting for the repository. Either MUTABLE, IMMUTABLE, IMMUTABLE_WITH_EXCLUSION, or MUTABLE_WITH_EXCLUSION."
   type        = string
   default     = "MUTABLE"
   validation {
-    condition     = contains(["MUTABLE", "IMMUTABLE"], var.image_tag_mutability)
-    error_message = "The image_tag_mutability value must be either MUTABLE or IMMUTABLE."
+    condition     = contains(["MUTABLE", "IMMUTABLE", "IMMUTABLE_WITH_EXCLUSION", "MUTABLE_WITH_EXCLUSION"], var.image_tag_mutability)
+    error_message = "The image_tag_mutability value must be either MUTABLE, IMMUTABLE, IMMUTABLE_WITH_EXCLUSION, or MUTABLE_WITH_EXCLUSION."
   }
 }
 
