@@ -154,7 +154,7 @@ jobs:
             - Configuration patterns used
 
             ### Step 4: Comparison and Analysis
-            Compare provider documentation with module implementation:
+            Compare provider documentation with module implementation and perform detailed analysis:
 
             **New Features to Look For:**
             - New `aws_ecr_*` resources not in the module
@@ -163,39 +163,187 @@ jobs:
             - New lifecycle configurations
             - New security features
 
+            **For Each Discovery, Document:**
+            - **Feature Type**: Resource, Argument, Data Source, Enhancement
+            - **AWS Resource**: Full resource name (e.g., aws_ecr_repository_creation_template)
+            - **Arguments**: Specific new arguments with their types and descriptions
+            - **Provider Version**: When the feature was introduced
+            - **Priority Level**: Critical (security/breaking), High (major feature), Medium (enhancement), Low (minor)
+            - **Implementation Complexity**: High (major changes), Medium (moderate effort), Low (simple addition)
+            - **Module Impact**: Which files need modification (main.tf, variables.tf, etc.)
+            - **Dependencies**: Any new provider requirements or version constraints
+            - **Use Cases**: Real-world scenarios where this feature would be valuable
+
             **Deprecations to Check:**
-            - Arguments marked as deprecated
-            - Resources marked for removal
-            - Configuration patterns that are outdated
+            - Arguments marked as deprecated with removal timeline
+            - Resources marked for removal with migration path
+            - Configuration patterns that are outdated with modern alternatives
 
             **Bug Fixes:**
             - Check Context7 for AWS provider changelogs
             - Look for ECR-related fixes that might affect the module
+            - Document the specific issue being fixed and module impact
 
             ### Step 5: Issue Creation
-            For each significant finding:
+            For each significant finding, create detailed GitHub issues with comprehensive analysis.
+
+            **CRITICAL: Generate Detailed, Actionable Content**
+
+            **Issue Quality Requirements:**
+            1. **Comprehensive Analysis**: Include detailed findings from your Terraform MCP analysis
+            2. **Specific Implementation Guidance**: Provide exact resource names, arguments, and code patterns
+            3. **Real Provider Documentation**: Reference actual AWS provider documentation links
+            4. **Module Integration Details**: Explain how the feature fits into existing module structure
+            5. **Practical Examples**: Include working code examples with actual values
+
+            **Content Generation Instructions:**
+            - Replace `[FEATURE_NAME]` with the actual discovered feature name (e.g., "image_tag_mutability_exclusion_filter")
+            - Replace `[DETAILED_DESCRIPTION_FROM_ANALYSIS]` with comprehensive analysis from provider docs including:
+              * What the feature does and why it's valuable
+              * How it works in the AWS ecosystem
+              * Benefits for ECR users
+              * Integration requirements
+            - Replace `[PRIORITY_LEVEL]` with justified priority based on impact analysis
+            - Replace `[AWS_RESOURCE_NAME]` with exact resource (e.g., "aws_ecr_repository")
+            - Replace `[SPECIFIC_ARGUMENTS]` with actual argument names, types, and descriptions from provider docs
+            - Replace `[FILES_TO_MODIFY]` with specific module files requiring changes
+            - Replace `[COMPLEXITY_ASSESSMENT]` with detailed complexity analysis including effort estimation
+            - Replace `[PROVIDER_DOCS_LINK]` with actual Terraform registry documentation URL
+            - Replace `[REGISTRY_LINK]` with actual AWS provider documentation link
+            - Include actual working code examples with realistic values
 
             **If NOT in dry run mode (${{ inputs.dry_run }} == false):**
 
-            Create GitHub issues using templates:
+            Create GitHub issues using these enhanced templates with detailed information:
 
             ```bash
-            # For new features
-            gh issue create --title "feat: Add support for [feature_name]" \
-              --body "Auto-discovered ECR feature requiring implementation. See feature tracker for details." \
+            # For new features - include comprehensive details
+            gh issue create --title "feat: Add support for [FEATURE_NAME]" \
+              --body "## 🚀 Auto-Discovered ECR Feature
+
+            **Feature:** [FEATURE_NAME]
+            **AWS Provider Version:** ${{ inputs.provider_version || 'latest' }}
+            **Priority:** [PRIORITY_LEVEL]
+            **Discovery Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+            ### 📋 Description
+            [DETAILED_DESCRIPTION_FROM_ANALYSIS]
+
+            ### 🔧 Implementation Requirements
+            - **Resource:** \`[AWS_RESOURCE_NAME]\`
+            - **New Arguments:** \`[SPECIFIC_ARGUMENTS]\`
+            - **Module Files to Update:** [FILES_TO_MODIFY]
+            - **Estimated Complexity:** [COMPLEXITY_ASSESSMENT]
+
+            ### 📚 Documentation
+            - **Provider Documentation:** [PROVIDER_DOCS_LINK]
+            - **Terraform Registry:** [REGISTRY_LINK]
+
+            ### 🔍 Discovery Details
+            - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - **Feature Tracker:** \`.github/feature-tracker/ecr-features.json\`
+            - **Detection Method:** Terraform MCP Server analysis
+
+            ### ✅ Acceptance Criteria
+            - [ ] Implement resource/argument in module
+            - [ ] Add variable validation if needed
+            - [ ] Create example usage
+            - [ ] Update documentation
+            - [ ] Add Terratest coverage" \
               --label "enhancement,aws-provider-update,auto-discovered" \
               --assignee "@me"
 
-            # For deprecations
-            gh issue create --title "chore: Handle deprecation of [feature_name]" \
-              --body "Auto-discovered deprecation in AWS ECR provider. Migration required." \
+            # For deprecations - include migration guidance
+            gh issue create --title "chore: Handle deprecation of [DEPRECATED_FEATURE]" \
+              --body "## ⚠️ Auto-Discovered Deprecation
+
+            **Deprecated Feature:** [DEPRECATED_FEATURE]
+            **AWS Provider Version:** ${{ inputs.provider_version || 'latest' }}
+            **Discovery Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            **Breaking Change Risk:** [RISK_LEVEL]
+
+            ### 📋 Deprecation Details
+            [DETAILED_DEPRECATION_INFO]
+
+            ### 🚨 Impact Analysis
+            - **Current Usage:** [CURRENT_USAGE_IN_MODULE]
+            - **Migration Complexity:** [MIGRATION_COMPLEXITY]
+
+            ### 🔄 Migration Path
+            - **Replacement Feature:** [REPLACEMENT_OPTION]
+            - **Migration Steps:** [STEP_BY_STEP_GUIDE]
+
+            ### 📅 Action Required
+            - [ ] Plan migration strategy
+            - [ ] Update module implementation
+            - [ ] Create migration guide
+            - [ ] Notify users via changelog
+
+            ### 📚 Reference
+            - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - **Provider Documentation:** [DEPRECATION_DOCS]" \
               --label "deprecation,breaking-change,auto-discovered" \
               --assignee "@me"
 
-            # For bug fixes
-            gh issue create --title "fix: Address [bug_description]" \
-              --body "Auto-discovered bug fix available in AWS ECR provider." \
+            # For bug fixes - include technical details
+            gh issue create --title "fix: [BUG_DESCRIPTION]" \
+              --body "## 🔧 Auto-Discovered Bug Fix
+
+            **Issue:** [BUG_DESCRIPTION]
+            **AWS Provider Version:** ${{ inputs.provider_version || 'latest' }}
+            **Priority:** [PRIORITY_LEVEL]
+            **Discovery Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+            ### 🐛 Problem Description
+            [DETAILED_BUG_DESCRIPTION]
+
+            ### 🛠️ Fix Requirements
+            - **Root Cause:** [ROOT_CAUSE_ANALYSIS]
+            - **Files to Update:** [FILES_TO_MODIFY]
+            - **Validation Changes:** [VALIDATION_UPDATES]
+
+            ### 🧪 Testing Requirements
+            - [ ] Update existing tests
+            - [ ] Add regression tests
+            - [ ] Validate with provider version ${{ inputs.provider_version || 'latest' }}
+
+            ### 📚 Reference
+            - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - **Provider Fix Details:** [FIX_DOCUMENTATION]" \
               --label "bug,aws-provider-update,auto-discovered" \
+              --assignee "@me"
+
+            # For security enhancements - include security details
+            gh issue create --title "security: Implement [SECURITY_FEATURE]" \
+              --body "## 🛡️ Auto-Discovered Security Enhancement
+
+            **Security Feature:** [SECURITY_FEATURE]
+            **AWS Provider Version:** ${{ inputs.provider_version || 'latest' }}
+            **Security Impact:** [SECURITY_IMPACT]
+            **Discovery Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+            ### 🔒 Security Enhancement Details
+            [DETAILED_SECURITY_DESCRIPTION]
+
+            ### 🎯 Benefits
+            - **Security Improvement:** [SECURITY_BENEFITS]
+            - **Compliance Impact:** [COMPLIANCE_BENEFITS]
+            - **Risk Mitigation:** [RISK_MITIGATION]
+
+            ### 🔧 Implementation Requirements
+            - **New Security Arguments:** [SECURITY_ARGUMENTS]
+            - **Default Security Posture:** [DEFAULT_CONFIG]
+
+            ### ✅ Security Validation
+            - [ ] Implement secure defaults
+            - [ ] Add security tests
+            - [ ] Update security documentation
+            - [ ] Validate compliance requirements
+
+            ### 📚 Reference
+            - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - **Security Documentation:** [SECURITY_DOCS]" \
+              --label "security,aws-provider-update,auto-discovered" \
               --assignee "@me"
             ```
 
@@ -207,12 +355,35 @@ jobs:
             - Issues created
             - Scan summary
 
-            ### Step 7: Generate Summary Report
-            Create a comprehensive summary including:
-            - Features discovered: count and details
-            - Deprecations found: count and impact
-            - Issues created: numbers and links
-            - Recommendations for next steps
+            ### Step 7: Generate Comprehensive Summary Report
+            Create a detailed summary report including:
+
+            **Discovery Summary:**
+            - Total features discovered with breakdown by type (resources, arguments, data sources)
+            - Detailed analysis of each discovery with provider version and impact assessment
+            - Deprecations found with timeline and migration complexity
+            - Bug fixes identified with specific module impact
+
+            **Implementation Analysis:**
+            - Priority breakdown: Critical/High/Medium/Low with justification
+            - Complexity assessment: effort required for each feature
+            - Module architecture impact: which files and patterns need updates
+            - Dependency requirements: provider version constraints
+
+            **Issues Created:**
+            - List of GitHub issues created with issue numbers and links
+            - Content quality summary: level of detail provided for each issue
+            - Categorization: features vs deprecations vs bug fixes
+
+            **Quality Metrics:**
+            - Analysis depth: how comprehensive the provider documentation review was
+            - Content accuracy: confidence level in findings
+            - Implementation guidance: specificity of development instructions
+
+            **Next Steps Recommendations:**
+            - High-priority items requiring immediate attention
+            - Long-term module evolution suggestions
+            - Community impact assessment
 
             ## Important Notes
             - Skip creating issues for features already tracked as "implemented"
