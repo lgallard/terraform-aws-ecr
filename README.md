@@ -1551,13 +1551,8 @@ For more details on tests, see the [test directory README](test/README.md).
 | [aws_cloudwatch_event_target.pull_request_rules_sns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_log_group.ecr_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
-| [aws_cloudwatch_metric_alarm.api_call_volume](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.image_pull_count](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.image_push_count](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.repository_storage_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.security_findings](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_cloudwatch_metric_alarm.monitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_ecr_lifecycle_policy.lifecycle_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_lifecycle_policy) | resource |
-| [aws_ecr_pull_through_cache_rule.cache_rules](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_pull_through_cache_rule) | resource |
 | [aws_ecr_registry_scanning_configuration.scanning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
 | [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
 | [aws_ecr_repository.repo](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
@@ -1565,9 +1560,7 @@ For more details on tests, see the [test directory README](test/README.md).
 | [aws_ecr_repository_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_policy) | resource |
 | [aws_iam_role.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role.pull_through_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
-| [aws_iam_role_policy.pull_through_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_function.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_permission.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
@@ -1601,7 +1594,7 @@ For more details on tests, see the [test directory README](test/README.md).
 | <a name="input_encryption_type"></a> [encryption\_type](#input\_encryption\_type) | Repository encryption type. Either KMS or AES256. | `string` | `"AES256"` | no |
 | <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to delete the repository even if it contains images. Use with caution. | `bool` | `false` | no |
 | <a name="input_image_scanning_configuration"></a> [image\_scanning\_configuration](#input\_image\_scanning\_configuration) | Image scanning configuration block. Set to null to use scan\_on\_push variable. | <pre>object({<br/>    scan_on_push = bool<br/>  })</pre> | `null` | no |
-| <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository. Either MUTABLE, IMMUTABLE, IMMUTABLE_WITH_EXCLUSION, or MUTABLE_WITH_EXCLUSION. | `string` | `"MUTABLE"` | no |
+| <a name="input_image_tag_mutability"></a> [image\_tag\_mutability](#input\_image\_tag\_mutability) | The tag mutability setting for the repository. Either MUTABLE, IMMUTABLE, IMMUTABLE\_WITH\_EXCLUSION, or MUTABLE\_WITH\_EXCLUSION. | `string` | `"MUTABLE"` | no |
 | <a name="input_kms_additional_principals"></a> [kms\_additional\_principals](#input\_kms\_additional\_principals) | List of additional IAM principals (ARNs) to grant KMS key access. | `list(string)` | `[]` | no |
 | <a name="input_kms_alias_name"></a> [kms\_alias\_name](#input\_kms\_alias\_name) | Custom alias name for the KMS key (without 'alias/' prefix). | `string` | `null` | no |
 | <a name="input_kms_custom_policy"></a> [kms\_custom\_policy](#input\_kms\_custom\_policy) | Complete custom policy JSON for the KMS key. Use with caution. | `string` | `null` | no |
@@ -1622,6 +1615,8 @@ For more details on tests, see the [test directory README](test/README.md).
 | <a name="input_lifecycle_tag_prefixes_to_keep"></a> [lifecycle\_tag\_prefixes\_to\_keep](#input\_lifecycle\_tag\_prefixes\_to\_keep) | List of tag prefixes for keep-latest rule. Empty list applies to all images. Max 100 prefixes. | `list(string)` | `[]` | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days to retain ECR logs in CloudWatch. | `number` | `30` | no |
 | <a name="input_monitoring_threshold_api_calls"></a> [monitoring\_threshold\_api\_calls](#input\_monitoring\_threshold\_api\_calls) | API call volume threshold per minute to trigger CloudWatch alarm. | `number` | `1000` | no |
+| <a name="input_monitoring_threshold_image_pull"></a> [monitoring\_threshold\_image\_pull](#input\_monitoring\_threshold\_image\_pull) | Image pull frequency threshold per 5-minute period to trigger CloudWatch alarm. | `number` | `100` | no |
+| <a name="input_monitoring_threshold_image_push"></a> [monitoring\_threshold\_image\_push](#input\_monitoring\_threshold\_image\_push) | Image push frequency threshold per 5-minute period to trigger CloudWatch alarm. | `number` | `10` | no |
 | <a name="input_monitoring_threshold_security_findings"></a> [monitoring\_threshold\_security\_findings](#input\_monitoring\_threshold\_security\_findings) | Security findings threshold to trigger CloudWatch alarm. | `number` | `10` | no |
 | <a name="input_monitoring_threshold_storage"></a> [monitoring\_threshold\_storage](#input\_monitoring\_threshold\_storage) | Storage usage threshold in GB to trigger CloudWatch alarm. | `number` | `10` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the ECR repository. This name must be unique within the AWS account and region. | `string` | n/a | yes |
