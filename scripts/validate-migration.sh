@@ -59,11 +59,11 @@ resource_exists() {
 check_old_resources() {
     local resource_type="$1"
     local description="$2"
-    
+
     log_check "Checking for old $description resources..."
-    
+
     local old_resources=$(terraform state list | grep "$resource_type\[" || true)
-    
+
     if [[ -z "$old_resources" ]]; then
         log_success "No old $description resources found"
     else
@@ -77,12 +77,12 @@ check_new_resources() {
     local resource_pattern="$1"
     local description="$2"
     local expected_count="$3"
-    
+
     log_check "Checking for new $description resources..."
-    
+
     local new_resources=$(terraform state list | grep "$resource_pattern" || true)
     local actual_count=$(echo "$new_resources" | grep -v '^$' | wc -l)
-    
+
     if [[ $actual_count -gt 0 ]]; then
         log_success "Found $actual_count new $description resource(s)"
         if [[ -n "$expected_count" && $actual_count -ne $expected_count ]]; then
@@ -97,7 +97,7 @@ check_new_resources() {
 # Validate terraform configuration
 validate_terraform() {
     log_check "Validating Terraform configuration..."
-    
+
     if terraform validate > /dev/null 2>&1; then
         log_success "Terraform configuration is valid"
     else
@@ -109,10 +109,10 @@ validate_terraform() {
 # Check terraform plan
 check_terraform_plan() {
     log_check "Checking Terraform plan for unexpected changes..."
-    
+
     local plan_output=$(terraform plan -detailed-exitcode 2>&1)
     local exit_code=$?
-    
+
     case $exit_code in
         0)
             log_success "No changes detected - migration successful!"
@@ -133,26 +133,26 @@ main() {
     log_info "Starting migration validation for terraform-aws-ecr module"
     log_info "Module name: $MODULE_NAME"
     log_info "Timestamp: $(date)"
-    
+
     # Prerequisites check
     log_info "Checking prerequisites..."
-    
+
     if ! command -v terraform &> /dev/null; then
         log_error "Terraform not found. Please install Terraform."
         exit 1
     fi
-    
+
     if ! terraform state list > /dev/null 2>&1; then
         log_error "No Terraform state found. Ensure you're in the correct directory."
         exit 1
     fi
-    
+
     # Validate Terraform configuration
     validate_terraform
-    
+
     # Check for old count-based resources (should be gone)
     log_info "Checking for old count-based resources..."
-    
+
     check_old_resources "module\.${MODULE_NAME}\.aws_cloudwatch_metric_alarm\.repository_storage_usage\[" "storage usage alarm"
     check_old_resources "module\.${MODULE_NAME}\.aws_cloudwatch_metric_alarm\.api_call_volume\[" "API call volume alarm"
     check_old_resources "module\.${MODULE_NAME}\.aws_cloudwatch_metric_alarm\.image_push_count\[" "image push count alarm"
@@ -166,10 +166,10 @@ main() {
     check_old_resources "module\.${MODULE_NAME}\.aws_ecr_replication_configuration\.replication\[" "replication configuration"
     check_old_resources "module\.${MODULE_NAME}\.aws_ecr_registry_scanning_configuration\.scanning\[" "registry scanning configuration"
     check_old_resources "module\.${MODULE_NAME}\.module\.pull_through_cache\[" "pull-through cache module"
-    
+
     # Check for new for_each-based resources
     log_info "Checking for new for_each-based resources..."
-    
+
     check_new_resources "module\.${MODULE_NAME}\.aws_cloudwatch_metric_alarm\.monitoring\[" "CloudWatch alarms" "5"
     check_new_resources "module\.${MODULE_NAME}\.aws_sns_topic\.ecr_monitoring\[" "SNS topics" "1"
     check_new_resources "module\.${MODULE_NAME}\.aws_sns_topic_subscription\.ecr_monitoring_email\[" "SNS subscriptions"
@@ -179,10 +179,10 @@ main() {
     check_new_resources "module\.${MODULE_NAME}\.aws_ecr_replication_configuration\.replication\[" "replication configurations" "1"
     check_new_resources "module\.${MODULE_NAME}\.aws_ecr_registry_scanning_configuration\.scanning\[" "registry scanning configurations" "1"
     check_new_resources "module\.${MODULE_NAME}\.module\.pull_through_cache\[" "pull-through cache modules" "1"
-    
+
     # Check resource addressing patterns
     log_info "Validating resource addressing patterns..."
-    
+
     # Check CloudWatch alarms use correct keys
     local alarm_resources=$(terraform state list | grep "module\.${MODULE_NAME}\.aws_cloudwatch_metric_alarm\.monitoring\[" || true)
     if [[ -n "$alarm_resources" ]]; then
@@ -196,36 +196,36 @@ main() {
             fi
         done
     fi
-    
+
     # Check SNS topic uses correct key
     if resource_exists "module.${MODULE_NAME}.aws_sns_topic.ecr_monitoring[\"ecr_monitoring\"]"; then
         log_success "SNS topic uses correct for_each key: ecr_monitoring"
     fi
-    
+
     # Check module keys
     local module_keys=("kms" "cache")
     for key in "${module_keys[@]}"; do
         local kms_resource="module.${MODULE_NAME}.module.kms[\"$key\"]"
         local cache_resource="module.${MODULE_NAME}.module.pull_through_cache[\"$key\"]"
-        
+
         if resource_exists "$kms_resource"; then
             log_success "KMS module uses correct for_each key: $key"
         fi
-        
+
         if resource_exists "$cache_resource"; then
             log_success "Pull-through cache module uses correct for_each key: $key"
         fi
     done
-    
+
     # Final terraform plan check
     check_terraform_plan
-    
+
     # Summary
     log_info "Validation Summary:"
     log_info "- Total checks: $TOTAL_CHECKS"
     log_success "- Passed: $PASSED_CHECKS"
     log_error "- Failed: $FAILED_CHECKS"
-    
+
     if [[ $FAILED_CHECKS -eq 0 ]]; then
         log_success "🎉 Migration validation completed successfully!"
         log_info "Your terraform-aws-ecr module has been successfully migrated to for_each patterns."
@@ -235,7 +235,7 @@ main() {
         log_info "You may need to run additional 'terraform state mv' commands."
         exit 1
     fi
-    
+
     # Additional recommendations
     echo
     log_info "Post-migration recommendations:"
