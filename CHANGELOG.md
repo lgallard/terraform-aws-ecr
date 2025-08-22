@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.2.0...1.3.0) (2025-08-22)
+
+
+### Features
+
+* enhance feature discovery with detailed issue content generation ([451ddf0](https://github.com/lgallard/terraform-aws-ecr/commit/451ddf09310da7fb7918932a9e4b8d6512f14931))
+
+
+### Bug Fixes
+
+* add PAT authentication for GitHub issue creation ([1068f56](https://github.com/lgallard/terraform-aws-ecr/commit/1068f566e35174b8e0e6fc5644c8fd3cc4f99fe8))
+* correct GitHub issue creation commands ([2366c11](https://github.com/lgallard/terraform-aws-ecr/commit/2366c11997b19b521e06f289e6f32631b7c97135))
+* reset failed issue creation attempts in feature tracker ([c6662d1](https://github.com/lgallard/terraform-aws-ecr/commit/c6662d1c09dca6339e6f1da6cc29f1d868db2688))
+
 ## [1.2.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.1.1...1.2.0) (2025-08-21)
 
 
