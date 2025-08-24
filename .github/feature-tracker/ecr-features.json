@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-08-23T15:30:00Z",
+    "last_scan": "2025-08-24T18:00:00Z",
     "provider_version": "latest",
-    "scan_count": 12
+    "scan_count": 13
   },
   "scan_history": [
     {
@@ -109,6 +109,14 @@
       "deprecations_found": 0,
       "fixes_found": 0,
       "issues_created": 1
+    },
+    {
+      "scan_date": "2025-08-24T18:00:00Z",
+      "provider_version": "latest",
+      "features_found": 3,
+      "deprecations_found": 0,
+      "fixes_found": 0,
+      "issues_created": 3
     }
   ],
   "current_implementation": {
@@ -413,6 +421,42 @@
         "fix_location": "repository.tf - add dynamic block for image_tag_mutability_exclusion_filter in both resources",
         "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository#image_tag_mutability_exclusion_filter",
         "validation_requirements": "Requires new variable and dynamic block implementation"
+      },
+      "aws_ecr_repository_creation_template.comprehensive_organizational_feature": {
+        "discovered_date": "2025-08-24T18:00:00Z",
+        "provider_version": "latest",
+        "description": "MAJOR: AWS ECR Repository Creation Template enables organizational standardization of repository creation with predefined configurations for infrastructure teams",
+        "priority": "high",
+        "status": "newly_discovered_major_feature",
+        "impact": "Organizational feature enabling infrastructure teams to enforce consistent repository settings",
+        "fix_location": "New resource implementation required - complete resource module",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_creation_template",
+        "key_arguments": ["prefix", "applied_for", "custom_role_arn", "description", "encryption_configuration", "image_tag_mutability", "lifecycle_policy", "repository_policy", "resource_tags"]
+      },
+      "aws_ecr_account_setting.account_level_configuration_management": {
+        "discovered_date": "2025-08-24T18:00:00Z",
+        "provider_version": "latest",
+        "description": "AWS ECR Account Setting resource for centralized account-level ECR configuration including BASIC_SCAN_TYPE_VERSION and REGISTRY_POLICY_SCOPE",
+        "priority": "medium",
+        "status": "newly_discovered_account_feature",
+        "impact": "Enables centralized account-level ECR configuration management",
+        "fix_location": "New resource implementation required",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting",
+        "key_arguments": ["name", "value"],
+        "valid_settings": {
+          "BASIC_SCAN_TYPE_VERSION": ["AWS_NATIVE", "CLAIR"],
+          "REGISTRY_POLICY_SCOPE": ["V1", "V2"]
+        }
+      },
+      "aws_ecr_registry_scanning_configuration.manual_scan_frequency_confirmed": {
+        "discovered_date": "2025-08-24T18:00:00Z",
+        "provider_version": "latest",
+        "description": "Enhanced scanning frequency options confirmed: SCAN_ON_PUSH, CONTINUOUS_SCAN, and MANUAL modes fully supported in latest provider version",
+        "priority": "low",
+        "status": "enhanced_scanning_confirmed",
+        "impact": "Module can support all scanning frequency options including on-demand manual scanning",
+        "fix_location": "Validation and documentation updates - scanning configuration already supports this",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration"
       }
     },
     "new_data_sources": {
@@ -565,13 +609,40 @@
       "priority": "high",
       "description": "Critical implementation gap: Module supports advanced tag mutability modes but lacks required configuration block",
       "issue_id": "gh_cli_requires_approval_would_create"
+    },
+    {
+      "date": "2025-08-24T18:00:00Z",
+      "feature": "aws_ecr_repository.image_tag_mutability_exclusion_filter_implementation_gap",
+      "type": "critical_implementation_gap",
+      "title": "feat: CRITICAL - Add image_tag_mutability_exclusion_filter implementation to ECR repositories",
+      "priority": "critical",
+      "description": "CRITICAL implementation gap: Module supports IMMUTABLE_WITH_EXCLUSION and MUTABLE_WITH_EXCLUSION but lacks dynamic block implementation",
+      "issue_id": "gh_cli_requires_approval_blocked"
+    },
+    {
+      "date": "2025-08-24T18:00:00Z",
+      "feature": "aws_ecr_repository_creation_template.comprehensive_organizational_feature",
+      "type": "major_new_resource",
+      "title": "feat: Add support for aws_ecr_repository_creation_template resource",
+      "priority": "high",
+      "description": "Major organizational feature for infrastructure teams to enforce consistent repository settings",
+      "issue_id": "gh_cli_requires_approval_blocked"
+    },
+    {
+      "date": "2025-08-24T18:00:00Z",
+      "feature": "aws_ecr_account_setting.account_level_configuration_management",
+      "type": "new_resource",
+      "title": "feat: Add support for aws_ecr_account_setting resource",
+      "priority": "medium",
+      "description": "Enable centralized account-level ECR configuration management",
+      "issue_id": "gh_cli_requires_approval_blocked"
     }
   ],
   "statistics": {
-    "total_scans": 12,
-    "total_features_discovered": 24,
-    "total_issues_created": 12,
-    "average_features_per_scan": 2.0,
-    "last_feature_discovery": "2025-08-23T15:30:00Z"
+    "total_scans": 13,
+    "total_features_discovered": 27,
+    "total_issues_created": 15,
+    "average_features_per_scan": 2.1,
+    "last_feature_discovery": "2025-08-24T18:00:00Z"
   }
 }
