@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-08-24T18:00:00Z",
+    "last_scan": "2025-08-25T21:20:18Z",
     "provider_version": "latest",
-    "scan_count": 13
+    "scan_count": 14
   },
   "scan_history": [
     {
@@ -117,6 +117,14 @@
       "deprecations_found": 0,
       "fixes_found": 0,
       "issues_created": 3
+    },
+    {
+      "scan_date": "2025-08-25T21:20:18Z",
+      "provider_version": "latest",
+      "features_found": 2,
+      "deprecations_found": 0,
+      "fixes_found": 0,
+      "issues_created": 2
     }
   ],
   "current_implementation": {
@@ -457,6 +465,29 @@
         "impact": "Module can support all scanning frequency options including on-demand manual scanning",
         "fix_location": "Validation and documentation updates - scanning configuration already supports this",
         "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration"
+      },
+      "aws_ecr_repository.image_tag_mutability_exclusion_filter_final_implementation_gap": {
+        "discovered_date": "2025-08-25T21:20:18Z",
+        "provider_version": "latest",
+        "description": "CRITICAL FINAL ANALYSIS: Module supports IMMUTABLE_WITH_EXCLUSION and MUTABLE_WITH_EXCLUSION in variables but completely lacks image_tag_mutability_exclusion_filter dynamic blocks in both repository resources. Users cannot configure exclusion filters despite validation allowing advanced mutability modes.",
+        "priority": "critical",
+        "status": "critical_implementation_gap_confirmed",
+        "impact": "Advanced tag mutability features are non-functional - users can set modes but cannot configure required exclusion filters",
+        "fix_location": "repository.tf lines 45-100 - both aws_ecr_repository resources need dynamic image_tag_mutability_exclusion_filter blocks",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository#image_tag_mutability_exclusion_filter",
+        "implementation_requirements": "New variable for exclusion filters, local configuration, dynamic blocks in both repository resources"
+      },
+      "aws_ecr_repository_creation_template.confirmed_organizational_feature": {
+        "discovered_date": "2025-08-25T21:20:18Z",
+        "provider_version": "latest",
+        "description": "CONFIRMED MAJOR FEATURE: AWS ECR Repository Creation Template enables organizational standardization with predefined configurations, security policies, and compliance enforcement across repository creation",
+        "priority": "high",
+        "status": "confirmed_major_organizational_feature",
+        "impact": "Major organizational capability - infrastructure teams can enforce consistent repository settings, compliance, and governance",
+        "fix_location": "New resource implementation required - template management capabilities",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_creation_template",
+        "key_arguments": ["prefix", "applied_for", "custom_role_arn", "description", "encryption_configuration", "image_tag_mutability", "lifecycle_policy", "repository_policy", "resource_tags"],
+        "business_value": "Organizational standardization, compliance enforcement, reduced configuration drift, centralized policy management"
       }
     },
     "new_data_sources": {
@@ -636,13 +667,31 @@
       "priority": "medium",
       "description": "Enable centralized account-level ECR configuration management",
       "issue_id": "gh_cli_requires_approval_blocked"
+    },
+    {
+      "date": "2025-08-25T21:20:18Z",
+      "feature": "aws_ecr_repository.image_tag_mutability_exclusion_filter_final_implementation_gap",
+      "type": "critical_implementation_gap",
+      "title": "feat: CRITICAL - Add image_tag_mutability_exclusion_filter implementation to ECR repositories",
+      "priority": "critical",
+      "description": "CRITICAL implementation gap: Module supports advanced tag mutability modes but lacks required exclusion filter configuration blocks in repository resources",
+      "issue_id": "gh_cli_requires_approval_blocked"
+    },
+    {
+      "date": "2025-08-25T21:20:18Z",
+      "feature": "aws_ecr_repository_creation_template.confirmed_organizational_feature",
+      "type": "major_organizational_resource",
+      "title": "feat: Add support for aws_ecr_repository_creation_template resource",
+      "priority": "high",
+      "description": "Major organizational feature enabling infrastructure teams to enforce consistent repository settings and compliance through template-based repository creation",
+      "issue_id": "gh_cli_requires_approval_blocked"
     }
   ],
   "statistics": {
-    "total_scans": 13,
-    "total_features_discovered": 27,
-    "total_issues_created": 15,
+    "total_scans": 14,
+    "total_features_discovered": 29,
+    "total_issues_created": 17,
     "average_features_per_scan": 2.1,
-    "last_feature_discovery": "2025-08-24T18:00:00Z"
+    "last_feature_discovery": "2025-08-25T21:20:18Z"
   }
 }
