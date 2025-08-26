@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-08-25T21:20:18Z",
+    "last_scan": "2025-08-26T21:22:30Z",
     "provider_version": "latest",
-    "scan_count": 14
+    "scan_count": 15
   },
   "scan_history": [
     {
@@ -125,6 +125,14 @@
       "deprecations_found": 0,
       "fixes_found": 0,
       "issues_created": 2
+    },
+    {
+      "scan_date": "2025-08-26T21:22:30Z",
+      "provider_version": "latest",
+      "features_found": 3,
+      "deprecations_found": 0,
+      "fixes_found": 0,
+      "issues_created": 0
     }
   ],
   "current_implementation": {
@@ -488,6 +496,48 @@
         "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_creation_template",
         "key_arguments": ["prefix", "applied_for", "custom_role_arn", "description", "encryption_configuration", "image_tag_mutability", "lifecycle_policy", "repository_policy", "resource_tags"],
         "business_value": "Organizational standardization, compliance enforcement, reduced configuration drift, centralized policy management"
+      },
+      "aws_ecr_repository.image_tag_mutability_exclusion_filter_comprehensive_analysis": {
+        "discovered_date": "2025-08-26T21:22:30Z",
+        "provider_version": "latest",
+        "description": "COMPREHENSIVE ANALYSIS COMPLETE: Module fully supports IMMUTABLE_WITH_EXCLUSION and MUTABLE_WITH_EXCLUSION in variables (lines 31-32 variables.tf) but completely lacks image_tag_mutability_exclusion_filter dynamic blocks in repository resources. Critical implementation gap preventing advanced tag protection functionality.",
+        "priority": "critical",
+        "status": "comprehensive_analysis_confirms_critical_gap",
+        "impact": "Advanced tag mutability features completely non-functional - users cannot configure exclusion patterns despite validation allowing advanced modes",
+        "fix_location": "repository.tf lines 45-117 - both aws_ecr_repository resources need dynamic image_tag_mutability_exclusion_filter blocks",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository#image_tag_mutability_exclusion_filter",
+        "implementation_requirements": "New variable for exclusion filter patterns, local configuration logic, dynamic blocks in both repository resources",
+        "validation_status": "Module accepts advanced modes but cannot configure required exclusion filters",
+        "technical_analysis": "Both aws_ecr_repository.repo and aws_ecr_repository.repo_protected resources lack exclusion filter support"
+      },
+      "aws_ecr_repository_creation_template.comprehensive_organizational_resource": {
+        "discovered_date": "2025-08-26T21:22:30Z",
+        "provider_version": "latest",
+        "description": "COMPREHENSIVE ANALYSIS: AWS ECR Repository Creation Template is a major organizational resource for standardized repository creation with predefined security policies, encryption, lifecycle policies, and governance enforcement",
+        "priority": "high",
+        "status": "comprehensive_analysis_confirms_major_feature",
+        "impact": "Major organizational feature enabling infrastructure teams to enforce consistent repository settings across enterprise environments",
+        "fix_location": "New resource implementation required - complete template management module",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_creation_template",
+        "key_arguments": ["prefix", "applied_for", "custom_role_arn", "description", "encryption_configuration", "image_tag_mutability", "lifecycle_policy", "repository_policy", "resource_tags"],
+        "business_value": "Organizational standardization, compliance enforcement, governance, reduced configuration drift, security by default",
+        "implementation_complexity": "High - requires comprehensive template management capabilities and integration with existing module patterns"
+      },
+      "aws_ecr_account_setting.comprehensive_account_configuration": {
+        "discovered_date": "2025-08-26T21:22:30Z",
+        "provider_version": "latest",
+        "description": "COMPREHENSIVE ANALYSIS: AWS ECR Account Setting resource enables centralized account-level ECR configuration management including scan type versions (AWS_NATIVE vs CLAIR) and registry policy scope (V1 vs V2)",
+        "priority": "medium",
+        "status": "comprehensive_analysis_confirms_account_feature",
+        "impact": "Centralized account-level ECR configuration management enabling fine-grained control over scanning engines and policy versions",
+        "fix_location": "New resource implementation required for account-level ECR settings",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting",
+        "key_arguments": ["name", "value"],
+        "valid_settings": {
+          "BASIC_SCAN_TYPE_VERSION": ["AWS_NATIVE", "CLAIR"],
+          "REGISTRY_POLICY_SCOPE": ["V1", "V2"]
+        },
+        "implementation_complexity": "Medium - account-level configuration resource with validation for setting name/value combinations"
       }
     },
     "new_data_sources": {
@@ -688,10 +738,10 @@
     }
   ],
   "statistics": {
-    "total_scans": 14,
-    "total_features_discovered": 29,
+    "total_scans": 15,
+    "total_features_discovered": 32,
     "total_issues_created": 17,
     "average_features_per_scan": 2.1,
-    "last_feature_discovery": "2025-08-25T21:20:18Z"
+    "last_feature_discovery": "2025-08-26T21:22:30Z"
   }
 }
