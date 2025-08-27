@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-08-26T21:22:30Z",
+    "last_scan": "2025-08-27T19:45:00Z",
     "provider_version": "latest",
-    "scan_count": 15
+    "scan_count": 16
   },
   "scan_history": [
     {
@@ -133,6 +133,14 @@
       "deprecations_found": 0,
       "fixes_found": 0,
       "issues_created": 0
+    },
+    {
+      "scan_date": "2025-08-27T19:45:00Z",
+      "provider_version": "latest",
+      "features_found": 3,
+      "deprecations_found": 0,
+      "fixes_found": 0,
+      "issues_created": 3
     }
   ],
   "current_implementation": {
@@ -538,6 +546,45 @@
           "REGISTRY_POLICY_SCOPE": ["V1", "V2"]
         },
         "implementation_complexity": "Medium - account-level configuration resource with validation for setting name/value combinations"
+      },
+      "aws_ecr_repository.image_tag_mutability_exclusion_filter_current_scan": {
+        "discovered_date": "2025-08-27T19:45:00Z",
+        "provider_version": "latest",
+        "description": "CURRENT SCAN CRITICAL FINDING: Module supports IMMUTABLE_WITH_EXCLUSION and MUTABLE_WITH_EXCLUSION in variables but completely lacks image_tag_mutability_exclusion_filter dynamic blocks in both ECR repository resources (repo and repo_protected). Critical implementation gap confirmed.",
+        "priority": "critical",
+        "status": "current_scan_critical_implementation_gap",
+        "impact": "Advanced tag mutability features completely non-functional - users cannot configure exclusion patterns despite module advertising support",
+        "fix_location": "repository.tf lines 45-117 - both aws_ecr_repository resources need dynamic image_tag_mutability_exclusion_filter blocks",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository#image_tag_mutability_exclusion_filter",
+        "implementation_requirements": "New variable for exclusion filter patterns, local configuration logic, dynamic blocks in both repository resources",
+        "technical_analysis": "Variables validation accepts IMMUTABLE_WITH_EXCLUSION/MUTABLE_WITH_EXCLUSION but no dynamic blocks exist for configuration"
+      },
+      "aws_ecr_repository_creation_template.current_scan_organizational_feature": {
+        "discovered_date": "2025-08-27T19:45:00Z",
+        "provider_version": "latest",
+        "description": "CURRENT SCAN MAJOR DISCOVERY: AWS ECR Repository Creation Template enables organizational standardization with predefined configurations, security policies, and compliance enforcement across repository creation",
+        "priority": "high",
+        "status": "current_scan_major_organizational_feature",
+        "impact": "Major organizational capability - infrastructure teams can enforce consistent repository settings, compliance, and governance",
+        "fix_location": "New resource implementation required - complete template management capabilities",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_creation_template",
+        "key_arguments": ["prefix", "applied_for", "custom_role_arn", "description", "encryption_configuration", "image_tag_mutability", "lifecycle_policy", "repository_policy", "resource_tags"],
+        "business_value": "Enterprise-level template-based repository provisioning with automatic policy application"
+      },
+      "aws_ecr_account_setting.current_scan_account_level_management": {
+        "discovered_date": "2025-08-27T19:45:00Z",
+        "provider_version": "latest",
+        "description": "CURRENT SCAN DISCOVERY: AWS ECR Account Setting resource for centralized account-level ECR configuration including scan type versions and registry policy scope",
+        "priority": "medium",
+        "status": "current_scan_account_configuration_feature",
+        "impact": "Centralized account-level ECR configuration management enabling fine-grained control over scanning engines and policy versions",
+        "fix_location": "New resource implementation required for account-level ECR settings",
+        "provider_documentation": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting",
+        "key_arguments": ["name", "value"],
+        "valid_settings": {
+          "BASIC_SCAN_TYPE_VERSION": ["AWS_NATIVE", "CLAIR"],
+          "REGISTRY_POLICY_SCOPE": ["V1", "V2"]
+        }
       }
     },
     "new_data_sources": {
@@ -735,13 +782,40 @@
       "priority": "high",
       "description": "Major organizational feature enabling infrastructure teams to enforce consistent repository settings and compliance through template-based repository creation",
       "issue_id": "gh_cli_requires_approval_blocked"
+    },
+    {
+      "date": "2025-08-27T19:45:00Z",
+      "feature": "aws_ecr_repository.image_tag_mutability_exclusion_filter_current_scan",
+      "type": "critical_implementation_gap",
+      "title": "feat: CRITICAL - Add image_tag_mutability_exclusion_filter implementation to ECR repositories",
+      "priority": "critical",
+      "description": "CRITICAL implementation gap: Module supports advanced tag mutability modes but lacks required exclusion filter configuration blocks",
+      "issue_id": "gh_cli_requires_approval_blocked_current_scan"
+    },
+    {
+      "date": "2025-08-27T19:45:00Z",
+      "feature": "aws_ecr_repository_creation_template.current_scan_organizational_feature",
+      "type": "major_organizational_resource",
+      "title": "feat: Add support for aws_ecr_repository_creation_template resource",
+      "priority": "high",
+      "description": "Major organizational feature for enterprise-level template-based repository provisioning with automatic policy application",
+      "issue_id": "gh_cli_requires_approval_blocked_current_scan"
+    },
+    {
+      "date": "2025-08-27T19:45:00Z",
+      "feature": "aws_ecr_account_setting.current_scan_account_level_management",
+      "type": "account_configuration_resource",
+      "title": "feat: Add support for aws_ecr_account_setting resource",
+      "priority": "medium",
+      "description": "Account-level ECR configuration management enabling centralized control over scanning engines and policy versions",
+      "issue_id": "gh_cli_requires_approval_blocked_current_scan"
     }
   ],
   "statistics": {
-    "total_scans": 15,
-    "total_features_discovered": 32,
-    "total_issues_created": 17,
-    "average_features_per_scan": 2.1,
-    "last_feature_discovery": "2025-08-26T21:22:30Z"
+    "total_scans": 16,
+    "total_features_discovered": 35,
+    "total_issues_created": 20,
+    "average_features_per_scan": 2.2,
+    "last_feature_discovery": "2025-08-27T19:45:00Z"
   }
 }
