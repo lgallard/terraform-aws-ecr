@@ -45,7 +45,7 @@ jobs:
         with:
           path: |
             ~/.local/bin/tflint
-          key: terraform-tools-${{ runner.os }}-v1
+          key: terraform-tools-${{ runner.os }}-v2
           restore-keys: |
             terraform-tools-${{ runner.os }}-
 
@@ -64,14 +64,15 @@ jobs:
 
       - name: Initialize Terraform modules
         run: |
-          # Initialize the main module
+          set -e
+          echo "Initializing root module..."
           terraform init -backend=false
 
-          # Initialize submodules
+          echo "Initializing submodules..."
           for dir in modules/*/; do
-            if [ -f "$dir/main.tf" ] || [ -f "$dir/versions.tf" ]; then
-              echo "Initializing module: $dir"
-              (cd "$dir" && terraform init -backend=false)
+            if [ -d "$dir" ] && { [ -f "$dir/main.tf" ] || [ -f "$dir/versions.tf" ]; }; then
+              echo "Initializing module in $dir..."
+              terraform -chdir="$dir" init -backend=false
             fi
           done
 
