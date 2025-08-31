@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/lgallard/terraform-aws-ecr/compare/1.3.1...1.3.2) (2025-08-31)
+
+
+### Bug Fixes
+
+* resolve terraform_docs pre-commit CI/local environment discrepancy ([#163](https://github.com/lgallard/terraform-aws-ecr/issues/163)) ([55394c2](https://github.com/lgallard/terraform-aws-ecr/commit/55394c25c0332c3fc837915499adfa2f319559fc))
+
 ## [1.3.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.3.0...1.3.1) (2025-08-22)
 
 
