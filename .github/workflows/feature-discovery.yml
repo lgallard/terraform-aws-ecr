@@ -2,8 +2,8 @@ name: ECR Feature Discovery
 
 on:
   schedule:
-    # Test run in 30 minutes (21:12 UTC today)
-    - cron: '12 21 * * *'
+    # Weekly scan every Sunday at midnight UTC
+    - cron: '0 0 * * 0'
 
   workflow_dispatch:
     inputs:
