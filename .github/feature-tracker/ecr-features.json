@@ -1,9 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2025-09-07T00:28:03Z", 
+    "last_scan": "2025-09-14T00:29:29Z", 
     "provider_version": "latest",
-    "scan_count": 21
+    "scan_count": 22
   },
   "scan_history": [
     {
@@ -186,6 +186,15 @@
       "fixes_found": 0,
       "issues_created": 0,
       "scan_notes": "COMPREHENSIVE FEATURE DISCOVERY ANALYSIS via Terraform MCP Server: Thorough analysis of latest AWS provider ECR resources confirms all major features previously discovered and tracked. CRITICAL IMPLEMENTATION GAP RECONFIRMED: image_tag_mutability_exclusion_filter remains the highest priority - module supports advanced tag mutability modes but lacks required dynamic block implementation in repository resources. Provider documentation analysis confirmed: aws_ecr_repository_creation_template (organizational templates), aws_ecr_account_setting (account-level configuration), and image_tag_mutability_exclusion_filter (advanced tag protection) all available in latest provider. No new features discovered - comprehensive feature set already tracked. GitHub CLI requires approval for issue creation. PRIORITY: Implement existing critical implementation gaps."
+    },
+    {
+      "scan_date": "2025-09-14T00:29:29Z",
+      "provider_version": "latest",
+      "features_found": 0,
+      "deprecations_found": 0,
+      "fixes_found": 0,
+      "issues_created": 0,
+      "scan_notes": "COMPREHENSIVE TERRAFORM MCP SERVER ANALYSIS COMPLETE: Exhaustive analysis of latest AWS provider ECR resources via Terraform MCP server confirms all major features previously discovered and tracked. NO NEW FEATURES FOUND - all ECR resources, arguments, and data sources comprehensively analyzed. CRITICAL IMPLEMENTATION GAP PERSISTS: image_tag_mutability_exclusion_filter remains the highest priority implementation gap - module supports IMMUTABLE_WITH_EXCLUSION/MUTABLE_WITH_EXCLUSION in variables.tf:31-32 but completely lacks required dynamic blocks in both repository resources (repository.tf:45-117). Major missing features confirmed: aws_ecr_repository_creation_template (organizational templates), aws_ecr_account_setting (account-level config), ECR data sources (aws_ecr_images, aws_ecr_repositories, aws_ecr_lifecycle_policy_document). GitHub CLI blocked - requires approval for issue creation. FOCUS: Implement existing tracked critical gaps rather than discovering new features."
     }
   ],
   "current_implementation": {
