@@ -6,9 +6,9 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      # Require AWS provider 5.x to ensure compatibility with the latest
-      # ECR features and future improvements.
-      version = ">= 5.0.0"
+      # Require AWS provider 5.81.0+ for ECR account settings support
+      # (aws_ecr_account_setting resource introduced in 5.81.0)
+      version = ">= 5.81.0"
     }
     archive = {
       source  = "hashicorp/archive"

@@ -214,6 +214,39 @@ module "ecr" {
 - SNS notifications: First 1,000 emails free, then $0.75 per 1,000
 - No additional charges for metrics collection
 
+### ECR Account Settings
+
+Configure ECR account-level settings, such as the basic scan type version. AWS is migrating from CLAIR-based scanning to AWS Native scanning technology, with CLAIR being deprecated on February 2, 2026.
+
+```hcl
+module "ecr" {
+  source = "lgallard/ecr/aws"
+
+  name = "my-app"
+
+  # Enable account-level settings management
+  manage_account_setting    = true
+  basic_scan_type_version  = "AWS_NATIVE"  # Use new AWS Native scanning (recommended)
+
+  tags = {
+    Environment = "production"
+    Migration   = "aws-native-scanning"
+  }
+}
+```
+
+**Account Settings Configuration:**
+- `manage_account_setting` - Whether to manage account-level ECR settings
+- `basic_scan_type_version` - Scanning technology: `AWS_NATIVE` (recommended) or `CLAIR` (deprecated)
+
+**Account Settings Output:**
+- `account_setting` - Account setting configuration status and values
+
+**Important Notes:**
+- Requires AWS Provider >= 5.81.0 for `aws_ecr_account_setting` resource
+- AWS Native scanning provides improved performance and accuracy
+- CLAIR-based scanning will be deprecated on February 2, 2026
+
 ### Cross-Region Replication
 
 The module now supports automatic cross-region replication for disaster recovery and multi-region deployments. When enabled, images are automatically replicated to specified regions whenever they are pushed to the primary repository.
