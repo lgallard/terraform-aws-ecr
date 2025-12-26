@@ -17,9 +17,6 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
-      - id: terraform_docs
-        args:
-          - --args=--lockfile=false
       - id: terraform_tflint
         args:
           - --args=--enable-rule=terraform_documented_variables
