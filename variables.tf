@@ -466,7 +466,7 @@ variable "basic_scan_type_version" {
   default     = "AWS_NATIVE"
   validation {
     condition     = contains(["AWS_NATIVE", "CLAIR"], var.basic_scan_type_version)
-    error_message = "Basic scan type version must be either AWS_NATIVE or CLAIR."
+    error_message = "Basic scan type version must be either AWS_NATIVE (recommended) or CLAIR (deprecated and will be removed by AWS)."
   }
 }
 

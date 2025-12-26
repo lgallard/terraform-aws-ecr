@@ -213,6 +213,12 @@ resource "aws_ecr_account_setting" "basic_scan_type" {
   count = var.manage_account_setting ? 1 : 0
   name  = "BASIC_SCAN_TYPE_VERSION"
   value = var.basic_scan_type_version
+
+  # Ensure account settings are applied after repositories are created
+  depends_on = [
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
+  ]
 }
 
 # ----------------------------------------------------------
