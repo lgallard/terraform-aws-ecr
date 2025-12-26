@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.3.2...1.4.0) (2025-12-26)
+
+
+### Features
+
+* Add support for ECR account settings (BASIC_SCAN_TYPE_VERSION) ([#167](https://github.com/lgallard/terraform-aws-ecr/issues/167)) ([4e2abbb](https://github.com/lgallard/terraform-aws-ecr/commit/4e2abbbf5f95a00aa883d6aa9681e9611537aa79)), closes [#166](https://github.com/lgallard/terraform-aws-ecr/issues/166)
+
 ## [1.3.2](https://github.com/lgallard/terraform-aws-ecr/compare/1.3.1...1.3.2) (2025-08-31)
 
 
