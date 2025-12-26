@@ -451,6 +451,26 @@ variable "registry_scan_filters" {
 }
 
 # ----------------------------------------------------------
+# ECR Account Settings Configuration
+# ----------------------------------------------------------
+
+variable "manage_account_setting" {
+  description = "Whether to manage ECR account-level settings. When enabled, this will configure account settings such as basic scan type version."
+  type        = bool
+  default     = false
+}
+
+variable "basic_scan_type_version" {
+  description = "The scanning type version for basic scans. AWS_NATIVE uses Amazon's native scanning technology (recommended), CLAIR uses the deprecated CLAIR-based scanning."
+  type        = string
+  default     = "AWS_NATIVE"
+  validation {
+    condition     = contains(["AWS_NATIVE", "CLAIR"], var.basic_scan_type_version)
+    error_message = "Basic scan type version must be either AWS_NATIVE or CLAIR."
+  }
+}
+
+# ----------------------------------------------------------
 # Pull-Through Cache Configuration
 # ----------------------------------------------------------
 

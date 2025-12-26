@@ -268,3 +268,18 @@ output "pull_request_rules" {
     webhook_functions      = []
   }
 }
+
+# ----------------------------------------------------------
+# ECR Account Settings Outputs
+# ----------------------------------------------------------
+
+output "account_setting" {
+  description = "ECR account setting configuration for basic scan type version"
+  value = var.manage_account_setting ? {
+    enabled                 = true
+    basic_scan_type_version = var.basic_scan_type_version
+    setting_name           = "BASIC_SCAN_TYPE_VERSION"
+  } : {
+    enabled = false
+  }
+}
