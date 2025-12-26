@@ -279,8 +279,7 @@ output "account_setting" {
     enabled                 = true
     basic_scan_type_version = var.basic_scan_type_version
     setting_name            = "BASIC_SCAN_TYPE_VERSION"
-  } : {
+    } : {
     enabled = false
   }
 }
-
