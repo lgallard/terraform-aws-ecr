@@ -14,6 +14,11 @@ module "ecr" {
   enable_logging     = true
   log_retention_days = 14
 
+  # Account-level settings management
+  manage_account_setting   = true
+  basic_scan_type_version = "AWS_NATIVE"  # Use recommended AWS Native scanning
+  registry_policy_scope   = "V2"         # Enhanced policy scope (recommended)
+
   image_scanning_configuration = {
     scan_on_push = true
   }
