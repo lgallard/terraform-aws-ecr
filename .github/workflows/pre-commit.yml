@@ -76,6 +76,22 @@ jobs:
             fi
           done
 
+          echo "Initializing examples..."
+          for dir in examples/*/; do
+            if [ -d "$dir" ] && { [ -f "$dir/main.tf" ] || [ -f "$dir/versions.tf" ]; }; then
+              echo "Initializing example in $dir..."
+              terraform -chdir="$dir" init -backend=false
+            fi
+          done
+
+          echo "Initializing test fixtures..."
+          for dir in test/fixtures/*/; do
+            if [ -d "$dir" ] && { [ -f "$dir/main.tf" ] || [ -f "$dir/versions.tf" ]; }; then
+              echo "Initializing test fixture in $dir..."
+              terraform -chdir="$dir" init -backend=false
+            fi
+          done
+
       - name: Cache pre-commit hooks
         uses: actions/cache@v3
         with:
