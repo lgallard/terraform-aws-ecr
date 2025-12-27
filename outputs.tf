@@ -284,6 +284,9 @@ output "account_setting" {
       registry_policy_scope   = "REGISTRY_POLICY_SCOPE"
     }
     } : {
-    enabled = false
+    enabled                 = false
+    basic_scan_type_version = null
+    registry_policy_scope   = null
+    settings                = null
   }
 }

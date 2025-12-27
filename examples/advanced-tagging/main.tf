@@ -1,5 +1,12 @@
 terraform {
   required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
 }
 
 # Advanced Tagging Strategies Example
@@ -9,11 +16,16 @@ terraform {
 # - Tag normalization for consistency
 # - Cost allocation and compliance tagging
 
+# Helper locals for repository naming
+locals {
+  name_prefix = var.name_prefix != "" ? "${var.name_prefix}-" : ""
+}
+
 # Basic example with default tagging template
 module "ecr_cost_allocation" {
   source = "../.."
 
-  name                 = "cost-allocation-repo"
+  name                 = "${local.name_prefix}cost-allocation-repo"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true
   encryption_type      = "KMS"
@@ -50,7 +62,7 @@ module "ecr_cost_allocation" {
 module "ecr_compliance" {
   source = "../.."
 
-  name                 = "compliance-repo"
+  name                 = "${local.name_prefix}compliance-repo"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = false
   encryption_type      = "KMS"
@@ -94,7 +106,7 @@ module "ecr_compliance" {
 module "ecr_sdlc" {
   source = "../.."
 
-  name                 = "sdlc-repo"
+  name                 = "${local.name_prefix}sdlc-repo"
   image_tag_mutability = "MUTABLE"
   force_delete         = true
   encryption_type      = "AES256"
@@ -129,7 +141,7 @@ module "ecr_sdlc" {
 module "ecr_custom_defaults" {
   source = "../.."
 
-  name                 = "custom-defaults-repo"
+  name                 = "${local.name_prefix}custom-defaults-repo"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true
 
@@ -166,7 +178,7 @@ module "ecr_custom_defaults" {
 module "ecr_legacy_compatible" {
   source = "../.."
 
-  name                 = "legacy-repo"
+  name                 = "${local.name_prefix}legacy-repo"
   image_tag_mutability = "MUTABLE"
   force_delete         = false
 
