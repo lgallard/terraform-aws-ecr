@@ -216,7 +216,7 @@ module "ecr" {
 
 ### ECR Account Settings
 
-Configure ECR account-level settings, such as the basic scan type version. AWS is migrating from CLAIR-based scanning to AWS Native scanning technology, with CLAIR being deprecated on February 2, 2026.
+Configure ECR account-level settings, including scan type version and registry policy scope. AWS is migrating from CLAIR-based scanning to AWS Native scanning technology, with CLAIR being deprecated on February 2, 2026.
 
 ```hcl
 module "ecr" {
@@ -227,6 +227,7 @@ module "ecr" {
   # Enable account-level settings management
   manage_account_setting    = true
   basic_scan_type_version  = "AWS_NATIVE"  # Use new AWS Native scanning (recommended)
+  registry_policy_scope    = "V2"         # Enhanced policy scope (recommended)
 
   tags = {
     Environment = "production"
@@ -238,14 +239,17 @@ module "ecr" {
 **Account Settings Configuration:**
 - `manage_account_setting` - Whether to manage account-level ECR settings
 - `basic_scan_type_version` - Scanning technology: `AWS_NATIVE` (recommended) or `CLAIR` (deprecated)
+- `registry_policy_scope` - Registry policy scope: `V2` (recommended) supports all ECR actions, `V1` (legacy) supports limited actions
 
 **Account Settings Output:**
-- `account_setting` - Account setting configuration status and values
+- `account_setting` - Account setting configuration status and values for both settings
 
 **Important Notes:**
 - Requires AWS Provider >= 5.81.0 for `aws_ecr_account_setting` resource
 - AWS Native scanning provides improved performance and accuracy
 - CLAIR-based scanning will be deprecated on February 2, 2026
+- Registry Policy Scope V2 is the default for new registries and provides granular control over all ECR actions
+- AWS does not recommend reverting from V2 to V1 policy scope
 
 ### Cross-Region Replication
 

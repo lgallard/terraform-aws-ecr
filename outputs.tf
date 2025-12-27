@@ -274,11 +274,15 @@ output "pull_request_rules" {
 # ----------------------------------------------------------
 
 output "account_setting" {
-  description = "ECR account setting configuration for basic scan type version"
+  description = "ECR account setting configuration for basic scan type version and registry policy scope"
   value = var.manage_account_setting ? {
     enabled                 = true
     basic_scan_type_version = var.basic_scan_type_version
-    setting_name            = "BASIC_SCAN_TYPE_VERSION"
+    registry_policy_scope   = var.registry_policy_scope
+    settings = {
+      basic_scan_type_version = "BASIC_SCAN_TYPE_VERSION"
+      registry_policy_scope   = "REGISTRY_POLICY_SCOPE"
+    }
     } : {
     enabled = false
   }

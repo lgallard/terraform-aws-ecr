@@ -221,6 +221,19 @@ resource "aws_ecr_account_setting" "basic_scan_type" {
   ]
 }
 
+# Account setting for registry policy scope
+resource "aws_ecr_account_setting" "registry_policy_scope" {
+  count = var.manage_account_setting ? 1 : 0
+  name  = "REGISTRY_POLICY_SCOPE"
+  value = var.registry_policy_scope
+
+  # Ensure account settings are applied after repositories are created
+  depends_on = [
+    aws_ecr_repository.repo,
+    aws_ecr_repository.repo_protected
+  ]
+}
+
 # ----------------------------------------------------------
 # Pull-Through Cache Configuration
 # ----------------------------------------------------------

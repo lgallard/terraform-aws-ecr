@@ -470,6 +470,16 @@ variable "basic_scan_type_version" {
   }
 }
 
+variable "registry_policy_scope" {
+  description = "The registry policy scope version. V2 (recommended) supports all ECR actions, V1 (legacy) only supports ReplicateImage, BatchImportUpstreamImage, and CreateRepository."
+  type        = string
+  default     = "V2"
+  validation {
+    condition     = contains(["V1", "V2"], var.registry_policy_scope)
+    error_message = "Registry policy scope must be either V1 (legacy) or V2 (recommended)."
+  }
+}
+
 # ----------------------------------------------------------
 # Pull-Through Cache Configuration
 # ----------------------------------------------------------
