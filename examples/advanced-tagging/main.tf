@@ -16,44 +16,6 @@ terraform {
 # - Tag normalization for consistency
 # - Cost allocation and compliance tagging
 
-# Variable to prefix repository names for testing/deployment isolation
-variable "name_prefix" {
-  description = "Prefix for repository names to avoid conflicts during testing or parallel deployments"
-  type        = string
-  default     = ""
-}
-
-# Environment configuration
-variable "environment" {
-  description = "Environment name"
-  type        = string
-  default     = "development"
-}
-
-variable "owner_team" {
-  description = "Owner team name"
-  type        = string
-  default     = "platform-team"
-}
-
-variable "project_name" {
-  description = "Project name"
-  type        = string
-  default     = "advanced-tagging-example"
-}
-
-variable "cost_center" {
-  description = "Cost center code"
-  type        = string
-  default     = "platform-cc-001"
-}
-
-variable "enable_strict_validation" {
-  description = "Enable strict tag validation"
-  type        = bool
-  default     = false
-}
-
 # Helper locals for repository naming
 locals {
   name_prefix = var.name_prefix != "" ? "${var.name_prefix}-" : ""

@@ -1,3 +1,9 @@
+variable "name_prefix" {
+  description = "Prefix for repository names to avoid conflicts during testing or parallel deployments"
+  type        = string
+  default     = ""
+}
+
 variable "environment" {
   description = "Environment name for tagging"
   type        = string
