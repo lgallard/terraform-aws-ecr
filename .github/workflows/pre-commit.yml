@@ -43,7 +43,9 @@ jobs:
           terraform_version: '1.3.0'
 
       - name: Create Terraform plugin cache directory
-        run: mkdir -p $TF_PLUGIN_CACHE_DIR
+        run: |
+          mkdir -p $TF_PLUGIN_CACHE_DIR
+          chmod 755 $TF_PLUGIN_CACHE_DIR
 
       - name: Cache Terraform providers
         uses: actions/cache@v3
@@ -66,7 +68,14 @@ jobs:
         run: |
           if ! command -v tflint &> /dev/null; then
             echo "Installing tflint..."
-            curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+            TFLINT_VERSION="v0.60.0"
+            TFLINT_CHECKSUM="3476ceedcf0c4f9f2bed35e92988e1411bec2caa543c9387bffaa720df9efaf7"
+            wget -q -O tflint.zip "https://github.com/terraform-linters/tflint/releases/download/${TFLINT_VERSION}/tflint_linux_amd64.zip"
+            echo "${TFLINT_CHECKSUM}  tflint.zip" | sha256sum -c -
+            unzip -q tflint.zip
+            sudo mv tflint /usr/local/bin/
+            rm tflint.zip
+            echo "tflint ${TFLINT_VERSION} installed successfully"
           fi
 
       - name: Install pre-commit
