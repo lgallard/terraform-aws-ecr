@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.5.0...1.5.1) (2025-12-27)
+
+
+### Bug Fixes
+
+* resolve pre-commit workflow terraform validate failures ([#172](https://github.com/lgallard/terraform-aws-ecr/issues/172)) ([d9a996a](https://github.com/lgallard/terraform-aws-ecr/commit/d9a996aaa875370b463fcc2fe4e45844f03bbd46))
+
 ## [1.5.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.4.0...1.5.0) (2025-12-27)
 
 
