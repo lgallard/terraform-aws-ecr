@@ -1,0 +1,14 @@
+# Example terraform.tfvars for advanced-tagging example
+# Copy this file to terraform.tfvars and customize values as needed
+
+# Repository naming prefix for isolation
+name_prefix = "dev-myname"  # Use something unique like your initials or team name
+
+# Environment configuration
+environment = "development"
+owner_team  = "platform-team"
+project_name = "advanced-tagging-example"
+cost_center = "platform-cc-001"
+
+# Enable strict validation for production-like testing
+enable_strict_validation = false

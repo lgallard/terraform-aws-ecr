@@ -16,11 +16,54 @@ terraform {
 # - Tag normalization for consistency
 # - Cost allocation and compliance tagging
 
+# Variable to prefix repository names for testing/deployment isolation
+variable "name_prefix" {
+  description = "Prefix for repository names to avoid conflicts during testing or parallel deployments"
+  type        = string
+  default     = ""
+}
+
+# Environment configuration
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  default     = "development"
+}
+
+variable "owner_team" {
+  description = "Owner team name"
+  type        = string
+  default     = "platform-team"
+}
+
+variable "project_name" {
+  description = "Project name"
+  type        = string
+  default     = "advanced-tagging-example"
+}
+
+variable "cost_center" {
+  description = "Cost center code"
+  type        = string
+  default     = "platform-cc-001"
+}
+
+variable "enable_strict_validation" {
+  description = "Enable strict tag validation"
+  type        = bool
+  default     = false
+}
+
+# Helper locals for repository naming
+locals {
+  name_prefix = var.name_prefix != "" ? "${var.name_prefix}-" : ""
+}
+
 # Basic example with default tagging template
 module "ecr_cost_allocation" {
   source = "../.."
 
-  name                 = "cost-allocation-repo"
+  name                 = "${local.name_prefix}cost-allocation-repo"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true
   encryption_type      = "KMS"
@@ -57,7 +100,7 @@ module "ecr_cost_allocation" {
 module "ecr_compliance" {
   source = "../.."
 
-  name                 = "compliance-repo"
+  name                 = "${local.name_prefix}compliance-repo"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = false
   encryption_type      = "KMS"
@@ -101,7 +144,7 @@ module "ecr_compliance" {
 module "ecr_sdlc" {
   source = "../.."
 
-  name                 = "sdlc-repo"
+  name                 = "${local.name_prefix}sdlc-repo"
   image_tag_mutability = "MUTABLE"
   force_delete         = true
   encryption_type      = "AES256"
@@ -136,7 +179,7 @@ module "ecr_sdlc" {
 module "ecr_custom_defaults" {
   source = "../.."
 
-  name                 = "custom-defaults-repo"
+  name                 = "${local.name_prefix}custom-defaults-repo"
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true
 
@@ -173,7 +216,7 @@ module "ecr_custom_defaults" {
 module "ecr_legacy_compatible" {
   source = "../.."
 
-  name                 = "legacy-repo"
+  name                 = "${local.name_prefix}legacy-repo"
   image_tag_mutability = "MUTABLE"
   force_delete         = false
 
