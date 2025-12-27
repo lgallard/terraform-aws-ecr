@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.4.0...1.5.0) (2025-12-27)
+
+
+### Features
+
+* add support for REGISTRY_POLICY_SCOPE account setting ([#170](https://github.com/lgallard/terraform-aws-ecr/issues/170)) ([f569e98](https://github.com/lgallard/terraform-aws-ecr/commit/f569e986d640f3df4970bc532ad0823828d495d3))
+
 ## [1.4.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.3.2...1.4.0) (2025-12-26)
 
 
