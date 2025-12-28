@@ -21,6 +21,11 @@ repos:
         args:
           - --args=--enable-rule=terraform_documented_variables
           - --args=--enable-rule=terraform_documented_outputs
+      - id: terraform_docs
+        args:
+          - --hook-config=--path-to-file=README.md
+          - --hook-config=--add-to-existing-file=true
+          - --hook-config=--create-file-if-not-exist=true
       # - id: terraform_checkov
       #   args:
       #     - --args=--quiet
