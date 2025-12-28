@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.5.1...1.6.0) (2025-12-28)
+
+
+### Features
+
+* add terraform_docs hook for local development ([#175](https://github.com/lgallard/terraform-aws-ecr/issues/175)) ([e2ca297](https://github.com/lgallard/terraform-aws-ecr/commit/e2ca29791386d0dcbf74ecd59b4fcbe283525c3b))
+
 ## [1.5.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.5.0...1.5.1) (2025-12-27)
 
 
