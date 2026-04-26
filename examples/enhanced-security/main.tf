@@ -18,8 +18,8 @@ module "ecr_enhanced_security" {
   scan_on_push         = true
 
   # Account-level security settings
-  manage_account_setting   = true
-  basic_scan_type_version = "AWS_NATIVE"  # Use AWS Native scanning for better security
+  manage_account_setting  = true
+  basic_scan_type_version = "AWS_NATIVE" # Use AWS Native scanning for better security
   registry_policy_scope   = "V2"         # Enhanced policy scope for granular permissions
 
   # Enhanced scanning configuration

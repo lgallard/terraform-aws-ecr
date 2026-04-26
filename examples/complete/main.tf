@@ -5,18 +5,20 @@ module "ecr" {
   source = "../.."
 
   name                 = "complete-ecr-repo"
-  timeouts_delete      = "60m"
   image_tag_mutability = "IMMUTABLE"
-  force_delete         = true
-  encryption_type      = "KMS"
+  timeouts = {
+    delete = "60m"
+  }
+  force_delete    = true
+  encryption_type = "KMS"
 
   # Enable logging configuration
   enable_logging     = true
   log_retention_days = 14
 
   # Account-level settings management
-  manage_account_setting   = true
-  basic_scan_type_version = "AWS_NATIVE"  # Use recommended AWS Native scanning
+  manage_account_setting  = true
+  basic_scan_type_version = "AWS_NATIVE" # Use recommended AWS Native scanning
   registry_policy_scope   = "V2"         # Enhanced policy scope (recommended)
 
   image_scanning_configuration = {
@@ -100,11 +102,13 @@ module "ecr_protected" {
   source = "../.."
 
   name                 = "protected-ecr-repo"
-  timeouts_delete      = "60m"
   image_tag_mutability = "IMMUTABLE" # Prevent image tags from being overwritten
-  force_delete         = false       # Prevent accidental deletion of images
-  prevent_destroy      = true        # Protect repository from being destroyed via Terraform
-  encryption_type      = "KMS"       # Enable KMS encryption
+  timeouts = {
+    delete = "60m"
+  }
+  force_delete    = false # Prevent accidental deletion of images
+  prevent_destroy = true  # Protect repository from being destroyed via Terraform
+  encryption_type = "KMS" # Enable KMS encryption
 
   image_scanning_configuration = {
     scan_on_push = true # Enable vulnerability scanning
