@@ -60,7 +60,8 @@ jobs:
         with:
           path: |
             ~/.local/bin/tflint
-          key: terraform-tools-${{ runner.os }}-v2
+            ~/.local/bin/terraform-docs
+          key: terraform-tools-${{ runner.os }}-v3
           restore-keys: |
             terraform-tools-${{ runner.os }}-
 
@@ -76,6 +77,18 @@ jobs:
             sudo mv tflint /usr/local/bin/
             rm tflint.zip
             echo "tflint ${TFLINT_VERSION} installed successfully"
+          fi
+
+      - name: Install terraform-docs
+        run: |
+          if ! command -v terraform-docs &> /dev/null; then
+            echo "Installing terraform-docs..."
+            TERRAFORM_DOCS_VERSION="v0.20.0"
+            wget -q -O terraform-docs.tar.gz "https://github.com/terraform-docs/terraform-docs/releases/download/${TERRAFORM_DOCS_VERSION}/terraform-docs-${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz"
+            tar -xzf terraform-docs.tar.gz terraform-docs
+            sudo mv terraform-docs /usr/local/bin/
+            rm terraform-docs.tar.gz
+            terraform-docs --version
           fi
 
       - name: Install pre-commit

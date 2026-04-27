@@ -330,3 +330,55 @@ If migrating from simpler configurations:
 5. Add protection mechanisms for production use
 
 This example serves as a comprehensive reference for production-ready ECR deployments with enterprise-grade features and security controls.
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.42.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr"></a> [ecr](#module\_ecr) | ../.. | n/a |
+| <a name="module_ecr_enhanced_lifecycle"></a> [ecr\_enhanced\_lifecycle](#module\_ecr\_enhanced\_lifecycle) | ../.. | n/a |
+| <a name="module_ecr_protected"></a> [ecr\_protected](#module\_ecr\_protected) | ../.. | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_region"></a> [region](#input\_region) | AWS region | `string` | `"us-east-1"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Additional tags to add to all resources | `map(string)` | `{}` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_ecr_log_group_arn"></a> [ecr\_log\_group\_arn](#output\_ecr\_log\_group\_arn) | ARN of the CloudWatch Log Group for ECR logs |
+| <a name="output_ecr_logging_role_arn"></a> [ecr\_logging\_role\_arn](#output\_ecr\_logging\_role\_arn) | ARN of the IAM role used for ECR logging |
+| <a name="output_enhanced_lifecycle_policy"></a> [enhanced\_lifecycle\_policy](#output\_enhanced\_lifecycle\_policy) | Generated lifecycle policy JSON for the enhanced repository |
+| <a name="output_enhanced_lifecycle_repository_arn"></a> [enhanced\_lifecycle\_repository\_arn](#output\_enhanced\_lifecycle\_repository\_arn) | ARN of the ECR repository with enhanced lifecycle policy |
+| <a name="output_enhanced_lifecycle_repository_url"></a> [enhanced\_lifecycle\_repository\_url](#output\_enhanced\_lifecycle\_repository\_url) | URL of the ECR repository with enhanced lifecycle policy |
+| <a name="output_protected_repository_arn"></a> [protected\_repository\_arn](#output\_protected\_repository\_arn) | ARN of the protected ECR repository |
+| <a name="output_protected_repository_name"></a> [protected\_repository\_name](#output\_protected\_repository\_name) | Name of the protected ECR repository |
+| <a name="output_protected_repository_url"></a> [protected\_repository\_url](#output\_protected\_repository\_url) | URL of the protected ECR repository |
+| <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | ID of the ECR registry |
+| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
+| <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
+| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
