@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.6.0...1.6.1) (2026-04-27)
+
+
+### Bug Fixes
+
+* update ECR examples for current module schema ([#178](https://github.com/lgallard/terraform-aws-ecr/issues/178)) ([8233592](https://github.com/lgallard/terraform-aws-ecr/commit/823359216366c4a2f39ef60b96ae142ea8297be9))
+
 ## [1.6.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.5.1...1.6.0) (2025-12-28)
 
 
