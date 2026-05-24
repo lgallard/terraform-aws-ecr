@@ -1,10 +1,9 @@
 {
   "metadata": {
     "module_name": "terraform-aws-ecr",
-    "last_scan": "2026-04-12T00:43:29Z",
-    "last_scan": "2026-02-22T00:00:00Z",
+    "last_scan": "2026-05-24T14:30:00Z",
     "provider_version": "latest",
-    "scan_count": 51
+    "scan_count": 52
   },
   "scan_history": [
     {
