@@ -415,17 +415,26 @@ jobs:
           git config --global user.email "actions@github.com"
 
           # Commit changes
-          git add .github/feature-tracker/
+          git add .github/feature-tracker/ || {
+            echo "::error::Failed to stage feature tracker updates"
+            exit 1
+          }
           git commit -m "chore: update ECR feature discovery tracker
 
           - Updated feature tracking database
           - Scan completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
           - Provider version: ${{ inputs.provider_version || 'latest' }}
 
-          [skip ci]"
+          [skip ci]" || {
+            echo "::error::Failed to commit feature tracker updates"
+            exit 1
+          }
 
           # Push changes
-          git push origin HEAD
+          git push origin HEAD || {
+            echo "::error::Failed to push feature tracker updates"
+            exit 1
+          }
 
           echo "Feature tracker updated successfully"
 
