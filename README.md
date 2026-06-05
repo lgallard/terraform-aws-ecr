@@ -3,7 +3,7 @@
 
 Terraform module to create [AWS ECR](https://aws.amazon.com/ecr/) (Elastic Container Registry) which is a fully-managed Docker container registry.
 
-[![Test](https://github.com/lgallard/terraform-aws-ecr/actions/workflows/test.yml/badge.svg)](https://github.com/lgallard/terraform-aws-ecr/actions/workflows/test.yml)
+[![Pre-commit](https://github.com/lgallard/terraform-aws-ecr/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/lgallard/terraform-aws-ecr/actions/workflows/pre-commit.yml)
 
 ## Architecture
 
@@ -1528,7 +1528,7 @@ For detailed examples of all variables with explanations, see [docs/variable-exa
 
 ## Testing
 
-This module uses [Terratest](https://github.com/gruntwork-io/terratest) for automated testing of the module functionality. The tests validate that the module can correctly:
+This module keeps [Terratest](https://github.com/gruntwork-io/terratest) coverage for local integration testing. Pull request CI uses the pre-commit workflow for deterministic formatting, validation, linting, and documentation checks. The Terratest suite validates that the module can correctly:
 
 - Create an ECR repository with basic settings
 - Apply repository and lifecycle policies

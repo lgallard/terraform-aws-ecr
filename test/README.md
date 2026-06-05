@@ -54,4 +54,4 @@ All resources are tagged with `Test = "true"` for identification and are destroy
 
 ## CI/CD Integration
 
-These tests can be run in GitHub Actions using the workflow defined in `.github/workflows/test.yml`.
+These tests are designed for local integration testing and require valid AWS credentials. Pull request CI uses the pre-commit workflow for deterministic formatting, validation, linting, and documentation checks instead of running Terratest against live AWS resources.
