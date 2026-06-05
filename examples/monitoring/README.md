@@ -132,3 +132,58 @@ aws sns publish --topic-arn "arn:aws:sns:us-east-1:123456789012:my-app-ecr-alert
 # View repository metrics
 aws ecr describe-repositories --repository-names my-app
 ```
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr_with_monitoring"></a> [ecr\_with\_monitoring](#module\_ecr\_with\_monitoring) | ../../ | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_cloudwatch_dashboard.ecr_dashboard](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
+| [aws_cloudwatch_metric_alarm.repository_inactivity](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_api_calls_threshold"></a> [api\_calls\_threshold](#input\_api\_calls\_threshold) | API calls threshold per minute for CloudWatch alarm | `number` | `500` | no |
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region to deploy resources | `string` | `"us-east-1"` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | Environment name | `string` | `"production"` | no |
+| <a name="input_notification_emails"></a> [notification\_emails](#input\_notification\_emails) | List of email addresses for SNS notifications | `list(string)` | `[]` | no |
+| <a name="input_owner"></a> [owner](#input\_owner) | Owner of the repository | `string` | `"platform-team"` | no |
+| <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Project name | `string` | `"my-project"` | no |
+| <a name="input_repository_name"></a> [repository\_name](#input\_repository\_name) | Name of the ECR repository | `string` | `"my-app-with-monitoring"` | no |
+| <a name="input_security_findings_threshold"></a> [security\_findings\_threshold](#input\_security\_findings\_threshold) | Security findings threshold for CloudWatch alarm | `number` | `5` | no |
+| <a name="input_storage_threshold_gb"></a> [storage\_threshold\_gb](#input\_storage\_threshold\_gb) | Storage threshold in GB for CloudWatch alarm | `number` | `5` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_cloudwatch_alarms"></a> [cloudwatch\_alarms](#output\_cloudwatch\_alarms) | CloudWatch alarms created for monitoring |
+| <a name="output_cloudwatch_dashboard_url"></a> [cloudwatch\_dashboard\_url](#output\_cloudwatch\_dashboard\_url) | URL to the CloudWatch dashboard |
+| <a name="output_example_docker_commands"></a> [example\_docker\_commands](#output\_example\_docker\_commands) | Example Docker commands for using the repository |
+| <a name="output_monitoring_status"></a> [monitoring\_status](#output\_monitoring\_status) | Monitoring configuration status |
+| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
+| <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
+| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
+| <a name="output_security_status"></a> [security\_status](#output\_security\_status) | Security configuration status |
+| <a name="output_sns_topic_arn"></a> [sns\_topic\_arn](#output\_sns\_topic\_arn) | ARN of the SNS topic for alerts |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

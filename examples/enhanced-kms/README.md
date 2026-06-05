@@ -211,3 +211,49 @@ kms_tags = {
 - [ECR Encryption Documentation](https://docs.aws.amazon.com/AmazonECR/latest/userguide/encryption-at-rest.html)
 - [KMS Key Policies](https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html)
 - [KMS Best Practices](https://docs.aws.amazon.com/kms/latest/developerguide/best-practices.html)
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr_advanced_enhanced_kms"></a> [ecr\_advanced\_enhanced\_kms](#module\_ecr\_advanced\_enhanced\_kms) | ../../ | n/a |
+| <a name="module_ecr_basic_enhanced_kms"></a> [ecr\_basic\_enhanced\_kms](#module\_ecr\_basic\_enhanced\_kms) | ../../ | n/a |
+| <a name="module_ecr_complete_custom_policy"></a> [ecr\_complete\_custom\_policy](#module\_ecr\_complete\_custom\_policy) | ../../ | n/a |
+| <a name="module_ecr_custom_policy_kms"></a> [ecr\_custom\_policy\_kms](#module\_ecr\_custom\_policy\_kms) | ../../ | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region for resources | `string` | `"us-east-1"` | no |
+| <a name="input_trusted_account_id"></a> [trusted\_account\_id](#input\_trusted\_account\_id) | AWS Account ID that should have cross-account access to the KMS key | `string` | `"111122223333"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_advanced_enhanced_kms"></a> [advanced\_enhanced\_kms](#output\_advanced\_enhanced\_kms) | Advanced enhanced KMS configuration outputs |
+| <a name="output_basic_enhanced_kms"></a> [basic\_enhanced\_kms](#output\_basic\_enhanced\_kms) | Basic enhanced KMS configuration outputs |
+| <a name="output_complete_custom_policy"></a> [complete\_custom\_policy](#output\_complete\_custom\_policy) | Complete custom policy KMS configuration outputs |
+| <a name="output_custom_policy_kms"></a> [custom\_policy\_kms](#output\_custom\_policy\_kms) | Custom policy KMS configuration outputs |
+| <a name="output_kms_examples_summary"></a> [kms\_examples\_summary](#output\_kms\_examples\_summary) | Summary of all KMS configuration examples |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

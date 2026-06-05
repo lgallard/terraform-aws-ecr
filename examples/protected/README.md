@@ -106,3 +106,45 @@ Remember: Both protection mechanisms must be removed in this order:
 1. Remove IAM policy first (allows AWS-level deletion)
 2. Then remove prevent_destroy (allows Terraform deletion)
 3. Finally run terraform destroy
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr"></a> [ecr](#module\_ecr) | ../.. | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_region"></a> [region](#input\_region) | AWS region | `string` | `"us-east-1"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | ARN of the KMS key used for encryption |
+| <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | ID of the ECR registry |
+| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the protected ECR repository |
+| <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the protected ECR repository |
+| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the protected ECR repository |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

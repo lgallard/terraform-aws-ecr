@@ -342,7 +342,7 @@ This example serves as a comprehensive reference for production-ready ECR deploy
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.42.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
 
 ## Modules
 

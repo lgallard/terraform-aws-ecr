@@ -1564,14 +1564,14 @@ For more details on tests, see the [test directory README](test/README.md).
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.81.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
 
 ## Modules
 
@@ -1589,6 +1589,8 @@ For more details on tests, see the [test directory README](test/README.md).
 | [aws_cloudwatch_event_target.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_log_group.ecr_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_metric_alarm.monitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_ecr_account_setting.basic_scan_type](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting) | resource |
+| [aws_ecr_account_setting.registry_policy_scope](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting) | resource |
 | [aws_ecr_lifecycle_policy.lifecycle_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_lifecycle_policy) | resource |
 | [aws_ecr_registry_scanning_configuration.scanning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
 | [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
@@ -1612,6 +1614,7 @@ For more details on tests, see the [test directory README](test/README.md).
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_basic_scan_type_version"></a> [basic\_scan\_type\_version](#input\_basic\_scan\_type\_version) | The scanning type version for basic scans. AWS\_NATIVE uses Amazon's native scanning technology (recommended), CLAIR uses the deprecated CLAIR-based scanning. | `string` | `"AWS_NATIVE"` | no |
 | <a name="input_create_sns_topic"></a> [create\_sns\_topic](#input\_create\_sns\_topic) | Whether to create an SNS topic for CloudWatch alarm notifications. | `bool` | `false` | no |
 | <a name="input_default_tags_cost_center"></a> [default\_tags\_cost\_center](#input\_default\_tags\_cost\_center) | Cost center tag value for financial tracking. Null to disable. | `string` | `null` | no |
 | <a name="input_default_tags_environment"></a> [default\_tags\_environment](#input\_default\_tags\_environment) | Environment tag value applied to all resources. Null to disable. | `string` | `null` | no |
@@ -1651,6 +1654,7 @@ For more details on tests, see the [test directory README](test/README.md).
 | <a name="input_lifecycle_policy_template"></a> [lifecycle\_policy\_template](#input\_lifecycle\_policy\_template) | Predefined lifecycle policy template. Options: development, production, cost\_optimization, compliance. | `string` | `null` | no |
 | <a name="input_lifecycle_tag_prefixes_to_keep"></a> [lifecycle\_tag\_prefixes\_to\_keep](#input\_lifecycle\_tag\_prefixes\_to\_keep) | List of tag prefixes for keep-latest rule. Empty list applies to all images. Max 100 prefixes. | `list(string)` | `[]` | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days to retain ECR logs in CloudWatch. | `number` | `30` | no |
+| <a name="input_manage_account_setting"></a> [manage\_account\_setting](#input\_manage\_account\_setting) | Whether to manage ECR account-level settings. When enabled, this will configure account settings such as basic scan type version. | `bool` | `false` | no |
 | <a name="input_monitoring_threshold_api_calls"></a> [monitoring\_threshold\_api\_calls](#input\_monitoring\_threshold\_api\_calls) | API call volume threshold per minute to trigger CloudWatch alarm. | `number` | `1000` | no |
 | <a name="input_monitoring_threshold_image_pull"></a> [monitoring\_threshold\_image\_pull](#input\_monitoring\_threshold\_image\_pull) | Image pull frequency threshold per 5-minute period to trigger CloudWatch alarm. | `number` | `100` | no |
 | <a name="input_monitoring_threshold_image_push"></a> [monitoring\_threshold\_image\_push](#input\_monitoring\_threshold\_image\_push) | Image push frequency threshold per 5-minute period to trigger CloudWatch alarm. | `number` | `10` | no |
@@ -1662,6 +1666,7 @@ For more details on tests, see the [test directory README](test/README.md).
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed via lifecycle prevent\_destroy. | `bool` | `false` | no |
 | <a name="input_pull_request_rules"></a> [pull\_request\_rules](#input\_pull\_request\_rules) | List of pull request rule configurations for enhanced governance. | <pre>list(object({<br/>    name    = string<br/>    type    = string<br/>    enabled = bool<br/>    conditions = optional(object({<br/>      tag_patterns            = optional(list(string), [])<br/>      severity_threshold      = optional(string, "MEDIUM")<br/>      require_scan_completion = optional(bool, true)<br/>      allowed_principals      = optional(list(string), [])<br/>    }), {})<br/>    actions = optional(object({<br/>      require_approval_count = optional(number, 1)<br/>      notification_topic_arn = optional(string)<br/>      webhook_url            = optional(string)<br/>      block_on_failure       = optional(bool, true)<br/>      approval_timeout_hours = optional(number, 24)<br/>    }), {})<br/>  }))</pre> | `[]` | no |
 | <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_registry_policy_scope"></a> [registry\_policy\_scope](#input\_registry\_policy\_scope) | The registry policy scope version. V2 (recommended) supports all ECR actions, V1 (legacy) only supports ReplicateImage, BatchImportUpstreamImage, and CreateRepository. | `string` | `"V2"` | no |
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
 | <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of AWS regions to replicate ECR images to. | `list(string)` | `[]` | no |
@@ -1678,6 +1683,7 @@ For more details on tests, see the [test directory README](test/README.md).
 
 | Name | Description |
 |------|-------------|
+| <a name="output_account_setting"></a> [account\_setting](#output\_account\_setting) | ECR account setting configuration for basic scan type version and registry policy scope |
 | <a name="output_applied_tags"></a> [applied\_tags](#output\_applied\_tags) | The final set of tags applied to all resources after normalization and default tag application |
 | <a name="output_cloudwatch_alarms"></a> [cloudwatch\_alarms](#output\_cloudwatch\_alarms) | List of CloudWatch alarms created for ECR monitoring |
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | The ARN of the CloudWatch Log Group used for ECR logs (if logging is enabled) |
@@ -1860,14 +1866,14 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.81.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
 
 ## Modules
 
@@ -1885,6 +1891,8 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | [aws_cloudwatch_event_target.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_log_group.ecr_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_metric_alarm.monitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_ecr_account_setting.basic_scan_type](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting) | resource |
+| [aws_ecr_account_setting.registry_policy_scope](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting) | resource |
 | [aws_ecr_lifecycle_policy.lifecycle_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_lifecycle_policy) | resource |
 | [aws_ecr_registry_scanning_configuration.scanning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
 | [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
@@ -1908,6 +1916,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_basic_scan_type_version"></a> [basic\_scan\_type\_version](#input\_basic\_scan\_type\_version) | The scanning type version for basic scans. AWS\_NATIVE uses Amazon's native scanning technology (recommended), CLAIR uses the deprecated CLAIR-based scanning. | `string` | `"AWS_NATIVE"` | no |
 | <a name="input_create_sns_topic"></a> [create\_sns\_topic](#input\_create\_sns\_topic) | Whether to create an SNS topic for CloudWatch alarm notifications. | `bool` | `false` | no |
 | <a name="input_default_tags_cost_center"></a> [default\_tags\_cost\_center](#input\_default\_tags\_cost\_center) | Cost center tag value for financial tracking. Null to disable. | `string` | `null` | no |
 | <a name="input_default_tags_environment"></a> [default\_tags\_environment](#input\_default\_tags\_environment) | Environment tag value applied to all resources. Null to disable. | `string` | `null` | no |
@@ -1947,6 +1956,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="input_lifecycle_policy_template"></a> [lifecycle\_policy\_template](#input\_lifecycle\_policy\_template) | Predefined lifecycle policy template. Options: development, production, cost\_optimization, compliance. | `string` | `null` | no |
 | <a name="input_lifecycle_tag_prefixes_to_keep"></a> [lifecycle\_tag\_prefixes\_to\_keep](#input\_lifecycle\_tag\_prefixes\_to\_keep) | List of tag prefixes for keep-latest rule. Empty list applies to all images. Max 100 prefixes. | `list(string)` | `[]` | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days to retain ECR logs in CloudWatch. | `number` | `30` | no |
+| <a name="input_manage_account_setting"></a> [manage\_account\_setting](#input\_manage\_account\_setting) | Whether to manage ECR account-level settings. When enabled, this will configure account settings such as basic scan type version. | `bool` | `false` | no |
 | <a name="input_monitoring_threshold_api_calls"></a> [monitoring\_threshold\_api\_calls](#input\_monitoring\_threshold\_api\_calls) | API call volume threshold per minute to trigger CloudWatch alarm. | `number` | `1000` | no |
 | <a name="input_monitoring_threshold_image_pull"></a> [monitoring\_threshold\_image\_pull](#input\_monitoring\_threshold\_image\_pull) | Image pull frequency threshold per 5-minute period to trigger CloudWatch alarm. | `number` | `100` | no |
 | <a name="input_monitoring_threshold_image_push"></a> [monitoring\_threshold\_image\_push](#input\_monitoring\_threshold\_image\_push) | Image push frequency threshold per 5-minute period to trigger CloudWatch alarm. | `number` | `10` | no |
@@ -1958,6 +1968,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed via lifecycle prevent\_destroy. | `bool` | `false` | no |
 | <a name="input_pull_request_rules"></a> [pull\_request\_rules](#input\_pull\_request\_rules) | List of pull request rule configurations for enhanced governance. | <pre>list(object({<br/>    name    = string<br/>    type    = string<br/>    enabled = bool<br/>    conditions = optional(object({<br/>      tag_patterns            = optional(list(string), [])<br/>      severity_threshold      = optional(string, "MEDIUM")<br/>      require_scan_completion = optional(bool, true)<br/>      allowed_principals      = optional(list(string), [])<br/>    }), {})<br/>    actions = optional(object({<br/>      require_approval_count = optional(number, 1)<br/>      notification_topic_arn = optional(string)<br/>      webhook_url            = optional(string)<br/>      block_on_failure       = optional(bool, true)<br/>      approval_timeout_hours = optional(number, 24)<br/>    }), {})<br/>  }))</pre> | `[]` | no |
 | <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_registry_policy_scope"></a> [registry\_policy\_scope](#input\_registry\_policy\_scope) | The registry policy scope version. V2 (recommended) supports all ECR actions, V1 (legacy) only supports ReplicateImage, BatchImportUpstreamImage, and CreateRepository. | `string` | `"V2"` | no |
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
 | <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of AWS regions to replicate ECR images to. | `list(string)` | `[]` | no |
@@ -1974,6 +1985,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 
 | Name | Description |
 |------|-------------|
+| <a name="output_account_setting"></a> [account\_setting](#output\_account\_setting) | ECR account setting configuration for basic scan type version and registry policy scope |
 | <a name="output_applied_tags"></a> [applied\_tags](#output\_applied\_tags) | The final set of tags applied to all resources after normalization and default tag application |
 | <a name="output_cloudwatch_alarms"></a> [cloudwatch\_alarms](#output\_cloudwatch\_alarms) | List of CloudWatch alarms created for ECR monitoring |
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | The ARN of the CloudWatch Log Group used for ECR logs (if logging is enabled) |

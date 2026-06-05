@@ -125,3 +125,58 @@ terraform destroy
 ```
 
 Note: You must delete all images from the repositories before they can be deleted, or set `force_delete = true` in the module configuration.
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws.primary"></a> [aws.primary](#provider\_aws.primary) | 6.49.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr_primary"></a> [ecr\_primary](#module\_ecr\_primary) | ../.. | n/a |
+| <a name="module_ecr_secondary"></a> [ecr\_secondary](#module\_ecr\_secondary) | ../.. | n/a |
+| <a name="module_ecr_with_replication"></a> [ecr\_with\_replication](#module\_ecr\_with\_replication) | ../.. | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_ecr_replication_configuration.manual_replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | Whether to enable CloudWatch logging | `bool` | `false` | no |
+| <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Whether to use built-in ECR replication (recommended) | `bool` | `true` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | Environment name | `string` | `"prod"` | no |
+| <a name="input_primary_region"></a> [primary\_region](#input\_primary\_region) | Primary AWS region for the ECR repository | `string` | `"us-east-1"` | no |
+| <a name="input_repository_name"></a> [repository\_name](#input\_repository\_name) | Name of the ECR repository | `string` | `"multi-region-app"` | no |
+| <a name="input_secondary_region"></a> [secondary\_region](#input\_secondary\_region) | Secondary AWS region for the ECR repository | `string` | `"us-west-2"` | no |
+| <a name="input_use_manual_setup"></a> [use\_manual\_setup](#input\_use\_manual\_setup) | Whether to demonstrate manual multi-region setup (alternative approach) | `bool` | `false` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_approach_summary"></a> [approach\_summary](#output\_approach\_summary) | Summary of the multi-region approach being used |
+| <a name="output_primary_repository_arn"></a> [primary\_repository\_arn](#output\_primary\_repository\_arn) | ARN of the primary ECR repository (manual setup) |
+| <a name="output_primary_repository_url"></a> [primary\_repository\_url](#output\_primary\_repository\_url) | URL of the primary ECR repository (manual setup) |
+| <a name="output_replicated_repository_arn"></a> [replicated\_repository\_arn](#output\_replicated\_repository\_arn) | ARN of the ECR repository with built-in replication |
+| <a name="output_replicated_repository_url"></a> [replicated\_repository\_url](#output\_replicated\_repository\_url) | URL of the ECR repository with built-in replication |
+| <a name="output_replication_regions"></a> [replication\_regions](#output\_replication\_regions) | Regions where images are replicated |
+| <a name="output_replication_status"></a> [replication\_status](#output\_replication\_status) | Replication configuration status |
+| <a name="output_secondary_repository_arn"></a> [secondary\_repository\_arn](#output\_secondary\_repository\_arn) | ARN of the secondary ECR repository (manual setup) |
+| <a name="output_secondary_repository_url"></a> [secondary\_repository\_url](#output\_secondary\_repository\_url) | URL of the secondary ECR repository (manual setup) |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

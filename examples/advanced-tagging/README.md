@@ -217,3 +217,58 @@ Each example provides detailed outputs showing:
 - Repository URLs and metadata
 
 Run `terraform output` to see all available outputs and their current values.
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
+
+## Providers
+
+No providers.
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr_compliance"></a> [ecr\_compliance](#module\_ecr\_compliance) | ../.. | n/a |
+| <a name="module_ecr_cost_allocation"></a> [ecr\_cost\_allocation](#module\_ecr\_cost\_allocation) | ../.. | n/a |
+| <a name="module_ecr_custom_defaults"></a> [ecr\_custom\_defaults](#module\_ecr\_custom\_defaults) | ../.. | n/a |
+| <a name="module_ecr_legacy_compatible"></a> [ecr\_legacy\_compatible](#module\_ecr\_legacy\_compatible) | ../.. | n/a |
+| <a name="module_ecr_sdlc"></a> [ecr\_sdlc](#module\_ecr\_sdlc) | ../.. | n/a |
+
+## Resources
+
+No resources.
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_cost_center"></a> [cost\_center](#input\_cost\_center) | Cost center for billing allocation | `string` | `"engineering-demo"` | no |
+| <a name="input_enable_strict_validation"></a> [enable\_strict\_validation](#input\_enable\_strict\_validation) | Whether to enable strict tag validation | `bool` | `true` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | Environment name for tagging | `string` | `"development"` | no |
+| <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix for repository names to avoid conflicts during testing or parallel deployments | `string` | `""` | no |
+| <a name="input_owner_team"></a> [owner\_team](#input\_owner\_team) | Team that owns these resources | `string` | `"platform-team"` | no |
+| <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Project name for tagging | `string` | `"advanced-tagging-demo"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_compliance_applied_tags"></a> [compliance\_applied\_tags](#output\_compliance\_applied\_tags) | Final tags applied to compliance repository |
+| <a name="output_compliance_repo_url"></a> [compliance\_repo\_url](#output\_compliance\_repo\_url) | URL of the compliance repository |
+| <a name="output_compliance_tag_compliance_status"></a> [compliance\_tag\_compliance\_status](#output\_compliance\_tag\_compliance\_status) | Tag compliance status for compliance repository |
+| <a name="output_cost_allocation_applied_tags"></a> [cost\_allocation\_applied\_tags](#output\_cost\_allocation\_applied\_tags) | Final tags applied to cost allocation repository |
+| <a name="output_cost_allocation_repo_url"></a> [cost\_allocation\_repo\_url](#output\_cost\_allocation\_repo\_url) | URL of the cost allocation repository |
+| <a name="output_cost_allocation_tagging_strategy"></a> [cost\_allocation\_tagging\_strategy](#output\_cost\_allocation\_tagging\_strategy) | Tagging strategy used for cost allocation repository |
+| <a name="output_custom_defaults_applied_tags"></a> [custom\_defaults\_applied\_tags](#output\_custom\_defaults\_applied\_tags) | Final tags applied to custom defaults repository |
+| <a name="output_custom_defaults_repo_url"></a> [custom\_defaults\_repo\_url](#output\_custom\_defaults\_repo\_url) | URL of the custom defaults repository |
+| <a name="output_legacy_applied_tags"></a> [legacy\_applied\_tags](#output\_legacy\_applied\_tags) | Final tags applied to legacy repository |
+| <a name="output_legacy_repo_url"></a> [legacy\_repo\_url](#output\_legacy\_repo\_url) | URL of the legacy compatible repository |
+| <a name="output_sdlc_applied_tags"></a> [sdlc\_applied\_tags](#output\_sdlc\_applied\_tags) | Final tags applied to SDLC repository |
+| <a name="output_sdlc_repo_url"></a> [sdlc\_repo\_url](#output\_sdlc\_repo\_url) | URL of the SDLC repository |
+| <a name="output_tagging_examples_summary"></a> [tagging\_examples\_summary](#output\_tagging\_examples\_summary) | Summary of all tagging examples and their strategies |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
