@@ -106,3 +106,47 @@ terraform destroy
 ```
 
 Note: If repositories contain images, you may need to set `force_delete = true` in the module configuration or manually delete the images first.
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+
+## Providers
+
+No providers.
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr_with_replication"></a> [ecr\_with\_replication](#module\_ecr\_with\_replication) | ../.. | n/a |
+
+## Resources
+
+No resources.
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | Whether to enable CloudWatch logging | `bool` | `false` | no |
+| <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Whether to enable ECR replication | `bool` | `true` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | Environment name | `string` | `"example"` | no |
+| <a name="input_primary_region"></a> [primary\_region](#input\_primary\_region) | Primary AWS region | `string` | `"us-east-1"` | no |
+| <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of regions to replicate ECR images to | `list(string)` | <pre>[<br/>  "us-west-2",<br/>  "eu-west-1"<br/>]</pre> | no |
+| <a name="input_repository_name"></a> [repository\_name](#input\_repository\_name) | Name of the ECR repository | `string` | `"replication-example"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_replication_configuration_arn"></a> [replication\_configuration\_arn](#output\_replication\_configuration\_arn) | ARN of the replication configuration |
+| <a name="output_replication_regions"></a> [replication\_regions](#output\_replication\_regions) | Regions where images are replicated |
+| <a name="output_replication_status"></a> [replication\_status](#output\_replication\_status) | Replication configuration status |
+| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
+| <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
+| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

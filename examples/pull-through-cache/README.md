@@ -119,3 +119,50 @@ terraform destroy
 
 - Storage costs apply to cached images
 - Use lifecycle policies to manage storage costs
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr_with_pull_through_cache"></a> [ecr\_with\_pull\_through\_cache](#module\_ecr\_with\_pull\_through\_cache) | ../../ | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_environment"></a> [environment](#input\_environment) | Environment name (e.g., dev, staging, prod) | `string` | `"dev"` | no |
+| <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | Whether to force delete the repository even if it contains images | `bool` | `false` | no |
+| <a name="input_github_credentials_arn"></a> [github\_credentials\_arn](#input\_github\_credentials\_arn) | ARN of AWS Secrets Manager secret containing GitHub Container Registry credentials (optional) | `string` | `null` | no |
+| <a name="input_quay_credentials_arn"></a> [quay\_credentials\_arn](#input\_quay\_credentials\_arn) | ARN of AWS Secrets Manager secret containing Quay.io credentials (optional) | `string` | `null` | no |
+| <a name="input_repository_name"></a> [repository\_name](#input\_repository\_name) | The name of the ECR repository | `string` | `"my-cached-repo"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_docker_pull_examples"></a> [docker\_pull\_examples](#output\_docker\_pull\_examples) | Example docker pull commands using the configured cache rules |
+| <a name="output_pull_through_cache_role_arn"></a> [pull\_through\_cache\_role\_arn](#output\_pull\_through\_cache\_role\_arn) | ARN of the IAM role used for pull-through cache operations |
+| <a name="output_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#output\_pull\_through\_cache\_rules) | List of configured pull-through cache rules |
+| <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | The registry ID where the repository was created |
+| <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | The ARN of the ECR repository |
+| <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | The URL of the ECR repository |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

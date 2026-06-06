@@ -405,3 +405,47 @@ terraform destroy
 5. **Consider tag prefix strategy** early in development
 6. **Monitor storage costs** and adjust as needed
 7. **Document policy decisions** for team understanding
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+
+## Providers
+
+No providers.
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ecr_compliance"></a> [ecr\_compliance](#module\_ecr\_compliance) | ../../ | n/a |
+| <a name="module_ecr_cost_optimized"></a> [ecr\_cost\_optimized](#module\_ecr\_cost\_optimized) | ../../ | n/a |
+| <a name="module_ecr_custom"></a> [ecr\_custom](#module\_ecr\_custom) | ../../ | n/a |
+| <a name="module_ecr_development"></a> [ecr\_development](#module\_ecr\_development) | ../../ | n/a |
+| <a name="module_ecr_manual"></a> [ecr\_manual](#module\_ecr\_manual) | ../../ | n/a |
+| <a name="module_ecr_production"></a> [ecr\_production](#module\_ecr\_production) | ../../ | n/a |
+
+## Resources
+
+No resources.
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region for resources | `string` | `"us-east-1"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_compliance_repository_url"></a> [compliance\_repository\_url](#output\_compliance\_repository\_url) | Repository URL for compliance ECR |
+| <a name="output_cost_optimized_repository_url"></a> [cost\_optimized\_repository\_url](#output\_cost\_optimized\_repository\_url) | Repository URL for cost optimized ECR |
+| <a name="output_custom_repository_url"></a> [custom\_repository\_url](#output\_custom\_repository\_url) | Repository URL for custom configured ECR |
+| <a name="output_development_repository_url"></a> [development\_repository\_url](#output\_development\_repository\_url) | Repository URL for development ECR |
+| <a name="output_manual_repository_url"></a> [manual\_repository\_url](#output\_manual\_repository\_url) | Repository URL for manual policy ECR |
+| <a name="output_production_repository_url"></a> [production\_repository\_url](#output\_production\_repository\_url) | Repository URL for production ECR |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
