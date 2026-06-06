@@ -8,6 +8,7 @@ on:
       - '**.tfvars'
       - '**.md'
       - '.pre-commit-config.yaml'
+      - '.github/workflows/pre-commit.yml'
   push:
     branches: [master]
     paths:
@@ -15,11 +16,12 @@ on:
       - '**.tfvars'
       - '**.md'
       - '.pre-commit-config.yaml'
+      - '.github/workflows/pre-commit.yml'
 
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     permissions:
       contents: read
       pull-requests: read
@@ -137,24 +139,8 @@ jobs:
       - name: Install pre-commit hooks
         run: pre-commit install-hooks
 
-      - name: Run pre-commit on all files (push to master)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      - name: Run pre-commit on all files
         run: pre-commit run --all-files
-
-      - name: Run pre-commit on changed files (pull request)
-        if: github.event_name == 'pull_request'
-        run: |
-          # Get the list of changed files
-          git fetch origin ${{ github.base_ref }}
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.tf' '*.tfvars' '*.md')
-
-          if [ -n "$CHANGED_FILES" ]; then
-            echo "Running pre-commit on changed files:"
-            echo "$CHANGED_FILES"
-            pre-commit run --files $CHANGED_FILES
-          else
-            echo "No relevant files changed, skipping pre-commit checks"
-          fi
 
       - name: Pre-commit summary
         if: always()
