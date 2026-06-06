@@ -109,17 +109,13 @@ This example doesn't define explicit outputs, but you can access repository info
 
 ## Testing
 
-This example includes automated tests in `/test/ecr_basic_test.go` that verify:
+This example is covered by the repository pre-commit workflow, which initializes and validates Terraform examples without creating live AWS resources.
 
-- Repository creation with correct configuration
-- Image tag mutability settings
-- Basic repository properties
-- AWS API integration
+To validate locally from the repository root:
 
-To run the tests:
 ```bash
-cd test
-go test -v -run TestEcrBasicCreation
+terraform -chdir=examples/simple init -backend=false
+terraform -chdir=examples/simple validate
 ```
 
 ## Clean Up

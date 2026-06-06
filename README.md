@@ -1528,34 +1528,19 @@ For detailed examples of all variables with explanations, see [docs/variable-exa
 
 ## Testing
 
-This module keeps [Terratest](https://github.com/gruntwork-io/terratest) coverage for local integration testing. Pull request CI uses the pre-commit workflow for deterministic formatting, validation, linting, and documentation checks. The Terratest suite validates that the module can correctly:
+Pull request CI uses the pre-commit workflow for deterministic formatting, validation, linting, and documentation checks. The workflow initializes the root module, submodules, examples, and Terraform fixtures under `test/fixtures/*` without creating live AWS resources.
 
-- Create an ECR repository with basic settings
-- Apply repository and lifecycle policies
-- Configure KMS encryption
-- Set up image tag mutability
-- Configure scan on push features
+### Running Validation Locally
 
-### Running Tests Locally
-
-To run the tests locally, you'll need:
-
-1. [Go](https://golang.org/) 1.16+
-2. [Terraform](https://www.terraform.io/) 1.3.0+
-3. AWS credentials configured locally
+To run the same validation locally, you'll need [Terraform](https://www.terraform.io/) 1.3.0+ and pre-commit installed.
 
 ```bash
-# Clone the repository
-git clone https://github.com/lgallard/terraform-aws-ecr.git
-cd terraform-aws-ecr
-
-# Run the tests
-cd test
-go mod tidy
-go test -v
+terraform fmt -recursive
+terraform init -backend=false
+pre-commit run --all-files
 ```
 
-For more details on tests, see the [test directory README](test/README.md).
+For more details on the Terraform fixtures, see the [test directory README](test/README.md).
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -1570,8 +1555,8 @@ For more details on tests, see the [test directory README](test/README.md).
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.81.0 |
 
 ## Modules
 
@@ -1872,8 +1857,8 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.81.0 |
 
 ## Modules
 
