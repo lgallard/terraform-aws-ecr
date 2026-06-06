@@ -1,57 +1,32 @@
-# Testing terraform-aws-ecr
+# Terraform validation fixtures
 
-This directory contains automated tests for the terraform-aws-ecr module. The tests use [Terratest](https://github.com/gruntwork-io/terratest), a Go library that provides utilities for testing Terraform code.
+This directory contains Terraform fixture modules used by repository validation.
 
-## Prerequisites
+The GitHub Actions pre-commit workflow initializes each directory under `test/fixtures/*` with `terraform init -backend=false` so Terraform validation can exercise representative module configurations without creating live AWS resources.
 
-1. [Go](https://golang.org/) (version 1.16 or later)
-2. [Terraform](https://www.terraform.io/) (version 1.3.0 or later)
-3. AWS credentials configured (via environment variables, shared credentials file, or AWS IAM role)
+## Fixtures
 
-## Running the Tests
+- `fixtures/basic`: Simple ECR repository configuration
+- `fixtures/complete`: Full-featured ECR repository configuration with policies and KMS encryption
+- `fixtures/advanced-tagging`: Tag normalization and repository-specific tags
+- `fixtures/enhanced-security`: Enhanced scanning and security configuration
+- `fixtures/lifecycle-policies`: Lifecycle policy coverage
+- `fixtures/lifecycle-policies-helper-vars`: Lifecycle policy helper variable coverage
+- `fixtures/lifecycle-policies-templates`: Lifecycle policy template coverage
+- `fixtures/monitoring`: Monitoring configuration coverage
 
-To run all tests:
+## Running validation locally
+
+From the repository root:
 
 ```bash
-cd test
-go test -v
+terraform fmt -recursive
+terraform init -backend=false
+for dir in test/fixtures/*/; do
+  terraform -chdir="$dir" init -backend=false
+  terraform -chdir="$dir" validate
+done
+pre-commit run --all-files
 ```
 
-To run a specific test:
-
-```bash
-cd test
-go test -v -run TestEcrBasicCreation
-```
-
-## Test Structure
-
-The test suite includes the following tests:
-
-1. **Basic Repository Test**: Tests the creation of a simple ECR repository with minimal configuration.
-   - Verifies repository creation
-   - Checks image tag mutability
-   - Validates repository URL and ARN
-
-2. **Complete Repository Test**: Tests the creation of a fully configured ECR repository.
-   - Verifies repository creation with all features
-   - Validates repository policies
-   - Checks lifecycle policies
-   - Tests KMS encryption
-
-## Test Fixtures
-
-The test fixtures are located in the `fixtures` directory:
-
-- `fixtures/basic`: A simple ECR repository configuration
-- `fixtures/complete`: A full-featured ECR repository configuration with policies and KMS encryption
-
-## AWS Resources
-
-These tests create real AWS resources, which might incur costs. The tests use the `force_delete = true` option to ensure that repositories can be cleaned up even if they contain images.
-
-All resources are tagged with `Test = "true"` for identification and are destroyed after the test completes. However, if a test fails, you may need to manually delete the resources.
-
-## CI/CD Integration
-
-These tests are designed for local integration testing and require valid AWS credentials. Pull request CI uses the pre-commit workflow for deterministic formatting, validation, linting, and documentation checks instead of running Terratest against live AWS resources.
+These fixtures are not a Terratest suite and do not require Go dependencies.

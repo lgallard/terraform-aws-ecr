@@ -225,18 +225,13 @@ The example provides comprehensive outputs for monitoring and integration:
 
 ## Testing
 
-This example includes comprehensive automated tests in `/test/ecr_complete_test.go` that verify:
+This example is covered by the repository pre-commit workflow, which initializes and validates Terraform examples without creating live AWS resources.
 
-- All repository configurations are created correctly
-- Repository policies are applied and accessible
-- Lifecycle policies are configured properly
-- Image tag mutability settings
-- AWS API integration and resource validation
+To validate locally from the repository root:
 
-To run the tests:
 ```bash
-cd test
-go test -v -run TestEcrCompleteRepository
+terraform -chdir=examples/complete init -backend=false
+terraform -chdir=examples/complete validate
 ```
 
 ## Advanced Usage Patterns
@@ -342,7 +337,7 @@ This example serves as a comprehensive reference for production-ready ECR deploy
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.49.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.42.0 |
 
 ## Modules
 

@@ -109,17 +109,13 @@ This example doesn't define explicit outputs, but you can access repository info
 
 ## Testing
 
-This example includes automated tests in `/test/ecr_basic_test.go` that verify:
+This example is covered by the repository pre-commit workflow, which initializes and validates Terraform examples without creating live AWS resources.
 
-- Repository creation with correct configuration
-- Image tag mutability settings
-- Basic repository properties
-- AWS API integration
+To validate locally from the repository root:
 
-To run the tests:
 ```bash
-cd test
-go test -v -run TestEcrBasicCreation
+terraform -chdir=examples/simple init -backend=false
+terraform -chdir=examples/simple validate
 ```
 
 ## Clean Up
@@ -145,35 +141,3 @@ After trying this simple example, you might want to explore:
 3. **Vulnerability Scanning**: Enables early detection of security issues
 4. **Comprehensive Tagging**: Facilitates resource management and cost allocation
 5. **Safe Defaults**: Conservative settings to prevent accidental data loss
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
-
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
-
-## Providers
-
-No providers.
-
-## Modules
-
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_ecr"></a> [ecr](#module\_ecr) | ../../ | n/a |
-
-## Resources
-
-No resources.
-
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_region"></a> [region](#input\_region) | AWS region | `string` | `"us-east-1"` | no |
-
-## Outputs
-
-No outputs.
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

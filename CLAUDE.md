@@ -12,7 +12,7 @@ This document outlines Terraform-specific development guidelines for the terrafo
 - **versions.tf** - Provider version constraints
 - **modules/kms/** - KMS submodule for ECR encryption key management
 - **examples/** - 12 comprehensive example configurations
-- **test/** - Go-based Terratest integration tests
+- **test/fixtures/** - Terraform validation fixtures used by pre-commit
 
 ### Code Organization Principles
 - Group ECR resources logically with dual repository patterns
@@ -113,36 +113,21 @@ locals {
 
 ## Testing Requirements
 
-### Terratest Integration
-**Use Go-based testing for ECR resources:**
+### Terraform Validation Fixtures
+**Use Terraform fixtures for deterministic validation without live AWS resources:**
 
-```go
-// Example: Basic ECR testing pattern
-func TestTerraformECRExample(t *testing.T) {
-    terraformOptions := &terraform.Options{
-        TerraformDir: "../examples/simple",
-        Vars: map[string]interface{}{
-            "repository_name": fmt.Sprintf("test-repo-%s", random.UniqueId()),
-        },
-    }
-
-    defer terraform.Destroy(t, terraformOptions)
-    terraform.InitAndApply(t, terraformOptions)
-
-    // Validate ECR repository creation
-    repositoryName := terraform.Output(t, terraformOptions, "repository_name")
-    assert.NotEmpty(t, repositoryName)
-}
-```
+- Add or update fixture modules under `test/fixtures/*` when a feature needs representative validation coverage.
+- Keep fixtures self-contained and safe for `terraform init -backend=false` and `terraform validate`.
+- Prefer example validation and pre-commit checks over live integration tests in pull request CI.
 
 ### Test Coverage Strategy
-**Comprehensive testing for ECR functionality:**
-- **Create corresponding test files** in `test/` directory
-- **Test both protected and non-protected repository patterns**
+**Comprehensive validation for ECR functionality:**
+- **Create corresponding fixture configurations** under `test/fixtures/` when useful
+- **Validate both protected and non-protected repository patterns**
 - **Validate KMS encryption integration**
-- **Test lifecycle policies and image scanning**
-- **Verify registry scanning and pull-through cache**
-- **Test multi-region replication scenarios**
+- **Validate lifecycle policies and image scanning**
+- **Verify registry scanning and pull-through cache configuration**
+- **Validate multi-region replication configuration**
 
 ## Security Considerations
 
@@ -290,23 +275,22 @@ locals {
 ### Pre-commit Requirements
 - **Run `terraform fmt`** on all modified files
 - **Execute `terraform validate`** to ensure syntax correctness
-- **Run `go test ./test/...`** for comprehensive testing
+- **Run `pre-commit run --all-files`** for comprehensive formatting, validation, linting, and documentation checks
 - **Validate examples** in `examples/` directory
 - **Check KMS submodule** integration if modified
 - **Update documentation** for variable or output changes
 
-### ECR-Specific Testing
-**Run comprehensive ECR tests:**
+### ECR-Specific Validation
+**Run comprehensive ECR validation:**
 
 ```bash
-# Run all ECR tests
-cd test/
-go test -v -timeout 30m
-
-# Run specific test categories
-go test -v -timeout 30m -run TestTerraformECRSimple
-go test -v -timeout 30m -run TestTerraformECRComplete
-go test -v -timeout 30m -run TestTerraformECRSecurity
+terraform fmt -recursive
+terraform init -backend=false
+for dir in test/fixtures/*/; do
+  terraform -chdir="$dir" init -backend=false
+  terraform -chdir="$dir" validate
+done
+pre-commit run --all-files
 ```
 
 ### Release Management
@@ -403,7 +387,7 @@ terraform {
 5. **Multi-Region Support** - Replication and pull-through cache
 6. **Monitoring & Alerting** - CloudWatch alarms and SNS notifications
 7. **Flexible Tagging** - Sophisticated tagging with normalization
-8. **Terratest Integration** - Go-based comprehensive testing
+8. **Terraform Validation Fixtures** - Deterministic validation coverage without live AWS resources
 9. **12 Example Configurations** - From simple to advanced use cases
 10. **Security-First Design** - Secure defaults with compliance support
 
@@ -453,7 +437,7 @@ This project is configured to use the following Model Context Protocol (MCP) ser
 ```
 
 **Usage Examples**:
-- `Look up Go testing patterns for Terratest`
+- `Look up Terraform validation and fixture patterns`
 - `Find AWS CLI ECR commands documentation`
 - `Get current Terraform best practices`
 - `Search for GitHub Actions workflow patterns`
@@ -474,9 +458,9 @@ The MCP servers are automatically available in GitHub Actions through the claude
 @claude I need to add support for ECR pull-through cache. Can you look up the latest aws_ecr_pull_through_cache_rule documentation and show me how to implement this feature?
 ```
 
-**Testing Pattern Research**:
+**Validation Pattern Research**:
 ```
-@claude Look up current Terratest patterns for testing ECR repositories and help me add comprehensive tests for the pull-through cache feature.
+@claude Look up current Terraform validation patterns and help me add fixture coverage for the pull-through cache feature.
 ```
 
 **Security Enhancement**:
