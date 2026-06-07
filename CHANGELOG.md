@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.6.1...1.7.0) (2026-06-07)
+
+
+### Features
+
+* add ECR repository creation templates ([#190](https://github.com/lgallard/terraform-aws-ecr/issues/190)) ([a7b7534](https://github.com/lgallard/terraform-aws-ecr/commit/a7b7534e9f4205760f607d5f2f6922e780c3e76f))
+
 ## [1.6.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.6.0...1.6.1) (2026-04-27)
 
 
