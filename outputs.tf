@@ -120,6 +120,26 @@ output "pull_through_cache_role_arn" {
   value       = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? try(module.pull_through_cache["cache"].pull_through_cache_role_arn, null) : null
 }
 
+output "repository_creation_templates" {
+  description = "Map of ECR repository creation templates keyed by prefix"
+  value = {
+    for prefix, template in aws_ecr_repository_creation_template.this : prefix => {
+      prefix               = template.prefix
+      registry_id          = template.registry_id
+      applied_for          = template.applied_for
+      image_tag_mutability = template.image_tag_mutability
+    }
+  }
+}
+
+output "repository_creation_template_status" {
+  description = "Status of ECR repository creation template configuration"
+  value = {
+    enabled  = var.enable_repository_creation_templates
+    prefixes = var.enable_repository_creation_templates ? keys(local.repository_creation_templates) : []
+  }
+}
+
 output "registry_scan_filters" {
   description = "The configured scan filters for filtering scan results (e.g., by vulnerability severity)"
   value       = var.registry_scan_filters
@@ -128,15 +148,16 @@ output "registry_scan_filters" {
 output "security_status" {
   description = "Comprehensive security status of the ECR configuration"
   value = {
-    basic_scanning_enabled     = local.image_scanning_configuration[0].scan_on_push
-    enhanced_scanning_enabled  = var.enable_registry_scanning
-    secret_scanning_enabled    = var.enable_secret_scanning
-    pull_through_cache_enabled = var.enable_pull_through_cache
-    encryption_type            = var.encryption_type
-    kms_encryption_enabled     = var.encryption_type == "KMS"
-    image_tag_mutability       = var.image_tag_mutability
-    replication_enabled        = var.enable_replication
-    scan_filters_configured    = length(var.registry_scan_filters) > 0
+    basic_scanning_enabled       = local.image_scanning_configuration[0].scan_on_push
+    enhanced_scanning_enabled    = var.enable_registry_scanning
+    secret_scanning_enabled      = var.enable_secret_scanning
+    pull_through_cache_enabled   = var.enable_pull_through_cache
+    repository_templates_enabled = var.enable_repository_creation_templates
+    encryption_type              = var.encryption_type
+    kms_encryption_enabled       = var.encryption_type == "KMS"
+    image_tag_mutability         = var.image_tag_mutability
+    replication_enabled          = var.enable_replication
+    scan_filters_configured      = length(var.registry_scan_filters) > 0
   }
 }
 

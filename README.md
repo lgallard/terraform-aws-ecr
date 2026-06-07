@@ -1581,6 +1581,7 @@ For more details on the Terraform fixtures, see the [test directory README](test
 | [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
 | [aws_ecr_repository.repo](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
 | [aws_ecr_repository.repo_protected](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
+| [aws_ecr_repository_creation_template.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_creation_template) | resource |
 | [aws_ecr_repository_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_policy) | resource |
 | [aws_iam_role.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -1613,6 +1614,7 @@ For more details on the Terraform fixtures, see the [test directory README](test
 | <a name="input_enable_pull_through_cache"></a> [enable\_pull\_through\_cache](#input\_enable\_pull\_through\_cache) | Whether to create pull-through cache rules. | `bool` | `false` | no |
 | <a name="input_enable_registry_scanning"></a> [enable\_registry\_scanning](#input\_enable\_registry\_scanning) | Whether to enable enhanced scanning for the ECR registry. | `bool` | `false` | no |
 | <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Whether to enable cross-region replication for the ECR registry. | `bool` | `false` | no |
+| <a name="input_enable_repository_creation_templates"></a> [enable\_repository\_creation\_templates](#input\_enable\_repository\_creation\_templates) | Whether to create ECR repository creation templates for repositories created by pull-through cache, create-on-push, or replication actions. | `bool` | `false` | no |
 | <a name="input_enable_secret_scanning"></a> [enable\_secret\_scanning](#input\_enable\_secret\_scanning) | Whether to enable secret scanning. Detects secrets in container images. | `bool` | `false` | no |
 | <a name="input_enable_tag_normalization"></a> [enable\_tag\_normalization](#input\_enable\_tag\_normalization) | Whether to enable automatic tag normalization. | `bool` | `true` | no |
 | <a name="input_enable_tag_validation"></a> [enable\_tag\_validation](#input\_enable\_tag\_validation) | Whether to enable tag validation to ensure compliance with organizational standards. | `bool` | `false` | no |
@@ -1655,6 +1657,7 @@ For more details on the Terraform fixtures, see the [test directory README](test
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
 | <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of AWS regions to replicate ECR images to. | `list(string)` | `[]` | no |
+| <a name="input_repository_creation_templates"></a> [repository\_creation\_templates](#input\_repository\_creation\_templates) | List of ECR repository creation templates to create. Templates apply only to repositories Amazon ECR creates through pull-through cache, create-on-push, or replication actions. The resource\_tags field controls tags ECR applies to repositories created from the template and does not inherit the module-level tags variable. | <pre>list(object({<br/>    prefix          = string<br/>    applied_for     = list(string)<br/>    custom_role_arn = optional(string)<br/>    description     = optional(string)<br/>    encryption_configuration = optional(object({<br/>      encryption_type = optional(string, "AES256")<br/>      kms_key         = optional(string)<br/>    }))<br/>    image_tag_mutability = optional(string, "MUTABLE")<br/>    lifecycle_policy     = optional(string)<br/>    repository_policy    = optional(string)<br/>    resource_tags        = optional(map(string), {})<br/>  }))</pre> | `[]` | no |
 | <a name="input_required_tags"></a> [required\_tags](#input\_required\_tags) | List of tag keys that are required to be present. Empty list disables validation. | `list(string)` | `[]` | no |
 | <a name="input_scan_on_push"></a> [scan\_on\_push](#input\_scan\_on\_push) | Whether images should be scanned after being pushed to the repository. | `bool` | `true` | no |
 | <a name="input_scan_repository_filters"></a> [scan\_repository\_filters](#input\_scan\_repository\_filters) | List of repository filters to apply for registry scanning. Supports wildcards. | `list(string)` | <pre>[<br/>  "*"<br/>]</pre> | no |
@@ -1690,6 +1693,8 @@ For more details on the Terraform fixtures, see the [test directory README](test
 | <a name="output_replication_regions"></a> [replication\_regions](#output\_replication\_regions) | List of regions where ECR images are replicated to (if replication is enabled) |
 | <a name="output_replication_status"></a> [replication\_status](#output\_replication\_status) | Status of ECR replication configuration |
 | <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
+| <a name="output_repository_creation_template_status"></a> [repository\_creation\_template\_status](#output\_repository\_creation\_template\_status) | Status of ECR repository creation template configuration |
+| <a name="output_repository_creation_templates"></a> [repository\_creation\_templates](#output\_repository\_creation\_templates) | Map of ECR repository creation templates keyed by prefix |
 | <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
 | <a name="output_repository_policy_exists"></a> [repository\_policy\_exists](#output\_repository\_policy\_exists) | Whether a repository policy exists for this ECR repository |
 | <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
@@ -1883,6 +1888,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
 | [aws_ecr_repository.repo](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
 | [aws_ecr_repository.repo_protected](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
+| [aws_ecr_repository_creation_template.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_creation_template) | resource |
 | [aws_ecr_repository_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository_policy) | resource |
 | [aws_iam_role.ecr_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.pull_request_rules_webhook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -1915,6 +1921,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="input_enable_pull_through_cache"></a> [enable\_pull\_through\_cache](#input\_enable\_pull\_through\_cache) | Whether to create pull-through cache rules. | `bool` | `false` | no |
 | <a name="input_enable_registry_scanning"></a> [enable\_registry\_scanning](#input\_enable\_registry\_scanning) | Whether to enable enhanced scanning for the ECR registry. | `bool` | `false` | no |
 | <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Whether to enable cross-region replication for the ECR registry. | `bool` | `false` | no |
+| <a name="input_enable_repository_creation_templates"></a> [enable\_repository\_creation\_templates](#input\_enable\_repository\_creation\_templates) | Whether to create ECR repository creation templates for repositories created by pull-through cache, create-on-push, or replication actions. | `bool` | `false` | no |
 | <a name="input_enable_secret_scanning"></a> [enable\_secret\_scanning](#input\_enable\_secret\_scanning) | Whether to enable secret scanning. Detects secrets in container images. | `bool` | `false` | no |
 | <a name="input_enable_tag_normalization"></a> [enable\_tag\_normalization](#input\_enable\_tag\_normalization) | Whether to enable automatic tag normalization. | `bool` | `true` | no |
 | <a name="input_enable_tag_validation"></a> [enable\_tag\_validation](#input\_enable\_tag\_validation) | Whether to enable tag validation to ensure compliance with organizational standards. | `bool` | `false` | no |
@@ -1957,6 +1964,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
 | <a name="input_replication_regions"></a> [replication\_regions](#input\_replication\_regions) | List of AWS regions to replicate ECR images to. | `list(string)` | `[]` | no |
+| <a name="input_repository_creation_templates"></a> [repository\_creation\_templates](#input\_repository\_creation\_templates) | List of ECR repository creation templates to create. Templates apply only to repositories Amazon ECR creates through pull-through cache, create-on-push, or replication actions. The resource\_tags field controls tags ECR applies to repositories created from the template and does not inherit the module-level tags variable. | <pre>list(object({<br/>    prefix          = string<br/>    applied_for     = list(string)<br/>    custom_role_arn = optional(string)<br/>    description     = optional(string)<br/>    encryption_configuration = optional(object({<br/>      encryption_type = optional(string, "AES256")<br/>      kms_key         = optional(string)<br/>    }))<br/>    image_tag_mutability = optional(string, "MUTABLE")<br/>    lifecycle_policy     = optional(string)<br/>    repository_policy    = optional(string)<br/>    resource_tags        = optional(map(string), {})<br/>  }))</pre> | `[]` | no |
 | <a name="input_required_tags"></a> [required\_tags](#input\_required\_tags) | List of tag keys that are required to be present. Empty list disables validation. | `list(string)` | `[]` | no |
 | <a name="input_scan_on_push"></a> [scan\_on\_push](#input\_scan\_on\_push) | Whether images should be scanned after being pushed to the repository. | `bool` | `true` | no |
 | <a name="input_scan_repository_filters"></a> [scan\_repository\_filters](#input\_scan\_repository\_filters) | List of repository filters to apply for registry scanning. Supports wildcards. | `list(string)` | <pre>[<br/>  "*"<br/>]</pre> | no |
@@ -1992,6 +2000,8 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="output_replication_regions"></a> [replication\_regions](#output\_replication\_regions) | List of regions where ECR images are replicated to (if replication is enabled) |
 | <a name="output_replication_status"></a> [replication\_status](#output\_replication\_status) | Status of ECR replication configuration |
 | <a name="output_repository_arn"></a> [repository\_arn](#output\_repository\_arn) | ARN of the ECR repository |
+| <a name="output_repository_creation_template_status"></a> [repository\_creation\_template\_status](#output\_repository\_creation\_template\_status) | Status of ECR repository creation template configuration |
+| <a name="output_repository_creation_templates"></a> [repository\_creation\_templates](#output\_repository\_creation\_templates) | Map of ECR repository creation templates keyed by prefix |
 | <a name="output_repository_name"></a> [repository\_name](#output\_repository\_name) | Name of the ECR repository |
 | <a name="output_repository_policy_exists"></a> [repository\_policy\_exists](#output\_repository\_policy\_exists) | Whether a repository policy exists for this ECR repository |
 | <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | URL of the ECR repository |
