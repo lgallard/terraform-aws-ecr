@@ -36,6 +36,10 @@ locals {
   pull_through_cache_modules = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? {
     cache = {}
   } : {}
+
+  repository_creation_templates = var.enable_repository_creation_templates ? {
+    for template in var.repository_creation_templates : template.prefix => template
+  } : {}
 }
 
 # KMS key submodule
@@ -259,4 +263,32 @@ module "pull_through_cache" {
     aws_ecr_repository.repo,
     aws_ecr_repository.repo_protected
   ]
+}
+
+# ----------------------------------------------------------
+# Repository Creation Templates
+# ----------------------------------------------------------
+
+# Templates for repositories Amazon ECR creates through pull-through cache,
+# create-on-push, or replication workflows.
+resource "aws_ecr_repository_creation_template" "this" {
+  for_each = local.repository_creation_templates
+
+  prefix               = each.value.prefix
+  applied_for          = each.value.applied_for
+  custom_role_arn      = each.value.custom_role_arn
+  description          = each.value.description
+  image_tag_mutability = each.value.image_tag_mutability
+  lifecycle_policy     = each.value.lifecycle_policy
+  repository_policy    = each.value.repository_policy
+  resource_tags        = each.value.resource_tags
+
+  dynamic "encryption_configuration" {
+    for_each = each.value.encryption_configuration == null ? [] : [each.value.encryption_configuration]
+    content {
+      encryption_type = encryption_configuration.value.encryption_type
+      kms_key         = encryption_configuration.value.kms_key
+    }
+  }
+
 }

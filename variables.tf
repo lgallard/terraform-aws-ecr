@@ -501,6 +501,89 @@ variable "pull_through_cache_rules" {
 }
 
 # ----------------------------------------------------------
+# Repository Creation Template Configuration
+# ----------------------------------------------------------
+
+variable "enable_repository_creation_templates" {
+  description = "Whether to create ECR repository creation templates for repositories created by pull-through cache, create-on-push, or replication actions."
+  type        = bool
+  default     = false
+}
+
+variable "repository_creation_templates" {
+  description = "List of ECR repository creation templates to create. Templates apply only to repositories Amazon ECR creates through pull-through cache, create-on-push, or replication actions. The resource_tags field controls tags ECR applies to repositories created from the template and does not inherit the module-level tags variable."
+  type = list(object({
+    prefix          = string
+    applied_for     = list(string)
+    custom_role_arn = optional(string)
+    description     = optional(string)
+    encryption_configuration = optional(object({
+      encryption_type = optional(string, "AES256")
+      kms_key         = optional(string)
+    }))
+    image_tag_mutability = optional(string, "MUTABLE")
+    lifecycle_policy     = optional(string)
+    repository_policy    = optional(string)
+    resource_tags        = optional(map(string), {})
+  }))
+  default = []
+
+  validation {
+    condition = length(var.repository_creation_templates) == length(distinct([
+      for template in var.repository_creation_templates : template.prefix
+    ]))
+    error_message = "Each repository creation template prefix must be unique."
+  }
+
+  validation {
+    condition = alltrue([
+      for template in var.repository_creation_templates :
+      template.prefix == "ROOT" || can(regex("^[a-z0-9]+(?:[._/-][a-z0-9]+)*$", template.prefix))
+    ])
+    error_message = "Each repository creation template prefix must be ROOT or a valid ECR repository namespace prefix."
+  }
+
+  validation {
+    condition = alltrue([
+      for template in var.repository_creation_templates :
+      length(template.applied_for) > 0 && alltrue([
+        for applied_for in template.applied_for : contains(["CREATE_ON_PUSH", "PULL_THROUGH_CACHE", "REPLICATION"], applied_for)
+      ])
+    ])
+    error_message = "Each repository creation template applied_for list must contain one or more of CREATE_ON_PUSH, PULL_THROUGH_CACHE, or REPLICATION."
+  }
+
+  validation {
+    condition = alltrue([
+      for template in var.repository_creation_templates :
+      contains(["MUTABLE", "IMMUTABLE"], template.image_tag_mutability)
+    ])
+    error_message = "Repository creation template image_tag_mutability must be one of MUTABLE or IMMUTABLE."
+  }
+
+  validation {
+    condition = alltrue([
+      for template in var.repository_creation_templates :
+      try(contains(["AES256", "KMS"], template.encryption_configuration.encryption_type), true)
+    ])
+    error_message = "Repository creation template encryption_type must be AES256 or KMS."
+  }
+
+  validation {
+    condition = alltrue([
+      for template in var.repository_creation_templates :
+      !(
+        (
+          length(template.resource_tags) > 0 ||
+          try(template.encryption_configuration.encryption_type == "KMS", false)
+        ) && template.custom_role_arn == null
+      )
+    ])
+    error_message = "Repository creation templates that use resource_tags or KMS encryption must set custom_role_arn."
+  }
+}
+
+# ----------------------------------------------------------
 # Secret Scanning Configuration
 # ----------------------------------------------------------
 
