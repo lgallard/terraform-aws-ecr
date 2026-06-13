@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.7.0...1.7.1) (2026-06-13)
+
+
+### Bug Fixes
+
+* release refactor commits as patch updates ([#193](https://github.com/lgallard/terraform-aws-ecr/issues/193)) ([d75ad9a](https://github.com/lgallard/terraform-aws-ecr/commit/d75ad9a4158ffee0e236834363d68c73e7aa3955))
+
 ## [1.7.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.6.1...1.7.0) (2026-06-07)
 
 
