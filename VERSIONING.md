@@ -60,7 +60,11 @@ This module uses [Release Please](https://github.com/googleapis/release-please) 
    - `feat!:` or `fix!:` or any type with `!` for breaking changes (MAJOR version bump)
    - `docs:` for documentation updates (no version bump)
    - `chore:` for maintenance tasks (no version bump)
-   - `refactor:` for code refactoring (PATCH version bump if behavior might be affected)
+   - `refactor:` for Terraform module implementation refactors (PATCH version bump when no `feat` or breaking change is present)
+
+   Release Please is configured to include `refactor:` commits in the changelog under **Code Refactoring**. Use `refactor:` for changes to module `.tf` implementation, locals, defaults, validations, dynamic block emission, provider compatibility, or resource construction that should ship to pinned module users without mislabeling them as bug fixes.
+
+   Documentation-only and CI-only commits should continue to use `docs:` or `ci:` and do not publish a release by default.
 
 2. When commits are pushed to the main branch, Release Please:
    - Analyzes commit messages since the last release
