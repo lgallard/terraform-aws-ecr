@@ -245,7 +245,7 @@ module "ecr" {
 - `account_setting` - Account setting configuration status and values for both settings
 
 **Important Notes:**
-- Requires AWS Provider >= 5.81.0 for `aws_ecr_account_setting` resource
+- Requires AWS Provider >= 6.0.0 for `data.aws_region.current.region` support and `aws_ecr_account_setting` resource support
 - AWS Native scanning provides improved performance and accuracy
 - CLAIR-based scanning will be deprecated on February 2, 2026
 - Registry Policy Scope V2 is the default for new registries and provides granular control over all ECR actions
@@ -1549,14 +1549,14 @@ For more details on the Terraform fixtures, see the [test directory README](test
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.81.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.50.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.51.0 |
 
 ## Modules
 
@@ -1856,14 +1856,14 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.81.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.50.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.51.0 |
 
 ## Modules
 
