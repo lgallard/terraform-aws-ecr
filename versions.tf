@@ -6,9 +6,10 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      # Require AWS provider 5.81.0+ for ECR account settings support
-      # (aws_ecr_account_setting resource introduced in 5.81.0)
-      version = ">= 5.81.0"
+      # Require AWS provider 6.0.0+ for the `region` attribute on the
+      # aws_region data source (which replaced the now-deprecated `id`/`name`).
+      # 6.0.0 also retains ECR account settings support added in 5.81.0.
+      version = ">= 6.0.0"
     }
     archive = {
       source  = "hashicorp/archive"

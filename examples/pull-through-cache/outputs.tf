@@ -34,10 +34,10 @@ output "registry_id" {
 output "docker_pull_examples" {
   description = "Example docker pull commands using the configured cache rules"
   value = {
-    docker_hub = "docker pull ${module.ecr_with_pull_through_cache.registry_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/docker-hub/library/nginx:latest"
-    quay       = "docker pull ${module.ecr_with_pull_through_cache.registry_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/quay/prometheus/prometheus:latest"
-    ghcr       = "docker pull ${module.ecr_with_pull_through_cache.registry_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/ghcr/actions/runner:latest"
-    public_ecr = "docker pull ${module.ecr_with_pull_through_cache.registry_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/public-ecr/amazonlinux:latest"
+    docker_hub = "docker pull ${module.ecr_with_pull_through_cache.registry_id}.dkr.ecr.${data.aws_region.current.region}.amazonaws.com/docker-hub/library/nginx:latest"
+    quay       = "docker pull ${module.ecr_with_pull_through_cache.registry_id}.dkr.ecr.${data.aws_region.current.region}.amazonaws.com/quay/prometheus/prometheus:latest"
+    ghcr       = "docker pull ${module.ecr_with_pull_through_cache.registry_id}.dkr.ecr.${data.aws_region.current.region}.amazonaws.com/ghcr/actions/runner:latest"
+    public_ecr = "docker pull ${module.ecr_with_pull_through_cache.registry_id}.dkr.ecr.${data.aws_region.current.region}.amazonaws.com/public-ecr/amazonlinux:latest"
   }
 }
 

@@ -30,7 +30,7 @@ output "approval_role_arn" {
 output "example_docker_commands" {
   description = "Example Docker commands for working with the repository"
   value = {
-    login = "aws ecr get-login-password --region ${data.aws_region.current.id} | docker login --username AWS --password-stdin ${module.ecr_with_pr_rules.repository_url}"
+    login = "aws ecr get-login-password --region ${data.aws_region.current.region} | docker login --username AWS --password-stdin ${module.ecr_with_pr_rules.repository_url}"
     build = "docker build -t ${module.ecr_with_pr_rules.repository_name}:latest ."
     tag   = "docker tag ${module.ecr_with_pr_rules.repository_name}:latest ${module.ecr_with_pr_rules.repository_url}:latest"
     push  = "docker push ${module.ecr_with_pr_rules.repository_url}:latest"
