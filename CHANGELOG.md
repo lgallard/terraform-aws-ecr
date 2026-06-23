@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.7.1...2.0.0) (2026-06-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* The minimum supported AWS provider version is now 6.0.0.
+
+### Bug Fixes
+
+* align examples with AWS provider v6 floor ([37af898](https://github.com/lgallard/terraform-aws-ecr/commit/37af898c9f1b8c8b9778887d8e73d3662a54b2ae))
+* replace deprecated aws_region.current.id/name with .region ([f4cc243](https://github.com/lgallard/terraform-aws-ecr/commit/f4cc243bdeb21ef46a6f3740036d75fd486de43c))
+
 ## [1.7.1](https://github.com/lgallard/terraform-aws-ecr/compare/1.7.0...1.7.1) (2026-06-13)
 
 
