@@ -24,7 +24,7 @@ locals {
   # Updated SNS topic ARN local
   sns_topic_arn = var.enable_monitoring ? (
     var.create_sns_topic ? try(aws_sns_topic.ecr_monitoring["ecr_monitoring"].arn, null) :
-    (var.sns_topic_name != null ? "arn:aws:sns:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:${var.sns_topic_name}" : null)
+    (var.sns_topic_name != null ? "arn:aws:sns:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:${var.sns_topic_name}" : null)
   ) : null
 }
 
