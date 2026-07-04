@@ -28,9 +28,14 @@ module "ecr_with_repository_creation_templates" {
       description = "Template for repositories created by the Docker Hub pull-through cache rule"
       applied_for = ["PULL_THROUGH_CACHE"]
 
-      # AWS recommends MUTABLE for pull-through cache templates so ECR can
-      # refresh cached tags when upstream images change.
-      image_tag_mutability = "MUTABLE"
+      # Keep cached tags mutable by default, except for release tags that
+      # should not be overwritten once ECR creates the repository.
+      image_tag_mutability = "MUTABLE_WITH_EXCLUSION"
+      image_tag_mutability_exclusion_filters = [
+        {
+          filter = "release-*"
+        }
+      ]
 
       encryption_configuration = {
         encryption_type = "AES256"
@@ -58,7 +63,12 @@ module "ecr_with_repository_creation_templates" {
       prefix               = "ROOT"
       description          = "Default template for repositories ECR creates by replication or create-on-push"
       applied_for          = ["CREATE_ON_PUSH", "REPLICATION"]
-      image_tag_mutability = "IMMUTABLE"
+      image_tag_mutability = "IMMUTABLE_WITH_EXCLUSION"
+      image_tag_mutability_exclusion_filters = [
+        {
+          filter = "latest"
+        }
+      ]
     }
   ]
 

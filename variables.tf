@@ -33,6 +33,31 @@ variable "image_tag_mutability" {
   }
 }
 
+variable "image_tag_mutability_exclusion_filters" {
+  description = "List of image tag mutability exclusion filters. Use only when image_tag_mutability is IMMUTABLE_WITH_EXCLUSION or MUTABLE_WITH_EXCLUSION."
+  type = list(object({
+    filter      = string
+    filter_type = optional(string, "WILDCARD")
+  }))
+  default = []
+
+  validation {
+    condition = alltrue([
+      for exclusion_filter in var.image_tag_mutability_exclusion_filters :
+      exclusion_filter.filter_type == "WILDCARD"
+    ])
+    error_message = "Image tag mutability exclusion filter_type must be WILDCARD."
+  }
+
+  validation {
+    condition = alltrue([
+      for exclusion_filter in var.image_tag_mutability_exclusion_filters :
+      can(regex("^[0-9A-Za-z._*-]{1,128}$", exclusion_filter.filter)) && length(regexall("\\*", exclusion_filter.filter)) <= 2
+    ])
+    error_message = "Image tag mutability exclusion filter must be 1-128 characters, contain only letters, numbers, '.', '_', '*', or '-', and include at most two wildcard characters."
+  }
+}
+
 # ----------------------------------------------------------
 # Image Scanning Configuration
 # ----------------------------------------------------------
@@ -522,9 +547,13 @@ variable "repository_creation_templates" {
       kms_key         = optional(string)
     }))
     image_tag_mutability = optional(string, "MUTABLE")
-    lifecycle_policy     = optional(string)
-    repository_policy    = optional(string)
-    resource_tags        = optional(map(string), {})
+    image_tag_mutability_exclusion_filters = optional(list(object({
+      filter      = string
+      filter_type = optional(string, "WILDCARD")
+    })), [])
+    lifecycle_policy  = optional(string)
+    repository_policy = optional(string)
+    resource_tags     = optional(map(string), {})
   }))
   default = []
 
@@ -556,9 +585,40 @@ variable "repository_creation_templates" {
   validation {
     condition = alltrue([
       for template in var.repository_creation_templates :
-      contains(["MUTABLE", "IMMUTABLE"], template.image_tag_mutability)
+      contains(["MUTABLE", "IMMUTABLE", "IMMUTABLE_WITH_EXCLUSION", "MUTABLE_WITH_EXCLUSION"], template.image_tag_mutability)
     ])
-    error_message = "Repository creation template image_tag_mutability must be one of MUTABLE or IMMUTABLE."
+    error_message = "Repository creation template image_tag_mutability must be one of MUTABLE, IMMUTABLE, IMMUTABLE_WITH_EXCLUSION, or MUTABLE_WITH_EXCLUSION."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for template in var.repository_creation_templates : [
+        for exclusion_filter in template.image_tag_mutability_exclusion_filters :
+        exclusion_filter.filter_type == "WILDCARD"
+      ]
+    ]))
+    error_message = "Repository creation template image tag mutability exclusion filter_type must be WILDCARD."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for template in var.repository_creation_templates : [
+        for exclusion_filter in template.image_tag_mutability_exclusion_filters :
+        can(regex("^[0-9A-Za-z._*-]{1,128}$", exclusion_filter.filter)) && length(regexall("\\*", exclusion_filter.filter)) <= 2
+      ]
+    ]))
+    error_message = "Repository creation template image tag mutability exclusion filter must be 1-128 characters, contain only letters, numbers, '.', '_', '*', or '-', and include at most two wildcard characters."
+  }
+
+  validation {
+    condition = alltrue([
+      for template in var.repository_creation_templates :
+      length(template.image_tag_mutability_exclusion_filters) == 0 || contains(
+        ["IMMUTABLE_WITH_EXCLUSION", "MUTABLE_WITH_EXCLUSION"],
+        template.image_tag_mutability
+      )
+    ])
+    error_message = "Repository creation template image_tag_mutability_exclusion_filters can only be set when image_tag_mutability is IMMUTABLE_WITH_EXCLUSION or MUTABLE_WITH_EXCLUSION."
   }
 
   validation {

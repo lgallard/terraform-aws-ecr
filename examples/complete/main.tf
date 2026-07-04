@@ -5,7 +5,15 @@ module "ecr" {
   source = "../.."
 
   name                 = "complete-ecr-repo"
-  image_tag_mutability = "IMMUTABLE"
+  image_tag_mutability = "IMMUTABLE_WITH_EXCLUSION"
+  image_tag_mutability_exclusion_filters = [
+    {
+      filter = "latest"
+    },
+    {
+      filter = "dev-*"
+    }
+  ]
   timeouts = {
     delete = "60m"
   }
@@ -102,7 +110,12 @@ module "ecr_protected" {
   source = "../.."
 
   name                 = "protected-ecr-repo"
-  image_tag_mutability = "IMMUTABLE" # Prevent image tags from being overwritten
+  image_tag_mutability = "IMMUTABLE_WITH_EXCLUSION" # Prevent image tags from being overwritten except allowed patterns
+  image_tag_mutability_exclusion_filters = [
+    {
+      filter = "release-candidate-*"
+    }
+  ]
   timeouts = {
     delete = "60m"
   }
