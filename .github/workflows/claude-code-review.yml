@@ -108,7 +108,7 @@ jobs:
           esac
 
           # Build comment body safely
-          COMMENT_BODY="codebot $REVIEW_MODE"
+          COMMENT_BODY="@codebot $REVIEW_MODE"
           if [ "${{ github.event.inputs.verbose }}" = "true" ]; then
             COMMENT_BODY="$COMMENT_BODY verbose"
           fi
@@ -590,12 +590,10 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: "--model claude-sonnet-4-6"
-
-          # Allow Bash permissions for pre-commit hooks and documentation updates
-          allowed_tools: "Bash(pre-commit run --files),Bash(terraform fmt),Bash(terraform validate),Bash(terraform-docs)"
+          trigger_phrase: "@codebot"
 
           # Dynamic prompt based on review mode
-          direct_prompt: |
+          prompt: |
             🔄 **COMMIT ANALYSIS CONTEXT**
             - **Commit SHA**: `${{ steps.verify-state.outputs.current_sha }}`
             - **Review ID**: `${{ steps.verify-state.outputs.review_id }}`
@@ -723,18 +721,18 @@ jobs:
           # Available Commands
           echo "### 📝 Available Commands" >> $GITHUB_STEP_SUMMARY
           echo "Comment any of these in PRs to trigger specific review types:" >> $GITHUB_STEP_SUMMARY
-          echo "- \`codebot hunt\` - Quick bug detection (like Bugbot) on PR changes" >> $GITHUB_STEP_SUMMARY
-          echo "- \`codebot analyze\` - Deep technical analysis on PR changes" >> $GITHUB_STEP_SUMMARY
-          echo "- \`codebot security\` - Security-focused review on PR changes" >> $GITHUB_STEP_SUMMARY
-          echo "- \`codebot performance\` - Performance optimization review on PR changes" >> $GITHUB_STEP_SUMMARY
-          echo "- \`codebot review\` - Comprehensive review on PR changes" >> $GITHUB_STEP_SUMMARY
-          echo "- \`codebot\` - Defaults to hunt mode on PR changes" >> $GITHUB_STEP_SUMMARY
+          echo "- \`@codebot hunt\` - Quick bug detection (like Bugbot) on PR changes" >> $GITHUB_STEP_SUMMARY
+          echo "- \`@codebot analyze\` - Deep technical analysis on PR changes" >> $GITHUB_STEP_SUMMARY
+          echo "- \`@codebot security\` - Security-focused review on PR changes" >> $GITHUB_STEP_SUMMARY
+          echo "- \`@codebot performance\` - Performance optimization review on PR changes" >> $GITHUB_STEP_SUMMARY
+          echo "- \`@codebot review\` - Comprehensive review on PR changes" >> $GITHUB_STEP_SUMMARY
+          echo "- \`@codebot\` - Defaults to hunt mode on PR changes" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Scope Options
           echo "### 🔍 Scope Options" >> $GITHUB_STEP_SUMMARY
           echo "- Add \`--full\` to any command to analyze the entire codebase" >> $GITHUB_STEP_SUMMARY
-          echo "- Example: \`codebot hunt --full\` - Hunt for bugs in the entire codebase" >> $GITHUB_STEP_SUMMARY
+          echo "- Example: \`@codebot hunt --full\` - Hunt for bugs in the entire codebase" >> $GITHUB_STEP_SUMMARY
           echo "- Default behavior (without --full) focuses only on changed files in the PR" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -764,4 +762,4 @@ jobs:
           echo "1. Check the commit SHA matches your latest changes" >> $GITHUB_STEP_SUMMARY
           echo "2. Verify the diff detection was successful" >> $GITHUB_STEP_SUMMARY
           echo "3. Review the git state analysis above" >> $GITHUB_STEP_SUMMARY
-          echo "4. Try \`codebot hunt --full\` to analyze the entire codebase" >> $GITHUB_STEP_SUMMARY
+          echo "4. Try \`@codebot hunt --full\` to analyze the entire codebase" >> $GITHUB_STEP_SUMMARY
