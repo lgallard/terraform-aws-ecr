@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/lgallard/terraform-aws-ecr/compare/2.0.0...2.0.1) (2026-07-04)
+
+
+### Bug Fixes
+
+* repair codebot review trigger ([#203](https://github.com/lgallard/terraform-aws-ecr/issues/203)) ([3c9b0d7](https://github.com/lgallard/terraform-aws-ecr/commit/3c9b0d7c0794098765ecc71c0a2a2b0db8ba8ce3))
+
 ## [2.0.0](https://github.com/lgallard/terraform-aws-ecr/compare/1.7.1...2.0.0) (2026-06-23)
 
 
