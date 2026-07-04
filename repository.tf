@@ -57,6 +57,15 @@ resource "aws_ecr_repository" "repo" {
     }
   }
 
+  # Configure image tag mutability exclusion filters
+  dynamic "image_tag_mutability_exclusion_filter" {
+    for_each = var.image_tag_mutability_exclusion_filters
+    content {
+      filter      = image_tag_mutability_exclusion_filter.value.filter
+      filter_type = image_tag_mutability_exclusion_filter.value.filter_type
+    }
+  }
+
   # Configure image scanning settings
   dynamic "image_scanning_configuration" {
     for_each = local.image_scanning_configuration
@@ -70,6 +79,16 @@ resource "aws_ecr_repository" "repo" {
     for_each = local.timeouts
     content {
       delete = timeouts.value.delete
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition = length(var.image_tag_mutability_exclusion_filters) == 0 || contains(
+        ["IMMUTABLE_WITH_EXCLUSION", "MUTABLE_WITH_EXCLUSION"],
+        var.image_tag_mutability
+      )
+      error_message = "image_tag_mutability_exclusion_filters can only be set when image_tag_mutability is IMMUTABLE_WITH_EXCLUSION or MUTABLE_WITH_EXCLUSION."
     }
   }
 
@@ -92,6 +111,15 @@ resource "aws_ecr_repository" "repo_protected" {
     }
   }
 
+  # Configure image tag mutability exclusion filters
+  dynamic "image_tag_mutability_exclusion_filter" {
+    for_each = var.image_tag_mutability_exclusion_filters
+    content {
+      filter      = image_tag_mutability_exclusion_filter.value.filter
+      filter_type = image_tag_mutability_exclusion_filter.value.filter_type
+    }
+  }
+
   # Configure image scanning settings
   dynamic "image_scanning_configuration" {
     for_each = local.image_scanning_configuration
@@ -111,6 +139,14 @@ resource "aws_ecr_repository" "repo_protected" {
   # Prevent accidental deletion of the repository
   lifecycle {
     prevent_destroy = true
+
+    precondition {
+      condition = length(var.image_tag_mutability_exclusion_filters) == 0 || contains(
+        ["IMMUTABLE_WITH_EXCLUSION", "MUTABLE_WITH_EXCLUSION"],
+        var.image_tag_mutability
+      )
+      error_message = "image_tag_mutability_exclusion_filters can only be set when image_tag_mutability is IMMUTABLE_WITH_EXCLUSION or MUTABLE_WITH_EXCLUSION."
+    }
   }
 
   tags = local.final_tags

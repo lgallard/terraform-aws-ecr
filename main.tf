@@ -291,4 +291,12 @@ resource "aws_ecr_repository_creation_template" "this" {
     }
   }
 
+  dynamic "image_tag_mutability_exclusion_filter" {
+    for_each = each.value.image_tag_mutability_exclusion_filters
+    content {
+      filter      = image_tag_mutability_exclusion_filter.value.filter
+      filter_type = image_tag_mutability_exclusion_filter.value.filter_type
+    }
+  }
+
 }

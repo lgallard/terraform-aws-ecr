@@ -27,7 +27,12 @@ module "repository_creation_template" {
       prefix               = "ROOT"
       description          = "Default template for ECR-created repositories"
       applied_for          = ["CREATE_ON_PUSH", "REPLICATION"]
-      image_tag_mutability = "IMMUTABLE"
+      image_tag_mutability = "IMMUTABLE_WITH_EXCLUSION"
+      image_tag_mutability_exclusion_filters = [
+        {
+          filter = "latest"
+        }
+      ]
       encryption_configuration = {
         encryption_type = "AES256"
       }
@@ -36,7 +41,12 @@ module "repository_creation_template" {
       prefix               = "docker-hub"
       description          = "Template for pull-through cache repositories"
       applied_for          = ["PULL_THROUGH_CACHE"]
-      image_tag_mutability = "MUTABLE"
+      image_tag_mutability = "MUTABLE_WITH_EXCLUSION"
+      image_tag_mutability_exclusion_filters = [
+        {
+          filter = "release-*"
+        }
+      ]
       lifecycle_policy = jsonencode({
         rules = [
           {
