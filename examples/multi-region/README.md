@@ -137,7 +137,7 @@ Note: You must delete all images from the repositories before they can be delete
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.primary"></a> [aws.primary](#provider\_aws.primary) | 6.51.0 |
+| <a name="provider_aws.primary"></a> [aws.primary](#provider\_aws.primary) | >= 6.0.0 |
 
 ## Modules
 
