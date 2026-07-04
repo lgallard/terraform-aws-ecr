@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/lgallard/terraform-aws-ecr/compare/2.0.1...2.1.0) (2026-07-04)
+
+
+### Features
+
+* add image tag mutability exclusion filters ([#202](https://github.com/lgallard/terraform-aws-ecr/issues/202)) ([54113ca](https://github.com/lgallard/terraform-aws-ecr/commit/54113caddfdee23e3c3d2ad66b7bb8cc7ca44f8d))
+
 ## [2.0.1](https://github.com/lgallard/terraform-aws-ecr/compare/2.0.0...2.0.1) (2026-07-04)
 
 
