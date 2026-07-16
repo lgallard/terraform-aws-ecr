@@ -127,7 +127,7 @@ assignees: []
 # Validate affected example without creating AWS resources
 terraform -chdir=examples/[affected-example] init -backend=false
 terraform -chdir=examples/[affected-example] validate
-terraform plan
+terraform -chdir=examples/[affected-example] plan
 ```
 
 ### Provider Version Strategy

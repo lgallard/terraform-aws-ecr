@@ -82,7 +82,7 @@ output "[feature_output]" {
 # Validate the specific example without creating AWS resources
 terraform -chdir=examples/[feature-name] init -backend=false
 terraform -chdir=examples/[feature-name] validate
-terraform plan
+terraform -chdir=examples/[feature-name] plan
 ```
 
 ### Implementation Notes
