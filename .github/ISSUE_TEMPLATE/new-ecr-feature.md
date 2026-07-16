@@ -38,7 +38,6 @@ assignees: []
 - [ ] Add to `CHANGELOG.md` (will be automated by release-please)
 
 #### Testing & Validation
-- [ ] Add Terratest in `test/[feature-name]_test.go`
 - [ ] Add test fixtures in `test/fixtures/[feature-name]/`
 - [ ] Test with `examples/complete` scenario
 - [ ] Run `terraform fmt`, `terraform validate`
@@ -80,16 +79,10 @@ output "[feature_output]" {
 
 ### Testing Commands
 ```bash
-# Test the specific example
-cd examples/[feature-name]
-terraform init
+# Validate the specific example without creating AWS resources
+terraform -chdir=examples/[feature-name] init -backend=false
+terraform -chdir=examples/[feature-name] validate
 terraform plan
-terraform apply
-terraform destroy
-
-# Run comprehensive tests
-cd test/
-go test -v -timeout 30m -run TestTerraformECR[FeatureName]
 ```
 
 ### Implementation Notes
@@ -101,7 +94,7 @@ go test -v -timeout 30m -run TestTerraformECR[FeatureName]
 
 ### Acceptance Criteria
 - [ ] Feature implemented following module patterns
-- [ ] All tests pass (`go test ./test/...`)
+- [ ] Targeted validation checks pass
 - [ ] Examples work as documented
 - [ ] Pre-commit hooks pass
 - [ ] Documentation complete and accurate
