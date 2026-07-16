@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/lgallard/terraform-aws-ecr/compare/2.1.0...2.1.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* remove AWS-consuming test commands from templates ([0361745](https://github.com/lgallard/terraform-aws-ecr/commit/0361745393aaaa1255129392b6da17e8f42c1090))
+
 ## [2.1.0](https://github.com/lgallard/terraform-aws-ecr/compare/2.0.1...2.1.0) (2026-07-04)
 
 
