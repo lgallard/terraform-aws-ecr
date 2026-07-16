@@ -124,19 +124,10 @@ assignees: []
 
 #### Validation Commands
 ```bash
-# Test with examples
-cd examples/[affected-example]
-terraform init -upgrade
-terraform plan
-terraform apply
-terraform destroy
-
-# Run specific tests
-cd test/
-go test -v -timeout 30m -run TestTerraformECR[AffectedFeature]
-
-# Full test suite
-go test -v -timeout 45m ./...
+# Validate affected example without creating AWS resources
+terraform -chdir=examples/[affected-example] init -backend=false
+terraform -chdir=examples/[affected-example] validate
+terraform -chdir=examples/[affected-example] plan
 ```
 
 ### Provider Version Strategy

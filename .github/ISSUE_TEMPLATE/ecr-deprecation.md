@@ -81,7 +81,6 @@ assignees: []
 #### Phase 4: Testing & Validation
 - [ ] **Comprehensive Testing**
   - [ ] Test all examples with new implementation
-  - [ ] Run full test suite (`go test ./test/...`)
   - [ ] Validate backward compatibility
   - [ ] Test upgrade scenarios
 - [ ] **Quality Assurance**
@@ -162,9 +161,9 @@ terraform plan
 terraform init -upgrade
 terraform plan
 
-# Run comprehensive tests
-cd test/
-go test -v -timeout 30m
+# Run repository validation checks
+terraform fmt -recursive
+pre-commit run --all-files
 ```
 
 ### Acceptance Criteria
