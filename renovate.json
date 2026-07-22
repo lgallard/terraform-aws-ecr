@@ -1,12 +1,13 @@
 {
   "extends": [
-    "config:recommended"
+    "github>lgallard/renovate-config"
   ],
   "includePaths": [
     "versions.tf",
     "examples/*/versions.tf",
     "modules/*/versions.tf",
-    "test/fixtures/*/versions.tf"
+    "test/fixtures/*/versions.tf",
+    ".github/workflows/**"
   ],
   "reviewers": [
     "lgallard"
@@ -32,13 +33,19 @@
       "enabled": false
     },
     {
-      "matchDatasources": ["golang-version"],
+      "matchDatasources": [
+        "golang-version"
+      ],
       "ignoreUnstable": true,
       "enabled": true
     },
     {
-      "matchDepTypes": ["action"],
-      "matchPackageNames": ["actions/setup-go"],
+      "matchDepTypes": [
+        "action"
+      ],
+      "matchPackageNames": [
+        "actions/setup-go"
+      ],
       "extractVersion": "^v(?<version>.*)$",
       "versioning": "go-mod-directive",
       "ignoreUnstable": true
