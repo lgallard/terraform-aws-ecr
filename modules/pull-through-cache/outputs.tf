@@ -6,9 +6,11 @@ output "pull_through_cache_rules" {
   description = "List of pull-through cache rules"
   value = [
     for rule in aws_ecr_pull_through_cache_rule.cache_rules : {
-      ecr_repository_prefix = rule.ecr_repository_prefix
-      upstream_registry_url = rule.upstream_registry_url
-      registry_id           = rule.registry_id
+      ecr_repository_prefix      = rule.ecr_repository_prefix
+      upstream_registry_url      = rule.upstream_registry_url
+      custom_role_arn            = rule.custom_role_arn
+      upstream_repository_prefix = rule.upstream_repository_prefix
+      registry_id                = rule.registry_id
     }
   ]
 }

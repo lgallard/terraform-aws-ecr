@@ -15,17 +15,28 @@ variable "aws_account_id" {
 variable "pull_through_cache_rules" {
   description = "List of pull-through cache rules to create."
   type = list(object({
-    ecr_repository_prefix = string
-    upstream_registry_url = string
-    credential_arn        = optional(string)
+    ecr_repository_prefix      = string
+    upstream_registry_url      = string
+    credential_arn             = optional(string)
+    custom_role_arn            = optional(string)
+    upstream_repository_prefix = optional(string)
   }))
   default = []
 
   validation {
     condition = alltrue([
-      for rule in var.pull_through_cache_rules : can(regex("^[a-z0-9]+([-._][a-z0-9]+)*$", rule.ecr_repository_prefix))
+      for rule in var.pull_through_cache_rules :
+      rule.ecr_repository_prefix == "ROOT" || can(regex("^[a-z0-9]+([-._][a-z0-9]+)*$", rule.ecr_repository_prefix))
     ])
-    error_message = "ECR repository prefix must be lowercase alphanumeric with optional hyphens, periods, or underscores."
+    error_message = "ECR repository prefix must be ROOT or lowercase alphanumeric with optional hyphens, periods, or underscores."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.pull_through_cache_rules :
+      rule.upstream_repository_prefix == null || rule.ecr_repository_prefix != "ROOT"
+    ])
+    error_message = "Upstream repository prefix can only be set when ecr_repository_prefix is not ROOT."
   }
 
   validation {

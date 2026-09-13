@@ -1555,8 +1555,8 @@ For more details on the Terraform fixtures, see the [test directory README](test
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.55.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.64.0 |
 
 ## Modules
 
@@ -1653,7 +1653,7 @@ For more details on the Terraform fixtures, see the [test directory README](test
 | <a name="input_policy"></a> [policy](#input\_policy) | JSON string representing the repository policy. If null, no policy is created. | `string` | `null` | no |
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed via lifecycle prevent\_destroy. | `bool` | `false` | no |
 | <a name="input_pull_request_rules"></a> [pull\_request\_rules](#input\_pull\_request\_rules) | List of pull request rule configurations for enhanced governance. | <pre>list(object({<br/>    name    = string<br/>    type    = string<br/>    enabled = bool<br/>    conditions = optional(object({<br/>      tag_patterns            = optional(list(string), [])<br/>      severity_threshold      = optional(string, "MEDIUM")<br/>      require_scan_completion = optional(bool, true)<br/>      allowed_principals      = optional(list(string), [])<br/>    }), {})<br/>    actions = optional(object({<br/>      require_approval_count = optional(number, 1)<br/>      notification_topic_arn = optional(string)<br/>      webhook_url            = optional(string)<br/>      block_on_failure       = optional(bool, true)<br/>      approval_timeout_hours = optional(number, 24)<br/>    }), {})<br/>  }))</pre> | `[]` | no |
-| <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix      = string<br/>    upstream_registry_url      = string<br/>    credential_arn             = optional(string)<br/>    custom_role_arn            = optional(string)<br/>    upstream_repository_prefix = optional(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_policy_scope"></a> [registry\_policy\_scope](#input\_registry\_policy\_scope) | The registry policy scope version. V2 (recommended) supports all ECR actions, V1 (legacy) only supports ReplicateImage, BatchImportUpstreamImage, and CreateRepository. | `string` | `"V2"` | no |
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
@@ -1863,8 +1863,8 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.55.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.64.0 |
 
 ## Modules
 
@@ -1961,7 +1961,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="input_policy"></a> [policy](#input\_policy) | JSON string representing the repository policy. If null, no policy is created. | `string` | `null` | no |
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed via lifecycle prevent\_destroy. | `bool` | `false` | no |
 | <a name="input_pull_request_rules"></a> [pull\_request\_rules](#input\_pull\_request\_rules) | List of pull request rule configurations for enhanced governance. | <pre>list(object({<br/>    name    = string<br/>    type    = string<br/>    enabled = bool<br/>    conditions = optional(object({<br/>      tag_patterns            = optional(list(string), [])<br/>      severity_threshold      = optional(string, "MEDIUM")<br/>      require_scan_completion = optional(bool, true)<br/>      allowed_principals      = optional(list(string), [])<br/>    }), {})<br/>    actions = optional(object({<br/>      require_approval_count = optional(number, 1)<br/>      notification_topic_arn = optional(string)<br/>      webhook_url            = optional(string)<br/>      block_on_failure       = optional(bool, true)<br/>      approval_timeout_hours = optional(number, 24)<br/>    }), {})<br/>  }))</pre> | `[]` | no |
-| <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix      = string<br/>    upstream_registry_url      = string<br/>    credential_arn             = optional(string)<br/>    custom_role_arn            = optional(string)<br/>    upstream_repository_prefix = optional(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_policy_scope"></a> [registry\_policy\_scope](#input\_registry\_policy\_scope) | The registry policy scope version. V2 (recommended) supports all ECR actions, V1 (legacy) only supports ReplicateImage, BatchImportUpstreamImage, and CreateRepository. | `string` | `"V2"` | no |
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
