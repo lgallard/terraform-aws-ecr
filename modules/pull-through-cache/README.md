@@ -28,6 +28,16 @@ module "pull_through_cache" {
       ecr_repository_prefix = "quay"
       upstream_registry_url = "https://quay.io"
       credential_arn        = "arn:aws:secretsmanager:us-west-2:123456789012:secret:my-quay-credentials"
+    },
+    {
+      ecr_repository_prefix      = "team-cache"
+      upstream_registry_url      = "123456789012.dkr.ecr.us-west-2.amazonaws.com"
+      upstream_repository_prefix = "team-upstream"
+      custom_role_arn            = "arn:aws:iam::123456789012:role/ecr-pull-through-cache"
+    },
+    {
+      ecr_repository_prefix = "ROOT"
+      upstream_registry_url = "public.ecr.aws"
     }
   ]
 
@@ -52,8 +62,8 @@ module "pull_through_cache" {
 
 | Name | Version |
 |------|---------|
-| terraform | >= 1.0 |
-| aws | >= 5.0 |
+| terraform | >= 1.3.0 |
+| aws | >= 6.50.0 |
 
 ## Resources
 
@@ -69,7 +79,7 @@ module "pull_through_cache" {
 |------|-------------|------|---------|:--------:|
 | name | The name to use for the ECR repository and related resources. | `string` | n/a | yes |
 | aws_account_id | The AWS account ID. | `string` | n/a | yes |
-| pull_through_cache_rules | List of pull-through cache rules to create. | `list(object({ecr_repository_prefix=string, upstream_registry_url=string, credential_arn=optional(string)}))` | `[]` | no |
+| pull_through_cache_rules | List of pull-through cache rules to create. | `list(object({ecr_repository_prefix=string, upstream_registry_url=string, credential_arn=optional(string), custom_role_arn=optional(string), upstream_repository_prefix=optional(string)}))` | `[]` | no |
 | tags | A map of tags to assign to the resource. | `map(string)` | `{}` | no |
 
 ## Outputs
