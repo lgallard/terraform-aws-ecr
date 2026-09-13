@@ -6,9 +6,11 @@
 resource "aws_ecr_pull_through_cache_rule" "cache_rules" {
   count = length(var.pull_through_cache_rules)
 
-  ecr_repository_prefix = var.pull_through_cache_rules[count.index].ecr_repository_prefix
-  upstream_registry_url = var.pull_through_cache_rules[count.index].upstream_registry_url
-  credential_arn        = var.pull_through_cache_rules[count.index].credential_arn
+  ecr_repository_prefix      = var.pull_through_cache_rules[count.index].ecr_repository_prefix
+  upstream_registry_url      = var.pull_through_cache_rules[count.index].upstream_registry_url
+  credential_arn             = var.pull_through_cache_rules[count.index].credential_arn
+  custom_role_arn            = var.pull_through_cache_rules[count.index].custom_role_arn
+  upstream_repository_prefix = var.pull_through_cache_rules[count.index].upstream_repository_prefix
 }
 
 # IAM role for pull-through cache operations
