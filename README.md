@@ -1555,8 +1555,8 @@ For more details on the Terraform fixtures, see the [test directory README](test
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.55.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.66.0 |
 
 ## Modules
 
@@ -1577,6 +1577,7 @@ For more details on the Terraform fixtures, see the [test directory README](test
 | [aws_ecr_account_setting.basic_scan_type](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting) | resource |
 | [aws_ecr_account_setting.registry_policy_scope](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting) | resource |
 | [aws_ecr_lifecycle_policy.lifecycle_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_lifecycle_policy) | resource |
+| [aws_ecr_pull_time_update_exclusion.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_pull_time_update_exclusion) | resource |
 | [aws_ecr_registry_scanning_configuration.scanning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
 | [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
 | [aws_ecr_repository.repo](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
@@ -1654,6 +1655,7 @@ For more details on the Terraform fixtures, see the [test directory README](test
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed via lifecycle prevent\_destroy. | `bool` | `false` | no |
 | <a name="input_pull_request_rules"></a> [pull\_request\_rules](#input\_pull\_request\_rules) | List of pull request rule configurations for enhanced governance. | <pre>list(object({<br/>    name    = string<br/>    type    = string<br/>    enabled = bool<br/>    conditions = optional(object({<br/>      tag_patterns            = optional(list(string), [])<br/>      severity_threshold      = optional(string, "MEDIUM")<br/>      require_scan_completion = optional(bool, true)<br/>      allowed_principals      = optional(list(string), [])<br/>    }), {})<br/>    actions = optional(object({<br/>      require_approval_count = optional(number, 1)<br/>      notification_topic_arn = optional(string)<br/>      webhook_url            = optional(string)<br/>      block_on_failure       = optional(bool, true)<br/>      approval_timeout_hours = optional(number, 24)<br/>    }), {})<br/>  }))</pre> | `[]` | no |
 | <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_pull_time_update_exclusion_principal_arns"></a> [pull\_time\_update\_exclusion\_principal\_arns](#input\_pull\_time\_update\_exclusion\_principal\_arns) | IAM role ARNs to exclude from ECR pull-time updates. Use for scanner or automation roles whose pulls should not update LastRecordedPullTime or affect lifecycle decisions. This is account-level ECR behavior, not per-repository behavior. | `list(string)` | `[]` | no |
 | <a name="input_registry_policy_scope"></a> [registry\_policy\_scope](#input\_registry\_policy\_scope) | The registry policy scope version. V2 (recommended) supports all ECR actions, V1 (legacy) only supports ReplicateImage, BatchImportUpstreamImage, and CreateRepository. | `string` | `"V2"` | no |
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
@@ -1686,6 +1688,7 @@ For more details on the Terraform fixtures, see the [test directory README](test
 | <a name="output_pull_request_rules"></a> [pull\_request\_rules](#output\_pull\_request\_rules) | Information about pull request rules configuration |
 | <a name="output_pull_through_cache_role_arn"></a> [pull\_through\_cache\_role\_arn](#output\_pull\_through\_cache\_role\_arn) | The ARN of the IAM role used for pull-through cache operations (if enabled) |
 | <a name="output_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#output\_pull\_through\_cache\_rules) | List of pull-through cache rules (if enabled) |
+| <a name="output_pull_time_update_exclusion_principal_arns"></a> [pull\_time\_update\_exclusion\_principal\_arns](#output\_pull\_time\_update\_exclusion\_principal\_arns) | IAM role ARNs excluded from ECR pull-time updates |
 | <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | ID of the ECR registry |
 | <a name="output_registry_scan_filters"></a> [registry\_scan\_filters](#output\_registry\_scan\_filters) | The configured scan filters for filtering scan results (e.g., by vulnerability severity) |
 | <a name="output_registry_scanning_configuration_arn"></a> [registry\_scanning\_configuration\_arn](#output\_registry\_scanning\_configuration\_arn) | The ARN of the ECR registry scanning configuration (if enhanced scanning is enabled) |
@@ -1863,8 +1866,8 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.55.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.66.0 |
 
 ## Modules
 
@@ -1885,6 +1888,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | [aws_ecr_account_setting.basic_scan_type](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting) | resource |
 | [aws_ecr_account_setting.registry_policy_scope](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_account_setting) | resource |
 | [aws_ecr_lifecycle_policy.lifecycle_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_lifecycle_policy) | resource |
+| [aws_ecr_pull_time_update_exclusion.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_pull_time_update_exclusion) | resource |
 | [aws_ecr_registry_scanning_configuration.scanning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
 | [aws_ecr_replication_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_replication_configuration) | resource |
 | [aws_ecr_repository.repo](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
@@ -1962,6 +1966,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="input_prevent_destroy"></a> [prevent\_destroy](#input\_prevent\_destroy) | Whether to protect the repository from being destroyed via lifecycle prevent\_destroy. | `bool` | `false` | no |
 | <a name="input_pull_request_rules"></a> [pull\_request\_rules](#input\_pull\_request\_rules) | List of pull request rule configurations for enhanced governance. | <pre>list(object({<br/>    name    = string<br/>    type    = string<br/>    enabled = bool<br/>    conditions = optional(object({<br/>      tag_patterns            = optional(list(string), [])<br/>      severity_threshold      = optional(string, "MEDIUM")<br/>      require_scan_completion = optional(bool, true)<br/>      allowed_principals      = optional(list(string), [])<br/>    }), {})<br/>    actions = optional(object({<br/>      require_approval_count = optional(number, 1)<br/>      notification_topic_arn = optional(string)<br/>      webhook_url            = optional(string)<br/>      block_on_failure       = optional(bool, true)<br/>      approval_timeout_hours = optional(number, 24)<br/>    }), {})<br/>  }))</pre> | `[]` | no |
 | <a name="input_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#input\_pull\_through\_cache\_rules) | List of pull-through cache rules to create. | <pre>list(object({<br/>    ecr_repository_prefix = string<br/>    upstream_registry_url = string<br/>    credential_arn        = optional(string)<br/>  }))</pre> | `[]` | no |
+| <a name="input_pull_time_update_exclusion_principal_arns"></a> [pull\_time\_update\_exclusion\_principal\_arns](#input\_pull\_time\_update\_exclusion\_principal\_arns) | IAM role ARNs to exclude from ECR pull-time updates. Use for scanner or automation roles whose pulls should not update LastRecordedPullTime or affect lifecycle decisions. This is account-level ECR behavior, not per-repository behavior. | `list(string)` | `[]` | no |
 | <a name="input_registry_policy_scope"></a> [registry\_policy\_scope](#input\_registry\_policy\_scope) | The registry policy scope version. V2 (recommended) supports all ECR actions, V1 (legacy) only supports ReplicateImage, BatchImportUpstreamImage, and CreateRepository. | `string` | `"V2"` | no |
 | <a name="input_registry_scan_filters"></a> [registry\_scan\_filters](#input\_registry\_scan\_filters) | List of scan filters for filtering scan results when querying ECR findings. | <pre>list(object({<br/>    name   = string<br/>    values = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_registry_scan_type"></a> [registry\_scan\_type](#input\_registry\_scan\_type) | The type of scanning to configure for the registry. Either BASIC or ENHANCED. | `string` | `"ENHANCED"` | no |
@@ -1994,6 +1999,7 @@ For more details on the discovery system architecture, see `.github/scripts/disc
 | <a name="output_pull_request_rules"></a> [pull\_request\_rules](#output\_pull\_request\_rules) | Information about pull request rules configuration |
 | <a name="output_pull_through_cache_role_arn"></a> [pull\_through\_cache\_role\_arn](#output\_pull\_through\_cache\_role\_arn) | The ARN of the IAM role used for pull-through cache operations (if enabled) |
 | <a name="output_pull_through_cache_rules"></a> [pull\_through\_cache\_rules](#output\_pull\_through\_cache\_rules) | List of pull-through cache rules (if enabled) |
+| <a name="output_pull_time_update_exclusion_principal_arns"></a> [pull\_time\_update\_exclusion\_principal\_arns](#output\_pull\_time\_update\_exclusion\_principal\_arns) | IAM role ARNs excluded from ECR pull-time updates |
 | <a name="output_registry_id"></a> [registry\_id](#output\_registry\_id) | ID of the ECR registry |
 | <a name="output_registry_scan_filters"></a> [registry\_scan\_filters](#output\_registry\_scan\_filters) | The configured scan filters for filtering scan results (e.g., by vulnerability severity) |
 | <a name="output_registry_scanning_configuration_arn"></a> [registry\_scanning\_configuration\_arn](#output\_registry\_scanning\_configuration\_arn) | The ARN of the ECR registry scanning configuration (if enhanced scanning is enabled) |

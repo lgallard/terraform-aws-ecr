@@ -526,6 +526,34 @@ variable "pull_through_cache_rules" {
 }
 
 # ----------------------------------------------------------
+# Pull-Time Update Exclusions Configuration
+# ----------------------------------------------------------
+
+variable "pull_time_update_exclusion_principal_arns" {
+  description = "IAM role ARNs to exclude from ECR pull-time updates. Use for scanner or automation roles whose pulls should not update LastRecordedPullTime or affect lifecycle decisions. This is account-level ECR behavior, not per-repository behavior."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = length(var.pull_time_update_exclusion_principal_arns) == length(distinct(var.pull_time_update_exclusion_principal_arns))
+    error_message = "Each pull-time update exclusion principal ARN must be unique."
+  }
+
+  validation {
+    condition     = length(var.pull_time_update_exclusion_principal_arns) <= 100
+    error_message = "ECR supports a maximum of 100 pull-time update exclusions per account."
+  }
+
+  validation {
+    condition = alltrue([
+      for principal_arn in var.pull_time_update_exclusion_principal_arns :
+      can(regex("^arn:[^:]+:iam::[0-9]{12}:role/.+", principal_arn))
+    ])
+    error_message = "Each pull-time update exclusion principal ARN must be a valid IAM role ARN."
+  }
+}
+
+# ----------------------------------------------------------
 # Repository Creation Template Configuration
 # ----------------------------------------------------------
 

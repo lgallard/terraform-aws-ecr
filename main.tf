@@ -239,6 +239,18 @@ resource "aws_ecr_account_setting" "registry_policy_scope" {
 }
 
 # ----------------------------------------------------------
+# Pull-Time Update Exclusions Configuration
+# ----------------------------------------------------------
+
+# Account-level exclusions for scanner and automation roles whose pulls should
+# not update image LastRecordedPullTime metadata used by ECR lifecycle decisions.
+resource "aws_ecr_pull_time_update_exclusion" "this" {
+  for_each = toset(var.pull_time_update_exclusion_principal_arns)
+
+  principal_arn = each.value
+}
+
+# ----------------------------------------------------------
 # Pull-Through Cache Configuration
 # ----------------------------------------------------------
 

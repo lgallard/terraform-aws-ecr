@@ -120,6 +120,11 @@ output "pull_through_cache_role_arn" {
   value       = var.enable_pull_through_cache && length(var.pull_through_cache_rules) > 0 ? try(module.pull_through_cache["cache"].pull_through_cache_role_arn, null) : null
 }
 
+output "pull_time_update_exclusion_principal_arns" {
+  description = "IAM role ARNs excluded from ECR pull-time updates"
+  value       = sort(keys(aws_ecr_pull_time_update_exclusion.this))
+}
+
 output "repository_creation_templates" {
   description = "Map of ECR repository creation templates keyed by prefix"
   value = {
@@ -153,6 +158,7 @@ output "security_status" {
     secret_scanning_enabled      = var.enable_secret_scanning
     pull_through_cache_enabled   = var.enable_pull_through_cache
     repository_templates_enabled = var.enable_repository_creation_templates
+    pull_time_update_exclusions  = length(aws_ecr_pull_time_update_exclusion.this)
     encryption_type              = var.encryption_type
     kms_encryption_enabled       = var.encryption_type == "KMS"
     image_tag_mutability         = var.image_tag_mutability
